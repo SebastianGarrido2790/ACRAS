@@ -3,7 +3,7 @@
 **Project:** ACRAS (Agentic Credit Risk & Analysis System)
 **Author:** Sebastián Garrido Arévalo · **Date:** 2026-08-28 · **Status:** Phase 0 stub — pre-implementation
 
-> This document reflects the **actual implemented state** of the system. At Phase 0, that state is "not yet built", every component and diagram below is a planning-stage placeholder, explicitly marked as such, not a description of working code. It is updated at the close of each roadmap phase per the Update Protocol in §8; nothing here should be read as "done" until a phase's exit criteria have actually been demonstrated.
+> This document reflects the **actual implemented state** of the system. At Phase 0, that state is "not yet built" — every component and diagram below is a planning-stage placeholder, explicitly marked as such, not a description of working code. It is updated at the close of each roadmap phase per the Update Protocol in §8; nothing here should be read as "done" until a phase's exit criteria have actually been demonstrated.
 
 ---
 
@@ -90,21 +90,21 @@ _(Planned — no implementation exists yet)_
 
 ## 4. Component Descriptions
 
-| Component                            | Planned Responsibility                                                | Status  |
-| ------------------------------------ | --------------------------------------------------------------------- | ------- |
-| Tier 1 FastAPI service               | Serve the frozen, calibrated PD model                                 | Planned |
-| Tier 2 Monte Carlo module            | Convert Tier 1 output into P10/P50/P90 bands                          | Planned |
-| Evidence-bundle schema               | Single typed contract shared by all tiers                             | Planned |
-| LLM Gateway                          | Single interface over primary/fallback LLM providers                  | Planned |
-| Circuit breaker                      | Halts calls to a failing provider, triggers fallback                  | Planned |
-| Data Scientist Agent                 | Calls Tier 1 endpoint, maps PD → credit rating                        | Planned |
-| Financial/Domain Analyst Agent       | Computes financial ratios from evidence bundle                        | Planned |
-| CRO / Growth / Capital persona nodes | Independent, rubric-conditioned interpretation, emit `PersonaVerdict` | Planned |
-| Convergence node                     | Deterministic divergence scoring + HITL escalation branch             | Planned |
-| Orchestrator                         | Aggregates all agent output into the executive report                 | Planned |
-| Dashboard                            | Risk Manager–facing input/output interface                            | Planned |
-| GX/DVC pipeline                      | Data-contract gate in front of model training                         | Planned |
-| Evaluation harness                   | Golden dataset, calibration gate, divergence gate, regression tests   | Planned |
+| Component                            | Planned Responsibility                                                                               | Status  |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------------- | ------- |
+| Tier 1 FastAPI service               | Serve the frozen, calibrated PD model                                                                | Planned |
+| Tier 2 Monte Carlo module            | Convert Tier 1 output into P10/P50/P90 bands                                                         | Planned |
+| Evidence-bundle schema               | Single typed contract shared by all tiers                                                            | Planned |
+| LLM Gateway                          | Custom, `pybreaker`-backed interface over Gemini (primary) and HF Inference API (fallback) — ADR-009 | Planned |
+| Circuit breaker                      | Halts calls to a failing provider, triggers fallback                                                 | Planned |
+| Data Scientist Agent                 | Calls Tier 1 endpoint, maps PD → credit rating                                                       | Planned |
+| Financial/Domain Analyst Agent       | Computes financial ratios from evidence bundle                                                       | Planned |
+| CRO / Growth / Capital persona nodes | Independent, rubric-conditioned interpretation, emit `PersonaVerdict`                                | Planned |
+| Convergence node                     | Deterministic divergence scoring + HITL escalation branch                                            | Planned |
+| Orchestrator                         | Aggregates all agent output into the executive report                                                | Planned |
+| Dashboard                            | Risk Manager–facing input/output interface                                                           | Planned |
+| GX/DVC pipeline                      | Data-contract gate in front of model training                                                        | Planned |
+| Evaluation harness                   | Golden dataset, calibration gate, divergence gate, regression tests                                  | Planned |
 
 ## 5. Data Flow
 
@@ -147,6 +147,9 @@ _Status:_ Accepted. _Context:_ a bad or drifted training dataset silently propag
 **ADR-008 — Domain-native persona framing (CRO / Growth / Capital)**
 _Status:_ Accepted. _Context:_ lending economics has its own native three-way tension. _Decision:_ persona roles are named and mandated around risk exposure, growth appetite, and cost of capital — not a generic or borrowed labeling scheme. _Consequences:_ each persona's rubric (§ADR-005) has a domain-authentic reason to diverge, rather than an arbitrary one.
 
+**ADR-009 — Custom `pybreaker`-backed LLM gateway; Hugging Face Inference API as secondary provider**
+_Status:_ Accepted. _Context:_ ADR-006 established that all LLM calls must route through a gateway with a circuit breaker and cross-provider fallback, but left the gateway implementation (custom vs. off-the-shelf) and the specific secondary provider open, pending comparative evaluation. _Decision:_ build a custom gateway with a thin provider-routing interface, backed by `pybreaker` for the circuit-breaker state machine (closed/open/half-open) rather than adopting a general-purpose multi-provider library (e.g., LiteLLM) wholesale. Gemini remains the primary provider. Hugging Face Inference API is the secondary/fallback provider, targeting a small-to-mid instruction-tuned open model — candidate: Llama-3.1-8B-Instruct or Mistral-7B-Instruct-v0.3. _Consequences:_ the resilience mechanism stays small enough (~50–80 lines beyond the `pybreaker` primitive) to fully read, test, and explain, consistent with the project's preference for owned, provable mechanisms over imported ones (see ADR-001's rationale). The fallback path is free-tier compatible, which matters because the evaluation harness (Roadmap Phase 5) re-runs the golden set repeatedly and shouldn't incur real cost on every CI run. Trade-off accepted: no access to LiteLLM's broader provider catalog or community maintenance — acceptable since ACRAS's provider set is fixed at two, not expected to grow. **Not yet resolved by this ADR:** the exact HF model is a shortlist, not a final pin — free-tier model availability on HF's Inference API changes over time and was not independently verified as of this ADR's date; confirm and pin at Phase 3 implementation time (carried forward to §7 below).
+
 ## 7. Open Implementation Notes
 
 Decisions deliberately deferred to implementation time, not yet resolved:
@@ -154,7 +157,7 @@ Decisions deliberately deferred to implementation time, not yet resolved:
 - Exact model algorithm (XGBoost vs. LightGBM) — pending Phase 1 EDA results.
 - Exact divergence-score escalation threshold value — pending Phase 5 calibration against the labeled golden set (ADR-004 fixes the _mechanism_, not the _number_).
 - Dashboard framework (Streamlit vs. lightweight FastAPI+HTML) — deferred to Phase 6, pending time budget remaining after Phases 4–5.
-- Secondary LLM provider selection for the circuit-breaker fallback — pending Phase 3 evaluation of available options.
+- Exact HF Inference API model pin (Llama-3.1-8B-Instruct vs. Mistral-7B-Instruct-v0.3, or a current equivalent) — ADR-009 locks the provider and gateway architecture, not the exact model; confirm live availability at Phase 3.
 - Exact Great Expectations rule set — pending Phase 0 EDA on the chosen public dataset.
 
 ## 8. Update Protocol

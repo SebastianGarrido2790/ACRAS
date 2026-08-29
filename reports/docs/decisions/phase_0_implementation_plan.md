@@ -1,11 +1,11 @@
 # Implementation Plan & Decisions — Phase 0 (Project Scaffolding & Data Contracts)
 
 **Project:** ACRAS (Agentic Credit Risk & Analysis System)
-**Author:** Sebastián Garrido Arévalo · **Date:** 2026-08-29 · **Status:** Awaiting approval — no implementation has started
+**Author:** Sebastián Garrido Arévalo · **Date:** 2026-08-29 · **Status:** Approved (2026-08-29) — ready for implementation
 
 This is a living document. It translates Phase 0 of the Technical Roadmap into concrete, resolvable decisions, given the project's actual current state and its stated constraints (latency, cost, modularity, solo-builder timeline). Nothing below has been built. If a decision here is later revisited, the revision is logged in-place with a date, not silently overwritten — the same discipline already used for the ADR log.
 
-**Your approval is required before any of this is implemented.** Each decision below is marked either "Requires your approval" or "No input required — recorded for completeness" (a genuinely one-sided call given the stated constraints, listed here only so the decision record is complete, not because it's actually contested).
+**All decisions for Phase 0 have been formally reviewed and approved as of 2026-08-29.**
 
 ---
 
@@ -52,23 +52,24 @@ Distinguishing genuine gaps in the Roadmap's own wording from things that are al
 
 ### Decision Index
 
-| ID    | Decision                                               | Approval Required?             |
-| ----- | ------------------------------------------------------ | ------------------------------ |
-| D-0.0 | Repository initialization & documentation placement    | Yes                            |
-| D-0.1 | Public dataset selection                               | Yes                            |
-| D-0.2 | Python version & dependency management                 | No — recorded for completeness |
-| D-0.3 | DVC remote storage backend                             | Yes                            |
-| D-0.4 | MLflow tracking backend                                | No — recorded for completeness |
-| D-0.5 | Great Expectations version & expectation-suite scope   | Yes                            |
-| D-0.6 | Evidence-bundle schema versioning fix & v0-draft scope | Yes                            |
-| D-0.7 | CI skeleton scope for Phase 0                          | Yes                            |
-| D-0.8 | Docker base image                                      | No — recorded for completeness |
+| ID    | Decision                                               | Status / Approved Choice                                                                                                      | Notes / Scope                                              |
+| :---- | :----------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------- |
+| D-0.0 | Repository initialization & documentation placement    | ✅ **Option A (Approved)**                                                                                                     | Repo initialized; docs placed in `reports/docs/...`        |
+| D-0.1 | Public dataset selection                               | ✅ **Option A (Approved)**                                                                                                     | Kaggle Company Bankruptcy Prediction (~6,800 companies)    |
+| D-0.2 | Python version & dependency management                 | ✅ **Python 3.12 + `uv` (Confirmed)**                                                                                         | Lockfile committed; strict typing                          |
+| D-0.3 | DVC remote storage backend                             | ✅ **Option C (Approved)**                                                                                                     | AWS S3 remote for reproducible cloud tracking              |
+| D-0.4 | MLflow tracking backend                                | ✅ **Local `./mlruns` (Confirmed)**                                                                                           | File-based experiment tracking                             |
+| D-0.5 | Great Expectations version & expectation-suite scope   | ✅ **D-0.5a: Option A (Approved)**<br>✅ **D-0.5b: Option A (Approved)**                                                       | Validator API;<br>Minimal schema/dtype/null/range coverage |
+| D-0.6 | Evidence-bundle schema versioning fix & v0-draft scope | ✅ **Option B (Approved)**                                                                                                     | Pre-v0 draft skeleton with typed `Optional` fields         |
+| D-0.7 | CI skeleton scope for Phase 0                          | ✅ **Option A (Approved)**                                                                                                     | Lint + type-check + fixture-based GX unit test             |
+| D-0.8 | Docker base image                                      | ✅ **`python:3.12-slim` (Confirmed)**                                                                                         | Debian-slim base; avoiding musl libc wheel issues          |
 
 ---
 
 ### D-0.0 — Repository Initialization & Documentation Placement
 
-**Requires your approval:** Yes
+**Requires your approval:** Yes  
+**Decision Status:** ✅ **Approved — Option A** (Repo initialized; documents moved to `reports/docs/...`)
 
 **Question:** How do the seven already-approved planning documents (and any future ones) actually get into a real repository, and how is the `tier1_ml/` vs. `pipelines/training/` ambiguity (Latent finding #2) resolved?
 
@@ -76,8 +77,8 @@ Distinguishing genuine gaps in the Roadmap's own wording from things that are al
 
 | Option                                                                                                                                                                         | Trade-offs                                                                                                                                                                                                                             |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A. Initialize the repo now, move all existing docs into their declared `reports/docs/...` paths as the very first commit, resolve the structural ambiguity in the same commit. | One clean, well-scoped first commit; the whole document set becomes internally consistent with reality immediately. Slightly more upfront work than starting with code.                                                                |
-| B. Start writing Phase 0 code first, and move the docs over later once "there's something to commit."                                                                          | Feels faster to start; but leaves the documents in a state where they describe a repository that doesn't exist, which is exactly the inconsistency the audit above flags — deferring it doesn't remove it, it just delays noticing it. |
+| **[APPROVED] Option A**<br>Initialize the repo now, move all existing docs into their declared `reports/docs/...` paths as the very first commit, resolve the structural ambiguity in the same commit. | One clean, well-scoped first commit; the whole document set becomes internally consistent with reality immediately. Slightly more upfront work than starting with code.                                                                |
+| Option B<br>Start writing Phase 0 code first, and move the docs over later once "there's something to commit."                                                                          | Feels faster to start; but leaves the documents in a state where they describe a repository that doesn't exist, which is exactly the inconsistency the audit above flags — deferring it doesn't remove it, it just delays noticing it. |
 
 **Recommendation:** A.
 
@@ -87,7 +88,8 @@ Distinguishing genuine gaps in the Roadmap's own wording from things that are al
 
 ### D-0.1 — Public Dataset Selection
 
-**Requires your approval:** Yes
+**Requires your approval:** Yes  
+**Decision Status:** ✅ **Approved — Option A** (Kaggle "Company Bankruptcy Prediction")
 
 **Question:** Which public dataset actually backs Tier 1 training?
 
@@ -95,11 +97,11 @@ Distinguishing genuine gaps in the Roadmap's own wording from things that are al
 
 | Option                                                                                                                                            | Trade-offs                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | ------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A. **Kaggle "Company Bankruptcy Prediction"** (Taiwan Economic Journal, ~6,800 companies, 95 pre-computed financial-ratio features, binary label) | Real corporate financial ratios (fits the Financial/Domain Analyst Agent's needs directly); large enough sample size to make a calibration check (INV-3) statistically meaningful, which smaller sets aren't; well-benchmarked publicly, so a resulting AUC/Brier score is checkable against known baselines rather than trusted blind. Honest caveat: these are public companies, not strictly "SMEs" — the narrative gap is real and should be stated plainly wherever the dataset is described, not glossed over. |
-| B. "Give Me Some Credit" (Kaggle)                                                                                                                 | Rejected: this is **individual/consumer** credit data, not company-level. Wrong entity type for a corporate credit-risk system — including it would mean building a demo that doesn't actually match what ACRAS claims to assess.                                                                                                                                                                                                                                                                                    |
-| C. LendingClub loan data                                                                                                                          | Rejected for the same reason as B — consumer/personal loans, not corporate.                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| D. UCI "Statlog German Credit Data"                                                                                                               | Rejected: only ~1,000 samples, largely individual-borrower purpose codes. Too small to produce a meaningful calibration check (Brier score / reliability curve need enough data per bucket to be trustworthy), which INV-3 now depends on directly.                                                                                                                                                                                                                                                                  |
-| E. Smaller/synthetic "SME loan default" sets on Kaggle                                                                                            | Considered and set aside: several exist, but sample sizes and label-generation methodology are inconsistently documented, which is a real risk given how much of this project's credibility (calibration, divergence golden-set design) depends on trusting the underlying data.                                                                                                                                                                                                                                     |
+| **[APPROVED] Option A**<br>**Kaggle "Company Bankruptcy Prediction"** (Taiwan Economic Journal, ~6,800 companies, 95 pre-computed financial-ratio features, binary label) | Real corporate financial ratios (fits the Financial/Domain Analyst Agent's needs directly); large enough sample size to make a calibration check (INV-3) statistically meaningful, which smaller sets aren't; well-benchmarked publicly, so a resulting AUC/Brier score is checkable against known baselines rather than trusted blind. Honest caveat: these are public companies, not strictly "SMEs" — the narrative gap is real and should be stated plainly wherever the dataset is described, not glossed over. |
+| Option B<br>"Give Me Some Credit" (Kaggle)                                                                                                                 | Rejected: this is **individual/consumer** credit data, not company-level. Wrong entity type for a corporate credit-risk system — including it would mean building a demo that doesn't actually match what ACRAS claims to assess.                                                                                                                                                                                                                                                                                    |
+| Option C<br>LendingClub loan data                                                                                                                          | Rejected for the same reason as B — consumer/personal loans, not corporate.                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Option D<br>UCI "Statlog German Credit Data"                                                                                                               | Rejected: only ~1,000 samples, largely individual-borrower purpose codes. Too small to produce a meaningful calibration check (Brier score / reliability curve need enough data per bucket to be trustworthy), which INV-3 now depends on directly.                                                                                                                                                                                                                                                                  |
+| Option E<br>Smaller/synthetic "SME loan default" sets on Kaggle                                                                                            | Considered and set aside: several exist, but sample sizes and label-generation methodology are inconsistently documented, which is a real risk given how much of this project's credibility (calibration, divergence golden-set design) depends on trusting the underlying data.                                                                                                                                                                                                                                     |
 
 **Recommendation:** A, with the entity-type caveat stated explicitly and consistently everywhere the dataset is referenced (README, `canvas.md` if revisited, model card) — this is a "closest available public proxy," not an SME dataset, and saying so plainly is more credible than letting it pass unremarked.
 
@@ -107,7 +109,8 @@ Distinguishing genuine gaps in the Roadmap's own wording from things that are al
 
 ### D-0.2 — Python Version & Dependency Management
 
-**Requires your approval:** No — recorded for completeness.
+**Requires your approval:** No — recorded for completeness.  
+**Decision Status:** ✅ **Confirmed** (Python 3.12 + `uv`)
 
 **Decision:** Python 3.12, managed with `uv`, lockfile committed. There is no meaningful alternative worth presenting: this was already the project's working convention, and reopening it now would cost time without a real question behind it.
 
@@ -115,7 +118,8 @@ Distinguishing genuine gaps in the Roadmap's own wording from things that are al
 
 ### D-0.3 — DVC Remote Storage Backend
 
-**Requires your approval:** Yes
+**Requires your approval:** Yes  
+**Decision Status:** ✅ **Approved — Option C** (AWS S3 remote)
 
 **Question:** Where does the DVC-tracked dataset actually live, so `dvc pull` works from a fresh clone (Roadmap Assessment gap above)?
 
@@ -123,9 +127,9 @@ Distinguishing genuine gaps in the Roadmap's own wording from things that are al
 
 | Option                                                    | Trade-offs                                                                                                                                                                                                                                                                                                                                                                                          |
 | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A. Local filesystem remote (a directory outside the repo) | Zero cost, zero setup, zero external accounts. But it doesn't survive a fresh clone on another machine, and demonstrates nothing about cloud data-versioning practice to anyone reviewing the repo.                                                                                                                                                                                                 |
-| B. Google Drive remote (`dvc-gdrive`)                     | Free (15GB), technically "cloud," but OAuth token setup and Google's API rate limits on the Drive backend are a well-documented source of friction — a real risk of losing time to plumbing rather than to the project itself.                                                                                                                                                                      |
-| C. AWS S3 remote                                          | At this data scale (a few hundred MB at most), cost is negligible — realistically a few cents a month. Demonstrates real cloud credential handling and a genuinely reproducible remote, which matters given the project's own stated positioning. Requires an AWS account and careful credential handling (never committed — same principle already applied to every other secret in this project). |
+| Option A<br>Local filesystem remote (a directory outside the repo) | Zero cost, zero setup, zero external accounts. But it doesn't survive a fresh clone on another machine, and demonstrates nothing about cloud data-versioning practice to anyone reviewing the repo.                                                                                                                                                                                                 |
+| Option B<br>Google Drive remote (`dvc-gdrive`)                     | Free (15GB), technically "cloud," but OAuth token setup and Google's API rate limits on the Drive backend are a well-documented source of friction — a real risk of losing time to plumbing rather than to the project itself.                                                                                                                                                                      |
+| **[APPROVED] Option C**<br>AWS S3 remote                                          | At this data scale (a few hundred MB at most), cost is negligible — realistically a few cents a month. Demonstrates real cloud credential handling and a genuinely reproducible remote, which matters given the project's own stated positioning. Requires an AWS account and careful credential handling (never committed — same principle already applied to every other secret in this project). |
 
 **Recommendation:** C. The cost is trivial and the practice (managing real cloud credentials correctly) is exactly the kind of thing worth being able to point to. This is marked as requiring your approval specifically because it does mean touching a real AWS account for a portfolio project, and that's a legitimate thing to want to opt out of even if the technical case for it is clear.
 
@@ -133,7 +137,8 @@ Distinguishing genuine gaps in the Roadmap's own wording from things that are al
 
 ### D-0.4 — MLflow Tracking Backend
 
-**Requires your approval:** No — recorded for completeness.
+**Requires your approval:** No — recorded for completeness.  
+**Decision Status:** ✅ **Confirmed** (Local `./mlruns`)
 
 **Decision:** Local file-based tracking (`./mlruns`, gitignored). A remote MLflow tracking server would be pure overhead for a single developer on a single machine with no concurrent experiments to coordinate — there's no real alternative worth weighing here.
 
@@ -141,23 +146,26 @@ Distinguishing genuine gaps in the Roadmap's own wording from things that are al
 
 ### D-0.5 — Great Expectations Version & Expectation-Suite Scope
 
-**Requires your approval:** Yes
+**Requires your approval:** Yes  
+**Decision Status:** ✅ **Approved — D-0.5a: Option A (Validator API) & D-0.5b: Option A (Minimal, real coverage)**
 
-**Sub-decision D-0.5a — API generation.**
+**Sub-decision D-0.5a — API generation.**  
+**Status:** ✅ **Approved — Option A**
 
 | Option                                                            | Trade-offs                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A. The older, widely-documented Expectation Suite / Validator API | More Stack Overflow answers and tutorials to fall back on if something goes wrong mid-build — lower risk of losing time to undocumented rough edges while solo and on a schedule.                                                                                                                                                                                                                                                  |
-| B. The newer Fluent/Core API (GX 1.x)                             | Cleaner API design and more "current" to reference, but younger, with a thinner troubleshooting trail. **Flag, not a claim:** which API generation ships as the default in the current GX release may have shifted since this plan was written — this should be verified against GX's actual current documentation at implementation time rather than assumed from this document, per the project's own 80%-confidence discipline. |
+| **[APPROVED] Option A**<br>The older, widely-documented Expectation Suite / Validator API | More Stack Overflow answers and tutorials to fall back on if something goes wrong mid-build — lower risk of losing time to undocumented rough edges while solo and on a schedule.                                                                                                                                                                                                                                                  |
+| Option B<br>The newer Fluent/Core API (GX 1.x)                             | Cleaner API design and more "current" to reference, but younger, with a thinner troubleshooting trail. **Flag, not a claim:** which API generation ships as the default in the current GX release may have shifted since this plan was written — this should be verified against GX's actual current documentation at implementation time rather than assumed from this document, per the project's own 80%-confidence discipline. |
 
 **Recommendation:** A, specifically to minimize debugging risk during a phase that's supposed to be short — but verify at implementation time that this is still the more stable choice, rather than treating this recommendation as self-evidently current.
 
-**Sub-decision D-0.5b — Expectation coverage.**
+**Sub-decision D-0.5b — Expectation coverage.**  
+**Status:** ✅ **Approved — Option A**
 
 | Option                                                                                                                        | Trade-offs                                                                                                                                                                                                                         |
 | ----------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A. Minimal, real coverage: schema/dtype checks, null-rate thresholds, range checks on key financial ratios, ID uniqueness.    | Directly satisfies the Phase 0 exit criterion (prove the halt-on-bad-data mechanism works) without over-building.                                                                                                                  |
-| B. Comprehensive coverage: also add statistical distribution-drift checks, cross-column consistency rules, outlier detection. | More thorough, but this is production-monitoring territory that the Roadmap already schedules elsewhere (Phase 5/production monitoring) — building it now risks quietly absorbing later-phase scope into an already-tight Phase 0. |
+| **[APPROVED] Option A**<br>Minimal, real coverage: schema/dtype checks, null-rate thresholds, range checks on key financial ratios, ID uniqueness.    | Directly satisfies the Phase 0 exit criterion (prove the halt-on-bad-data mechanism works) without over-building.                                                                                                                  |
+| Option B<br>Comprehensive coverage: also add statistical distribution-drift checks, cross-column consistency rules, outlier detection. | More thorough, but this is production-monitoring territory that the Roadmap already schedules elsewhere (Phase 5/production monitoring) — building it now risks quietly absorbing later-phase scope into an already-tight Phase 0. |
 
 **Recommendation:** A. Extend to B's checks later, if and when Phase 5's monitoring work actually calls for them — not preemptively.
 
@@ -165,7 +173,8 @@ Distinguishing genuine gaps in the Roadmap's own wording from things that are al
 
 ### D-0.6 — Evidence-Bundle Schema Versioning Fix & v0-Draft Scope
 
-**Requires your approval:** Yes
+**Requires your approval:** Yes  
+**Decision Status:** ✅ **Approved — Option B** (Pre-v0 draft skeleton with typed `Optional` placeholders)
 
 **Question:** How to resolve Latent finding #1, and what exactly does Phase 0 draft?
 
@@ -173,8 +182,8 @@ Distinguishing genuine gaps in the Roadmap's own wording from things that are al
 
 | Option                                                                                                                                                                                                                                                          | Trade-offs                                                                                                                                                                                                                                                                                                                                       |
 | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| A. Renumber: shift `system_design.md`'s existing v0/v1/v2 up by one (Tier 1 output → v1, Tier 2 → v2, Tier 3 → v3), so "v0" cleanly means "the Phase 0 draft."                                                                                                  | Produces the most intuitive numbering (version number == tier number). Cost: requires editing already-finished, previously-approved documents (`system_design.md` §5, and any place versions are mentioned) for what is ultimately a cosmetic renumbering — reopening signed-off documents for this is a worse trade than the alternative below. |
-| B. Leave the existing documents untouched. Define, precisely, that Phase 0 produces a **pre-v0 draft skeleton** — and "v0" as a formally versioned schema first materializes once Tier 1 populates it in Phase 1, exactly as `system_design.md` already states. | Zero edits to already-approved documents. Requires only one precise definition (this entry, plus a docstring in the schema module itself) rather than a renumbering sweep. Keeps the discipline of "ADRs/approved docs are superseded, not silently edited" fully intact.                                                                        |
+| Option A<br>Renumber: shift `system_design.md`'s existing v0/v1/v2 up by one (Tier 1 output → v1, Tier 2 → v2, Tier 3 → v3), so "v0" cleanly means "the Phase 0 draft."                                                                                                  | Produces the most intuitive numbering (version number == tier number). Cost: requires editing already-finished, previously-approved documents (`system_design.md` §5, and any place versions are mentioned) for what is ultimately a cosmetic renumbering — reopening signed-off documents for this is a worse trade than the alternative below. |
+| **[APPROVED] Option B**<br>Leave the existing documents untouched. Define, precisely, that Phase 0 produces a **pre-v0 draft skeleton** — and "v0" as a formally versioned schema first materializes once Tier 1 populates it in Phase 1, exactly as `system_design.md` already states. | Zero edits to already-approved documents. Requires only one precise definition (this entry, plus a docstring in the schema module itself) rather than a renumbering sweep. Keeps the discipline of "ADRs/approved docs are superseded, not silently edited" fully intact.                                                                        |
 
 **Recommendation:** B. This is also consistent with how the rest of this project has handled revisiting decisions — add a precise clarification, don't retroactively rewrite what's already signed off.
 
@@ -184,16 +193,17 @@ Distinguishing genuine gaps in the Roadmap's own wording from things that are al
 
 ### D-0.7 — CI Skeleton Scope for Phase 0
 
-**Requires your approval:** Yes
+**Requires your approval:** Yes  
+**Decision Status:** ✅ **Approved — Option A** (Lint + Type-check + Fixture Unit Test)
 
-**Sub-decision D-0.7a — Python version matrix.** Target 3.12 only; this is an internal project, not a published library needing multi-version compatibility testing. No input required — recorded for completeness.
+**Sub-decision D-0.7a — Python version matrix.** Target 3.12 only; this is an internal project, not a published library needing multi-version compatibility testing. Confirmed.
 
 **Main question:** Does Phase 0's CI need to run the actual GX-gate-halts-bad-data demonstration as a live pipeline step, or is a local/CI-run unit test sufficient?
 
 | Option                                                                                                                                                                                                                                                                                                        | Trade-offs                                                                                                                                                                                                                                                                                                 |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A. Lint + type-check + a unit test (using a small, in-repo corrupted fixture, not the full DVC-tracked dataset) that proves the GX gate rejects bad data. Full `dvc repro`-in-CI wiring deferred to Phase 5, alongside the calibration/divergence gates that are already scheduled to be wired into CI there. | Keeps Phase 0 inside its 3–4 day estimate. Avoids building the "give CI runners access to the DVC remote and its credentials" plumbing twice — once now, once properly at Phase 5. Fully satisfies the literal exit criterion, since a fixture-based unit test does demonstrate the gate halting bad data. |
-| B. Build full `dvc repro`-in-CI now, including CI's access to the D-0.3 remote and its credentials.                                                                                                                                                                                                           | Proves the exit criterion in the most rigorous possible environment immediately. Costs real setup time now (CI secrets, remote access) against an already-tight phase, for a robustness gain that Phase 5 was going to deliver anyway.                                                                     |
+| **[APPROVED] Option A**<br>Lint + type-check + a unit test (using a small, in-repo corrupted fixture, not the full DVC-tracked dataset) that proves the GX gate rejects bad data. Full `dvc repro`-in-CI wiring deferred to Phase 5, alongside the calibration/divergence gates that are already scheduled to be wired into CI there. | Keeps Phase 0 inside its 3–4 day estimate. Avoids building the "give CI runners access to the DVC remote and its credentials" plumbing twice — once now, once properly at Phase 5. Fully satisfies the literal exit criterion, since a fixture-based unit test does demonstrate the gate halting bad data. |
+| Option B<br>Build full `dvc repro`-in-CI now, including CI's access to the D-0.3 remote and its credentials.                                                                                                                                                                                                           | Proves the exit criterion in the most rigorous possible environment immediately. Costs real setup time now (CI secrets, remote access) against an already-tight phase, for a robustness gain that Phase 5 was going to deliver anyway.                                                                     |
 
 **Recommendation:** A. This is the direct fix for the Roadmap Assessment's third finding — the exit criterion's wording doesn't require the more expensive path, and choosing the cheaper one that still satisfies it literally is the correct call given the schedule risk already on record in the Roadmap.
 
@@ -201,7 +211,8 @@ Distinguishing genuine gaps in the Roadmap's own wording from things that are al
 
 ### D-0.8 — Docker Base Image
 
-**Requires your approval:** No — recorded for completeness.
+**Requires your approval:** No — recorded for completeness.  
+**Decision Status:** ✅ **Confirmed** (`python:3.12-slim`)
 
 **Decision:** `python:3.12-slim`. Alpine is lighter but its musl libc causes real, well-documented binary-wheel friction with NumPy/scikit-learn/XGBoost — not a hypothetical risk, a known one. Distroless is more hardened but has no shell, which actively hurts debugging during a phase where the code is still being actively iterated on. Slim is the only option without a real downside at this stage; hardening to distroless can be revisited at Phase 7 close-out if desired.
 

@@ -80,7 +80,7 @@
 
 **Dependencies:** none technically; sequenced here because Phase 4 needs it in place.
 
-**Estimated duration:** 2–3 days. _(Thematically overlaps Session 3 — routing, fallback policies, token economics — a bonus, not a deadline.)_
+**Estimated duration:** 2–3 days.
 
 ---
 
@@ -96,7 +96,7 @@
 
 **Dependencies:** Phase 1 (real evidence data), Phase 2 (P10/P50/P90 fields), Phase 3 (gateway).
 
-**Estimated duration:** 7–10 days — the largest single phase; this is the structurally hardest part of the system, and the estimate reflects that rather than being smoothed to match the calendar. _(The Data Scientist Agent's FastAPI tool contract — idempotency, audit trail — should be built to double as Session 5's Lab 1 deliverable.)_
+**Estimated duration:** 7–10 days — the largest single phase; this is the structurally hardest part of the system, and the estimate reflects that rather than being smoothed to match the calendar.
 
 ---
 
@@ -112,7 +112,7 @@
 
 **Dependencies:** Phase 1 (model to gate), Phase 4 (Tier 3 to gate).
 
-**Estimated duration:** 5–7 days. _(Directly overlaps Session 6's content — guardrails, LLM-as-judge, golden/adversarial sets, Lab 4 — the closest thematic match in the whole roadmap.)_
+**Estimated duration:** 5–7 days.
 
 ---
 
@@ -144,7 +144,7 @@
 
 **Dependencies:** all prior phases.
 
-**Estimated duration:** 4–5 days. _(Thematically overlaps Session 7 — MAS integration, Lab 3, panel advisory.)_
+**Estimated duration:** 4–5 days.
 
 ---
 
@@ -156,11 +156,11 @@ Phase 0 → 1 → 2 → 3 → 4 → 5 → 6 → 7 is a strictly linear dependenc
 
 Summing the estimates: **31 days at the low end, 43 days at the high end**, starting today (Aug 28, 2026). That means:
 
-- The **low-end estimate lands almost exactly on Session 7**, which is the aggressive case and assumes no rework, and no surprises in Phase 4 (the largest and riskiest phase).
-- The **high-end estimate overshoots Session 7 by roughly 11 days**, which is the realistic case for a solo builder.
+- The **low-end estimate**, which is the aggressive case and assumes no rework, and no surprises in Phase 4 (the largest and riskiest phase).
+- The **high-end estimate overshoots by roughly 11 days**, which is the realistic case for a solo builder.
 
 This roadmap does not paper over that gap with optimistic rounding. If Phase 4 runs long, the most likely place for it given it's the structurally hardest phase, the first thing to cut is **not** eval rigor (Phase 5) or the acceptance criteria (Phase 7); it's **Phase 6's dashboard polish**, which can degrade to a CLI or notebook-driven input/output path without weakening any PRD requirement, acceptance scenario, or governance gate. That's the explicit de-scope lever, decided now rather than under deadline pressure later.
 
 ## Dependencies Summary
 
-Public dataset availability and quality (Phase 0); LLM provider API access/quotas for both primary and fallback providers (Phase 3); DVC/MLflow/Great Expectations tooling (Phase 0); solo-builder time running in parallel with certificate Sessions 3–7 (all phases).
+Public dataset availability and quality (Phase 0); LLM provider API access/quotas for both primary and fallback providers (Phase 3); DVC/MLflow/Great Expectations tooling (Phase 0); solo-builder availability.

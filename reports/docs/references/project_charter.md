@@ -72,4 +72,4 @@ FastAPI (Tier 1 serving) · scikit-learn / XGBoost or LightGBM (PD model) · Num
 - **Calibration failure:** the PD model separates well (good AUC) but is poorly calibrated, silently making the Monte Carlo bands and every downstream rating numerically wrong even though the model "looks good" on ROC — mitigated by treating calibration metrics as a first-class evaluation gate, not an afterthought.
 - **Scope creep** into production concerns (auth, multi-tenancy, real core-banking integration) that would blow the timeline without adding to what the architecture is meant to demonstrate.
 - **LLM cost/rate-limit exposure** during repeated evaluation runs — mitigated by caching and by keeping the golden set intentionally small (~20–40 cases) rather than large.
-- **Solo-builder bandwidth:** this runs in parallel with a 7-session, 4-lab certificate. The honest constraint is time, not technical feasibility — the phased roadmap exists to manage that risk, not to pad this document.
+- **Solo-builder bandwidth:** The honest constraint is time, not technical feasibility — the phased roadmap exists to manage that risk, not to pad this document.

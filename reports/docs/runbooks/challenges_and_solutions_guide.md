@@ -81,8 +81,8 @@
 
 **Status:** Anticipated
 **Challenge Domain:** Project management
-**Problem/Symptom:** Phase 4 (Tier 3 multi-agent core) exceeds its 7–10 day estimate, threatening the Session 7 (2026-09-29) target.
-**Root Cause:** Phase 4 is both the largest and least de-risked phase in the roadmap, and it runs in parallel with certificate coursework hours rather than in dedicated full-time blocks.
+**Problem/Symptom:** Phase 4 (Tier 3 multi-agent core) exceeds its 7–10 day estimate.
+**Root Cause:** Phase 4 is both the largest and least de-risked phase in the roadmap.
 **Solution:** A de-scope lever was pre-agreed rather than decided under deadline pressure: degrade Phase 6's dashboard to a CLI or notebook-driven interface, which preserves every PRD requirement, acceptance scenario, and governance gate untouched.
 **Governing Authority:** Technical Roadmap, Schedule Risk section.
 

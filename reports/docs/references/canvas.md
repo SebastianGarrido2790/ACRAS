@@ -91,4 +91,3 @@ Primary loop (no live loan book to draw from): the golden/adversarial evaluation
 
 - **Team:** solo (Sebastián Garrido Arévalo).
 - **Deliverables:** Tier 1 FastAPI microservice, Tier 2 Monte Carlo module, Tier 3 LangGraph multi-agent system, dashboard, evaluation harness, GX/DVC data-contract pipeline, and the full planning/documentation set (this canvas, the project charter, PRD, technical roadmap, system design ADR, and challenges/solutions runbook).
-- **Timeline:** phased delivery mapped to the remaining sessions of the Professional Certificate in Agentic AI (through late September 2026), so each certificate lab is a strict subset of what's already shipped in ACRAS.

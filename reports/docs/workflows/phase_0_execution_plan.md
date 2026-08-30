@@ -5,22 +5,26 @@
 
 This document sequences the approved `phase_0_implementation_plan.md` decisions into an execution order. Nothing here is code — it's the order of operations, the gate each stage must clear before the next one starts, and which ADR gets logged where. ADRs are assigned to the stage where the underlying fact actually gets _verified_, not batched at the end — this keeps the ADR log atomic and matches how the rest of this project has handled decisions so far.
 
+## Falsification Discipline (Applied Selectively, Not Uniformly)
+
+Stage 5 already includes one deliberate falsification: disabling the data-contract gate to confirm its test can actually fail, not just pass. A gate that would report success whether or not the thing it's guarding is broken isn't a gate — it's decoration. Generalizing that same discipline to every stage's gate is worth doing, but not uniformly: three stages either duplicate a later stage's falsification or don't have a programmatic check for a deliberate failure to meaningfully probe. Each stage below states its falsification explicitly — including the ones where the honest answer is "not applicable" and why, rather than skipping the question silently. Falsifications are run inline, immediately reverted, and never left as committed history; the mutation belongs next to the artifact it's testing, not as a separate pass bolted on at the end.
+
 ---
 
 ## Stage Index
 
-| Stage | Name                                               | Gate (one line)                                                                                     |
-| ----- | -------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| 0     | Pre-Implementation Verification & Dependency Check | Every checklist item confirmed true or logged as an exception                                       |
-| 1     | Repository Initialization & Structural Scaffold    | Repo tree matches spec exactly; docs live where they claim to                                       |
-| 2     | Environment, Dependencies & Base Image             | `uv sync`, empty test run, and `docker build` all succeed clean                                     |
-| 3     | Dataset Acquisition & DVC Remote                   | `dvc pull` succeeds from a simulated fresh clone                                                    |
-| 4     | Data Contract — Great Expectations Suite           | Suite passes 100% against the real, valid dataset                                                   |
-| 5     | The Gate Itself — Wiring & Adversarial Proof       | Corrupted fixture is rejected; valid data passes; the test is proven capable of failing             |
-| 6     | Evidence-Bundle Schema Draft                       | Schema imports clean, type-checks, and instantiates with only Phase-0 fields populated              |
-| 7     | MLflow Tracking Wiring                             | A real (dummy) run is visible in the local MLflow UI                                                |
-| 8     | CI Assembly & First Green Run                      | GitHub Actions shows every job green on an actual push, not just locally                            |
-| 9     | ADR Consolidation & Phase 0 Sign-Off               | Post-Implementation Review table fully populated; status table updated; exit criterion re-confirmed |
+| Stage | Name                                               | Gate (one line)                                                                                     | Falsification                                           |
+| ----- | -------------------------------------------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| 0     | Pre-Implementation Verification & Dependency Check | Every checklist item confirmed true or logged as an exception                                       | N/A — manual confirmations, not a programmatic check    |
+| 1     | Repository Initialization & Structural Scaffold    | Repo tree matches spec exactly; docs live where they claim to                                       | Yes                                                     |
+| 2     | Environment, Dependencies & Base Image             | `uv sync`, empty test run, and `docker build` all succeed clean                                     | Yes — one break per tool                                |
+| 3     | Dataset Acquisition & DVC Remote                   | `dvc pull` succeeds from a simulated fresh clone                                                    | Yes                                                     |
+| 4     | Data Contract — Great Expectations Suite           | Suite passes 100% against the real, valid dataset                                                   | Deferred to Stage 5 (would duplicate it)                |
+| 5     | The Gate Itself — Wiring & Adversarial Proof       | Corrupted fixture is rejected; valid data passes; the test is proven capable of failing             | Yes — the origin case this pattern generalizes from     |
+| 6     | Evidence-Bundle Schema Draft                       | Schema imports clean, type-checks, and instantiates with only Phase-0 fields populated              | Yes                                                     |
+| 7     | MLflow Tracking Wiring                             | A real (dummy) run is visible in the local MLflow UI                                                | N/A — no meaningful failure mode to probe               |
+| 8     | CI Assembly & First Green Run                      | GitHub Actions shows every job green on an actual push, not just locally                            | Yes                                                     |
+| 9     | ADR Consolidation & Phase 0 Sign-Off               | Post-Implementation Review table fully populated; status table updated; exit criterion re-confirmed | N/A — verifies documentation completeness, not behavior |
 
 ---
 
@@ -39,6 +43,8 @@ This document sequences the approved `phase_0_implementation_plan.md` decisions 
 
 **ADR logged this stage:** None — this stage produces verified facts, not new decisions.
 
+**Falsification:** not applicable. Every item here is a manual factual confirmation (a version number, an account's status, a license term); there's no programmatic check for a deliberate failure to meaningfully probe — verifying the fact itself already is the check.
+
 **Gate 0 (must pass before Stage 1):** every item above is either confirmed true, or has an explicit, written exception with its own resolution. No item is allowed to remain a silent assumption carried forward.
 
 ---
@@ -56,7 +62,9 @@ This document sequences the approved `phase_0_implementation_plan.md` decisions 
 
 **ADR logged this stage:** **ADR-010** — `tier1_ml`/`pipelines/training` boundary (training code produces the artifact; `tier1_ml` only serves it).
 
-**Gate 1 (must pass before Stage 2):** the repo tree matches the declared structure exactly (no extra or missing top-level directories); every planning document is reachable at the path it references internally; one clean initial commit exists.
+**Falsification:** before the real commit, temporarily remove one required document from its declared path (or add one unexpected top-level directory) and confirm the structure check actually notices — whether that's an automated diff or a deliberate manual read-through. Restore the correct structure before committing for real; the point is confirming the check would have caught the problem, not leaving the problem in place to be caught later by accident.
+
+**Gate 1 (must pass before Stage 2):** the repo tree matches the declared structure exactly (no extra or missing top-level directories); every planning document is reachable at the path it references internally; the falsification above was run and caught its own induced error; one clean initial commit exists.
 
 ---
 
@@ -72,7 +80,9 @@ This document sequences the approved `phase_0_implementation_plan.md` decisions 
 
 **ADR logged this stage:** None — D-0.2 and D-0.8 were already "no input required" confirmations, not new decisions; nothing new to log.
 
-**Gate 2 (must pass before Stage 3):** `uv sync` completes cleanly; `uv run pytest` (zero tests) exits 0; `docker build` succeeds against the empty skeleton; `ruff check` and `pyright` both run clean on the (currently empty) `src/` tree.
+**Falsification:** one deliberate break per tool, each confirmed caught, each reverted before moving on — a pinned dependency conflict for `uv sync`, one lint violation for `ruff`, one type mismatch for `pyright`, one broken instruction for `docker build`. **The one worth taking seriously, not treating as a formality:** confirm `pytest` reports a nonzero exit code when zero tests are collected, rather than silently reporting success on an empty suite — "0 passed, 0 failed" and "the check passed" are not the same claim, and this is the stage where that distinction either gets nailed down or gets carried, unnoticed, through the rest of the project.
+
+**Gate 2 (must pass before Stage 3):** `uv sync` completes cleanly; `uv run pytest` (zero tests) exits with the correct, deliberately-verified status; `docker build` succeeds against the empty skeleton; `ruff check` and `pyright` both run clean on the (currently empty) `src/` tree; all four falsifications above were run, caught, and reverted.
 
 ---
 
@@ -89,7 +99,9 @@ This document sequences the approved `phase_0_implementation_plan.md` decisions 
 
 **ADR logged this stage:** **ADR-011** — dataset pin (Kaggle Company Bankruptcy Prediction, exact version/row-count as verified in Stage 0, entity-type caveat restated). **ADR-012** — DVC remote (AWS S3, least-privilege IAM, credential-handling approach).
 
-**Gate 3 (must pass before Stage 4):** `dvc pull` succeeds from the simulated fresh clone; the dataset's checksum is recorded in the ADR; a manual check of `git log`/`git diff` confirms no AWS credentials were ever committed.
+**Falsification:** from the same simulated fresh clone, point `dvc pull` at a deliberately wrong remote URL once and confirm it fails loudly — rather than silently succeeding against stale local cache, which would make the Gate 3 "success" meaningless. Separately, confirm the credential-hygiene check actually flags a secret-shaped string, using an obviously fake placeholder in an uncommitted, unpushed scratch file only — never anything that resembles a real key, and never anything that reaches git history, even briefly.
+
+**Gate 3 (must pass before Stage 4):** `dvc pull` succeeds from the simulated fresh clone; the dataset's checksum is recorded in the ADR; a manual check of `git log`/`git diff` confirms no AWS credentials were ever committed; both falsifications above were run and caught.
 
 ---
 
@@ -105,6 +117,8 @@ This document sequences the approved `phase_0_implementation_plan.md` decisions 
 
 **ADR logged this stage:** **ADR-013** — Great Expectations API generation and expectation-suite scope, folding in whatever Stage 0 actually found (rather than what D-0.5a assumed, if they differ).
 
+**Falsification:** deliberately deferred, not skipped. Running this suite against corrupted data is exactly what Stage 5's adversarial proof does, against the full pipeline rather than the suite in isolation — doing it here too would test the identical thing twice without learning anything new, at the cost of real time in an already-tight phase.
+
 **Gate 4 (must pass before Stage 5):** the suite passes 100% against the real, valid dataset. A suite that has to be loosened to pass is a signal to stop and re-examine the data, not to weaken the contract.
 
 ---
@@ -118,7 +132,7 @@ This document sequences the approved `phase_0_implementation_plan.md` decisions 
 - Create a minimal `dvc.yaml` pipeline: a validation stage (runs the Stage 4 suite) gating a stub/no-op "training" stage that does nothing except exist as something to be blocked.
 - Create a small, deliberately corrupted in-repo fixture (bad dtype, out-of-range value, null where none is allowed).
 - Write the test proving: (a) the valid dataset passes the gate and reaches the stub training stage, (b) the corrupted fixture is rejected and never reaches it.
-- **The check the Post-Implementation Review table specifically calls for:** temporarily disable the gate and confirm the same test then fails. A test that passes whether or not the gate exists is proving nothing — this step exists to rule that out, not to assume it away.
+- **The check the Post-Implementation Review table specifically calls for — the falsification this whole plan's discipline generalizes from:** temporarily disable the gate and confirm the same test then fails. A test that passes whether or not the gate exists is proving nothing — this step exists to rule that out, not to assume it away.
 
 **ADR logged this stage:** None — this stage proves ADR-007 and ADR-013 work together; it doesn't establish a new decision.
 
@@ -137,7 +151,9 @@ This document sequences the approved `phase_0_implementation_plan.md` decisions 
 
 **ADR logged this stage:** **ADR-014** — evidence-bundle schema versioning resolution (pre-v0 draft skeleton; formal v0 starts at Tier 1) and the exact field scope of the draft.
 
-**Gate 6 (must pass before Stage 7):** the module imports cleanly; `pyright`/`ruff` pass; a smoke test instantiates it with only the fields Phase 0 can populate, and confirms every other field defaults to `None` without error.
+**Falsification:** deliberately pass one invalid value into the schema — a wrong type, or a required Phase-0 field omitted — and confirm Pydantic raises a validation error rather than silently coercing or accepting it. A schema that quietly accepts bad input at this stage would undermine every gate downstream that assumes the evidence bundle is trustworthy by construction.
+
+**Gate 6 (must pass before Stage 7):** the module imports cleanly; `pyright`/`ruff` pass; a smoke test instantiates it with only the fields Phase 0 can populate, and confirms every other field defaults to `None` without error; the falsification above was run and correctly rejected.
 
 ---
 
@@ -151,6 +167,8 @@ This document sequences the approved `phase_0_implementation_plan.md` decisions 
 - Log one real run — e.g., the Stage 4 suite's pass/fail result and the dataset's checksum as tracked parameters/metrics — specifically so this stage produces a genuine tracked artifact, not an empty directory that merely looks configured.
 
 **ADR logged this stage:** None — D-0.4 was already a "no input required" confirmation.
+
+**Falsification:** not meaningfully applicable. The only thing this gate checks is whether a logged run is visible, and "nothing was logged" is just what the stage looked like before it ran — there's no separate failure mode here for a deliberate mutation to expose that isn't already the starting state. Skipped as genuinely low-value rather than performed as a formality.
 
 **Gate 7 (must pass before Stage 8):** `mlflow ui` displays the logged run locally, with the expected parameters and metrics visible.
 
@@ -168,7 +186,9 @@ This document sequences the approved `phase_0_implementation_plan.md` decisions 
 
 **ADR logged this stage:** **ADR-015** — CI skeleton scope for Phase 0 (confirms the D-0.7 deferral: full `dvc repro`-in-CI wiring stays out of scope here, scheduled for Phase 5 alongside the calibration/divergence gates).
 
-**Gate 8 (must pass before Stage 9):** every CI job is green on an actual triggered push in GitHub Actions. A green run only on a local machine does not satisfy this gate.
+**Falsification:** push one deliberately broken probe commit first — a single lint violation or a failing test, nothing more — and confirm the specific job responsible actually turns red on GitHub Actions. A pipeline that's never been watched to fail is only proven to have valid YAML, not proven to catch anything. Only the genuinely green commit is left as permanent history; the probe commit is not something to preserve.
+
+**Gate 8 (must pass before Stage 9):** every CI job is green on an actual triggered push in GitHub Actions; the probe-commit falsification above was run and correctly went red before the real green run. A green run only on a local machine does not satisfy this gate.
 
 ---
 
@@ -185,4 +205,33 @@ This document sequences the approved `phase_0_implementation_plan.md` decisions 
 
 **ADR logged this stage:** None new — this stage verifies the ledger is complete, it doesn't add to it.
 
+**Falsification:** not applicable. This stage checks that documentation reflects what was built — a behavioral mutation has nothing to act on here; the equivalent discipline is simply not accepting a "matches as designed" finding without having actually looked at the file it claims to describe.
+
 **Gate 9 (Phase 0 complete; Phase 1 may begin):** every Post-Implementation Review row is populated with a real finding and no unresolved severity; `system_design.md`'s status table reflects reality; ADR-010 through ADR-015 are all filed; the exit criterion holds on the final re-run.
+
+---
+
+## Summary Table
+
+| Stage | Name                                 | Builds / Implements                                                                     | Gate Verification                                                                 | ADR Logged                                                              | Falsification Method                                                             | Blocks Until Passed |
+| :---- | :----------------------------------- | :-------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------- | :---------------------------------------------------------------------- | :------------------------------------------------------------------------------- | :------------------ |
+| **0** | **Pre-Implementation Verification**  | Tool versions, AWS access, Kaggle dataset snapshot, GX API verification                 | Zero unverified assumptions; explicit exception logging                           | None                                                                    | N/A (Manual confirmation of ground-truth facts)                                  | Stage 1             |
+| **1** | **Repo Init & Structural Scaffold**  | Directory tree, moved planning docs (`reports/docs/...`), structural boundary markers   | Tree matches spec; docs reachable; clean initial commit                           | **ADR-010** (`tier1_ml`/`pipelines/training` boundary)                  | Temporarily remove required doc / add unexpected dir; verify detection           | Stage 2             |
+| **2** | **Environment & Base Image**         | `pyproject.toml` (`uv.lock`), `Dockerfile` (`python:3.12-slim`), `check_module_size.py` | `uv sync`, non-zero empty `pytest`, `docker build`, `ruff`, `pyright` all pass    | None (D-0.2 & D-0.8 confirmed)                                          | Induce 1 error per tool (dep conflict, lint, type mismatch, broken Dockerfile)   | Stage 3             |
+| **3** | **Dataset Acquisition & DVC Remote** | Raw dataset download, S3 bucket/IAM, `.dvc/config` + S3 remote, `dvc push`              | `dvc pull` works on fresh clone; checksum logged; zero committed secrets          | **ADR-011** (Dataset pin & caveat)<br>**ADR-012** (DVC S3 remote & IAM) | Bad remote URL fails loudly; credential scanner catches fake placeholder key     | Stage 4             |
+| **4** | **Data Contract: GX Suite**          | Expectation suite (schema, nulls, value ranges, uniqueness) on dataset                  | 100% pass rate against valid raw dataset                                          | **ADR-013** (GX API generation & suite scope)                           | Deferred to Stage 5 (avoids duplicate testing)                                   | Stage 5             |
+| **5** | **The Gate: Adversarial Proof**      | `dvc.yaml` validation gating stub training; corrupted fixture; gate test                | Corrupted fixture blocked, valid passes; test verified capable of failing         | None (Demonstrates INV-7 & ADR-007)                                     | Temporarily disable GX gate in pipeline; verify gate test fails                  | Stage 6             |
+| **6** | **Evidence-Bundle Schema Draft**     | `src/schemas/evidence_bundle.py` (pre-v0 draft with typed `Optional` fields)            | Module imports clean, passes type checks, instantiates defaults                   | **ADR-014** (Pre-v0 evidence bundle schema scope)                       | Pass invalid type / omit required field; verify Pydantic `ValidationError`       | Stage 7             |
+| **7** | **MLflow Tracking Wiring**           | Local `./mlruns` tracking initialized; dummy run logging GX metrics & checksum          | Run visible in local `mlflow ui` with metrics and parameters                      | None (D-0.4 confirmed)                                                  | N/A (Starting state is already empty / low-value probe)                          | Stage 8             |
+| **8** | **CI Assembly & First Green Run**    | `.github/workflows/ci.yml` (lint → type-check → size → unit tests → docker)             | All jobs green on GitHub Actions on real push                                     | **ADR-015** (CI skeleton scope for Phase 0)                             | Probe commit with deliberate lint/test error turns CI red before real green push | Stage 9             |
+| **9** | **ADR Consolidation & Sign-Off**     | `system_design.md` ADR ledger updated, PIR table filled, status table updated           | PIR table 100% filled with zero unresolved severities; exit criterion re-verified | None (Consolidates ADR-010 to ADR-015)                                  | N/A (Documentation audit; manual verification of line references)                | **Phase 1**         |
+
+---
+
+## Standing Execution Rules
+
+1. **Strict Sequential Gating:** A stage is not complete until its gate passes unconditionally. No downstream code or stage may be touched while a preceding gate remains open or failing.
+2. **Standing Hygiene Checks:** From Stage 2 onward, `uv run ruff check .`, `uv run pyright`, and `uv run python scripts/check_module_size.py` must be re-run at the close of every subsequent stage.
+3. **Falsification Lifecycle:** Every falsification mutation is executed locally or in a probe commit, confirmed caught by the gate, and immediately reverted. No mutation artifact or probe error is left in the permanent Git history.
+4. **Atomic ADR Recording:** ADR-010 through ADR-015 are written and verified at their designated stages, then consolidated in `system_design.md` during Stage 9 before Phase 1 kickoff.
+5. **Zero Secrets in Code:** S3 credentials, API keys, and access tokens must never enter repository files, configuration files, test fixtures, or Git history.

@@ -3,7 +3,8 @@ Custom exception handling for the project.
 
 This module defines a custom exception class that captures detailed error information,
 including the file name and line number where the exception occurred.
-This is critical for MLOps pipelines to quickly debug failures in automated workflows and prevent silent failures.
+This is critical for MLOps pipelines to quickly debug failures in automated workflows
+and prevent silent failures.
 
 Implementation details:
 - Captures Context: Automatically extracts the file name and line number where the error occurred.
@@ -13,7 +14,6 @@ Implementation details:
 
 from pathlib import Path
 from types import ModuleType
-
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 

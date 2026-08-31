@@ -1,0 +1,94 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "acras"
+version = "0.0.1.dev0"
+description = "Hybrid Agentic MLOps System for Credit Risk and Analysis"
+readme = "README.md"
+license = { file = "LICENSE.txt" }
+requires-python = ">=3.12,<3.13"
+authors = [{ name = "Sebastián Garrido Arévalo" }]
+
+# Runtime dependencies — scoped to what each phase actually needs.
+# Deps for later phases (LangGraph, pydantic-ai, FastAPI gateway, MLflow serving) are added at their phase boundary.
+dependencies = [
+    # Data & ML (Phase 1+)
+    "numpy>=1.26,<3",
+    "pandas>=2.2,<3",
+    "scikit-learn>=1.5,<2",
+    "xgboost>=2.0,<3",
+    # Data contracts (Phase 0)
+    "great-expectations>=1.21,<2",
+    # Pipeline & versioning (Phase 0)
+    "dvc[s3]>=3.55,<4",
+    # Experiment tracking (Phase 0)
+    "mlflow>=2.15,<3",
+    # Schema & config (Phase 0–1)
+    "pydantic>=2.7,<3",
+    "pydantic-settings>=2.3,<3",
+    "pyyaml>=6.0,<7",
+    # Serving (Phase 1+)
+    "fastapi>=0.115,<1",
+    "uvicorn[standard]>=0.30,<1",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.2,<9",
+    "pytest-cov>=5.0,<6",
+    "ruff>=0.9,<1",
+    "pyright>=1.1,<2",
+]
+
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+# ---------------------------------------------------------------------------
+# Ruff
+# ---------------------------------------------------------------------------
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+extend-exclude = ["__pycache__", ".venv", "dist", "build"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "UP",  # pyupgrade
+]
+ignore = []
+
+[tool.ruff.lint.isort]
+force-single-line = false
+known-first-party = ["src"]
+
+# ---------------------------------------------------------------------------
+# Pyright
+# ---------------------------------------------------------------------------
+[tool.pyright]
+pythonVersion = "3.12"
+pythonPlatform = "All"
+include = ["src", "tests", "scripts"]
+exclude = ["**/__pycache__", ".venv"]
+typeCheckingMode = "basic"
+reportMissingImports = true
+reportMissingTypeStubs = false
+
+# ---------------------------------------------------------------------------
+# Pytest
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+# Always fail if no tests collected — never silently pass an empty suite
+addopts = "--strict-config --import-mode=importlib"
+# Nonzero exit on no tests collected (exit code 5 by default in pytest)
+

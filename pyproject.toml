@@ -79,6 +79,7 @@ exclude = ["**/__pycache__", ".venv"]
 typeCheckingMode = "basic"
 reportMissingImports = true
 reportMissingTypeStubs = false
+reportPrivateImportUsage = false
 
 # ---------------------------------------------------------------------------
 # Pytest

@@ -105,7 +105,7 @@ Stage 5 already includes one deliberate falsification: disabling the data-contra
 
 ---
 
-## Stage 4 — Data Contract: Great Expectations Suite
+## Stage 4 — Data Contract: Great Expectations Suite ✅ **PASSED**
 
 **Goal:** Encode D-0.5's minimal, real expectation coverage against the actual acquired dataset.
 

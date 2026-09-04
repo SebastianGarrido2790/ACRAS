@@ -159,6 +159,9 @@ _Status:_ Accepted. _Context:_ ACRAS requires a real, tabular corporate bankrupt
 **ADR-012 — DVC remote storage backend: local filesystem remote outside repository (superseding S3)**
 _Status:_ Accepted (Supersedes preliminary AWS S3 decision in D-0.3). _Context:_ initial planning in D-0.3 favored AWS S3 to demonstrate cloud credential handling. However, without an active AWS account, provisioning an S3 bucket blocked Gate 3. Alternative cloud options like Google Drive introduce OAuth friction and API rate limits. DVC's fundamental reproducibility requirement is that the remote storage is distinct and isolated from the working copy. _Decision:_ configure DVC with a default local filesystem remote located in a dedicated directory outside the repository root (e.g., `../acras_dvc_remote`). _Consequences:_ satisfies DVC's reproducibility and fresh-clone pull contract with zero external cloud dependencies or account costs; eliminates OAuth token maintenance; provides complete file isolation between the active Git workspace and the data version store. If a cloud backend is needed in future deployment stages, DVC remote configuration can be switched without modifying pipeline definitions or data hashes.
 
+**ADR-013 — Great Expectations API generation (GX 1.21 Core) & data contract scope**
+_Status:_ Accepted. _Context:_ D-0.5a tentatively suggested the legacy Validator API but mandated implementation-time verification of the active release. Verification established that `great-expectations 1.21.0` is installed. In GX 1.x, the legacy Validator API is superseded by typed expectation classes (`great_expectations.expectations.core`). D-0.5b required resolving expectation scope to minimal, real coverage. _Decision:_ standardize on GX 1.21 Core API with typed expectation objects (`gxe.Expect...`) and declarative JSON suite persistence (`gx/expectations/bankruptcy_data_suite.json`), implemented in `src/pipelines/data_contracts.py`. Scope is strictly pinned to table schema (96 columns, 6,000–7,500 rows), target integrity (`Bankrupt?` in `{0, 1}` with 0% nulls), binary categorical flags, 0% nulls and `[0.0, 1.0]` bounded ranges across 11 core financial ratios (covering Profitability, Leverage/Solvency, Liquidity, and Coverage pillars), and compound column uniqueness across key ratios. Statistical distribution-drift and anomaly detection are explicitly deferred to Phase 5 production monitoring. _Consequences:_ establishes a deterministic, fast-executing data contract gating the DVC pipeline (INV-7); prevents scope creep into monitoring while guaranteeing that corrupted schema, null spikes, or out-of-bounds financial indicators halt training immediately.
+
 
 ## 7. Open Implementation Notes
 
@@ -168,7 +171,6 @@ Decisions deliberately deferred to implementation time, not yet resolved:
 - Exact divergence-score escalation threshold value — pending Phase 5 calibration against the labeled golden set (ADR-004 fixes the _mechanism_, not the _number_).
 - Dashboard framework (Streamlit vs. lightweight FastAPI+HTML) — deferred to Phase 6, pending time budget remaining after Phases 4–5.
 - Exact HF Inference API model pin (Llama-3.1-8B-Instruct vs. Mistral-7B-Instruct-v0.3, or a current equivalent) — ADR-009 locks the provider and gateway architecture, not the exact model; confirm live availability at Phase 3.
-- Exact Great Expectations rule set — pending Phase 0 EDA on the chosen public dataset.
 
 ## 8. Update Protocol
 

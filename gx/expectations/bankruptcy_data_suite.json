@@ -1,0 +1,576 @@
+{
+  "expectations": [
+    {
+      "id": "959838e2-c7e2-4164-88f3-ae190f2d94cb",
+      "kwargs": {
+        "value": 96
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_table_column_count_to_equal"
+    },
+    {
+      "id": "316a0dad-730f-4989-a3a6-4f33f815a7ef",
+      "kwargs": {
+        "max_value": 7500,
+        "min_value": 6000
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_table_row_count_to_be_between"
+    },
+    {
+      "id": "c4fb992f-ac92-4b5c-9f23-cfa072436781",
+      "kwargs": {
+        "column_set": [
+          "Bankrupt?",
+          " ROA(C) before interest and depreciation before interest",
+          " ROA(A) before interest and % after tax",
+          " ROA(B) before interest and depreciation after tax",
+          " Operating Gross Margin",
+          " Realized Sales Gross Margin",
+          " Operating Profit Rate",
+          " Pre-tax net Interest Rate",
+          " After-tax net Interest Rate",
+          " Non-industry income and expenditure/revenue",
+          " Continuous interest rate (after tax)",
+          " Operating Expense Rate",
+          " Research and development expense rate",
+          " Cash flow rate",
+          " Interest-bearing debt interest rate",
+          " Tax rate (A)",
+          " Net Value Per Share (B)",
+          " Net Value Per Share (A)",
+          " Net Value Per Share (C)",
+          " Persistent EPS in the Last Four Seasons",
+          " Cash Flow Per Share",
+          " Revenue Per Share (Yuan \u00a5)",
+          " Operating Profit Per Share (Yuan \u00a5)",
+          " Per Share Net profit before tax (Yuan \u00a5)",
+          " Realized Sales Gross Profit Growth Rate",
+          " Operating Profit Growth Rate",
+          " After-tax Net Profit Growth Rate",
+          " Regular Net Profit Growth Rate",
+          " Continuous Net Profit Growth Rate",
+          " Total Asset Growth Rate",
+          " Net Value Growth Rate",
+          " Total Asset Return Growth Rate Ratio",
+          " Cash Reinvestment %",
+          " Current Ratio",
+          " Quick Ratio",
+          " Interest Expense Ratio",
+          " Total debt/Total net worth",
+          " Debt ratio %",
+          " Net worth/Assets",
+          " Long-term fund suitability ratio (A)",
+          " Borrowing dependency",
+          " Contingent liabilities/Net worth",
+          " Operating profit/Paid-in capital",
+          " Net profit before tax/Paid-in capital",
+          " Inventory and accounts receivable/Net value",
+          " Total Asset Turnover",
+          " Accounts Receivable Turnover",
+          " Average Collection Days",
+          " Inventory Turnover Rate (times)",
+          " Fixed Assets Turnover Frequency",
+          " Net Worth Turnover Rate (times)",
+          " Revenue per person",
+          " Operating profit per person",
+          " Allocation rate per person",
+          " Working Capital to Total Assets",
+          " Quick Assets/Total Assets",
+          " Current Assets/Total Assets",
+          " Cash/Total Assets",
+          " Quick Assets/Current Liability",
+          " Cash/Current Liability",
+          " Current Liability to Assets",
+          " Operating Funds to Liability",
+          " Inventory/Working Capital",
+          " Inventory/Current Liability",
+          " Current Liabilities/Liability",
+          " Working Capital/Equity",
+          " Current Liabilities/Equity",
+          " Long-term Liability to Current Assets",
+          " Retained Earnings to Total Assets",
+          " Total income/Total expense",
+          " Total expense/Assets",
+          " Current Asset Turnover Rate",
+          " Quick Asset Turnover Rate",
+          " Working capitcal Turnover Rate",
+          " Cash Turnover Rate",
+          " Cash Flow to Sales",
+          " Fixed Assets to Assets",
+          " Current Liability to Liability",
+          " Current Liability to Equity",
+          " Equity to Long-term Liability",
+          " Cash Flow to Total Assets",
+          " Cash Flow to Liability",
+          " CFO to Assets",
+          " Cash Flow to Equity",
+          " Current Liability to Current Assets",
+          " Liability-Assets Flag",
+          " Net Income to Total Assets",
+          " Total assets to GNP price",
+          " No-credit Interval",
+          " Gross Profit to Sales",
+          " Net Income to Stockholder's Equity",
+          " Liability to Equity",
+          " Degree of Financial Leverage (DFL)",
+          " Interest Coverage Ratio (Interest expense to EBIT)",
+          " Net Income Flag",
+          " Equity to Liability"
+        ]
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_table_columns_to_match_set"
+    },
+    {
+      "id": "fade636e-cad4-4265-a792-53e43e5a2a30",
+      "kwargs": {
+        "column": "Bankrupt?"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "ec0bcbbf-b697-4734-b5b9-0be264d7b109",
+      "kwargs": {
+        "column": "Bankrupt?",
+        "value_set": [
+          0,
+          1
+        ]
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_in_set"
+    },
+    {
+      "id": "1d1214ad-a7df-4894-b915-a48bad702a09",
+      "kwargs": {
+        "column": "Bankrupt?",
+        "type_": "int64"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_of_type"
+    },
+    {
+      "id": "392f2b6a-c0ff-4608-be44-5d70ebbdcf5a",
+      "kwargs": {
+        "column": " Liability-Assets Flag"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "51eecd9b-33ad-426d-a92f-423cc4db1700",
+      "kwargs": {
+        "column": " Liability-Assets Flag",
+        "value_set": [
+          0,
+          1
+        ]
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_in_set"
+    },
+    {
+      "id": "074c6541-e7c1-4a15-ace9-69e4c3194356",
+      "kwargs": {
+        "column": " Liability-Assets Flag",
+        "type_": "int64"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_of_type"
+    },
+    {
+      "id": "bdc93eba-d08f-49e1-beed-b69b7c28365b",
+      "kwargs": {
+        "column": " Net Income Flag"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "cf6b76a7-7815-44ba-a573-106a1f6a740c",
+      "kwargs": {
+        "column": " Net Income Flag",
+        "value_set": [
+          1
+        ]
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_in_set"
+    },
+    {
+      "id": "97b15b72-206a-4dbc-8e7a-0944631abfd6",
+      "kwargs": {
+        "column": " Net Income Flag",
+        "type_": "int64"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_of_type"
+    },
+    {
+      "id": "122b6efa-e6c6-428f-bdeb-2058a44ac9e7",
+      "kwargs": {
+        "column": " ROA(A) before interest and % after tax"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "39c52b37-f580-4f84-9a45-3364c2fca434",
+      "kwargs": {
+        "column": " ROA(A) before interest and % after tax",
+        "max_value": 1.0,
+        "min_value": 0.0
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_between"
+    },
+    {
+      "id": "458dfa3b-8c4f-4171-b880-e8fccaabd1dc",
+      "kwargs": {
+        "column": " ROA(A) before interest and % after tax",
+        "type_": "float64"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_of_type"
+    },
+    {
+      "id": "a95e3984-e2d3-47bf-a011-7639b43c7a90",
+      "kwargs": {
+        "column": " Operating Gross Margin"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "fedf9bc6-d6bd-4c74-b543-e31c6d8cc6e9",
+      "kwargs": {
+        "column": " Operating Gross Margin",
+        "max_value": 1.0,
+        "min_value": 0.0
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_between"
+    },
+    {
+      "id": "7547b5c5-9ae1-436d-be44-8b9aeaa33cbf",
+      "kwargs": {
+        "column": " Operating Gross Margin",
+        "type_": "float64"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_of_type"
+    },
+    {
+      "id": "21e20e6a-7e3b-4f2d-b7f9-95256fc9835f",
+      "kwargs": {
+        "column": " Net Income to Total Assets"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "ac26f39d-11de-4ad9-8def-c68f88fd404f",
+      "kwargs": {
+        "column": " Net Income to Total Assets",
+        "max_value": 1.0,
+        "min_value": 0.0
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_between"
+    },
+    {
+      "id": "52d1beb4-a97f-460d-b7d2-1e67df7462f3",
+      "kwargs": {
+        "column": " Net Income to Total Assets",
+        "type_": "float64"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_of_type"
+    },
+    {
+      "id": "c1a5b736-a3dc-4c87-97fb-d0e8b1731ab1",
+      "kwargs": {
+        "column": " Debt ratio %"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "52d5a9e9-aa72-4bd4-a083-515486d46cc1",
+      "kwargs": {
+        "column": " Debt ratio %",
+        "max_value": 1.0,
+        "min_value": 0.0
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_between"
+    },
+    {
+      "id": "6f74d3a3-fbb7-4d93-a926-19afbf177cb8",
+      "kwargs": {
+        "column": " Debt ratio %",
+        "type_": "float64"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_of_type"
+    },
+    {
+      "id": "9a63a604-cfcc-4495-9344-d82a3d0b5dc5",
+      "kwargs": {
+        "column": " Net worth/Assets"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "847d317e-a04e-4aaa-ae08-d9f0879f8bba",
+      "kwargs": {
+        "column": " Net worth/Assets",
+        "max_value": 1.0,
+        "min_value": 0.0
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_between"
+    },
+    {
+      "id": "95a40b15-d031-4687-993d-cb58dd79c2f9",
+      "kwargs": {
+        "column": " Net worth/Assets",
+        "type_": "float64"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_of_type"
+    },
+    {
+      "id": "3de3d8f1-20fc-4127-a335-c03a9413fde3",
+      "kwargs": {
+        "column": " Borrowing dependency"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "153556d2-6510-4e96-a515-4e1736aa0936",
+      "kwargs": {
+        "column": " Borrowing dependency",
+        "max_value": 1.0,
+        "min_value": 0.0
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_between"
+    },
+    {
+      "id": "575528c1-40b1-4302-9de4-5ff0b44c1020",
+      "kwargs": {
+        "column": " Borrowing dependency",
+        "type_": "float64"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_of_type"
+    },
+    {
+      "id": "915199e5-2917-4b9e-acd8-56c5ed0e5748",
+      "kwargs": {
+        "column": " Current Assets/Total Assets"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "25b9f188-48e2-4b83-bb8f-3f4191ebd3ee",
+      "kwargs": {
+        "column": " Current Assets/Total Assets",
+        "max_value": 1.0,
+        "min_value": 0.0
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_between"
+    },
+    {
+      "id": "e933b4dc-eecd-4df8-b283-32cdeacc970f",
+      "kwargs": {
+        "column": " Current Assets/Total Assets",
+        "type_": "float64"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_of_type"
+    },
+    {
+      "id": "80c8ad66-49b0-4b3b-88d5-cb85290cfa6c",
+      "kwargs": {
+        "column": " Working Capital to Total Assets"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "af118ab2-6d47-4874-9885-529efef813f1",
+      "kwargs": {
+        "column": " Working Capital to Total Assets",
+        "max_value": 1.0,
+        "min_value": 0.0
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_between"
+    },
+    {
+      "id": "3780b1b5-6c49-4a9f-9734-0aacb61f1aad",
+      "kwargs": {
+        "column": " Working Capital to Total Assets",
+        "type_": "float64"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_of_type"
+    },
+    {
+      "id": "5427e384-76ee-4aa0-9337-fc504f3503c0",
+      "kwargs": {
+        "column": " Cash/Total Assets"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "56df8ef4-18cd-4190-adf0-bd951a37fc5e",
+      "kwargs": {
+        "column": " Cash/Total Assets",
+        "max_value": 1.0,
+        "min_value": 0.0
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_between"
+    },
+    {
+      "id": "04846fd4-7b5b-464c-ac63-92e28c2df354",
+      "kwargs": {
+        "column": " Cash/Total Assets",
+        "type_": "float64"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_of_type"
+    },
+    {
+      "id": "76241309-ce4d-45eb-875c-ea5599d3e116",
+      "kwargs": {
+        "column": " Interest Coverage Ratio (Interest expense to EBIT)"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "d9c9cd06-eae7-410f-96cd-816433af653d",
+      "kwargs": {
+        "column": " Interest Coverage Ratio (Interest expense to EBIT)",
+        "max_value": 1.0,
+        "min_value": 0.0
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_between"
+    },
+    {
+      "id": "d0e5900a-e45f-470a-ac95-f95e6ec38940",
+      "kwargs": {
+        "column": " Interest Coverage Ratio (Interest expense to EBIT)",
+        "type_": "float64"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_of_type"
+    },
+    {
+      "id": "4c14b469-09a1-40a4-bbdb-e404626772fb",
+      "kwargs": {
+        "column": " Cash Flow to Total Assets"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "b51da0f6-d671-4c9f-84d1-a9b85d7e2436",
+      "kwargs": {
+        "column": " Cash Flow to Total Assets",
+        "max_value": 1.0,
+        "min_value": 0.0
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_between"
+    },
+    {
+      "id": "dc35f4d8-b45f-4b37-b73c-d72a3d1d3a94",
+      "kwargs": {
+        "column": " Cash Flow to Total Assets",
+        "type_": "float64"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_of_type"
+    },
+    {
+      "id": "e4daed55-8278-4d29-b0d5-ceb0e2ec191b",
+      "kwargs": {
+        "column_list": [
+          " ROA(A) before interest and % after tax",
+          " Operating Gross Margin",
+          " Net Income to Total Assets",
+          " Debt ratio %",
+          " Net worth/Assets",
+          " Cash/Total Assets"
+        ]
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_compound_columns_to_be_unique"
+    }
+  ],
+  "id": "cf4b7b7a-c27b-4f0d-ac03-5314f89fbcf7",
+  "meta": {
+    "great_expectations_version": "1.21.0"
+  },
+  "name": "bankruptcy_data_suite",
+  "notes": null
+}

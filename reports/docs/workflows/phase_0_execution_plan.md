@@ -28,7 +28,7 @@ Stage 5 already includes one deliberate falsification: disabling the data-contra
 
 ---
 
-## Stage 0 — Pre-Implementation Verification & Dependency Check
+## Stage 0 — Pre-Implementation Verification & Dependency Check ✅ **PASSED**
 
 **Goal:** Nothing has been built, so this stage exists to confirm the ground truth every later stage assumes — rather than discovering a false assumption mid-build, three stages deep.
 
@@ -49,7 +49,7 @@ Stage 5 already includes one deliberate falsification: disabling the data-contra
 
 ---
 
-## Stage 1 — Repository Initialization & Structural Scaffold
+## Stage 1 — Repository Initialization & Structural Scaffold ✅ **PASSED**
 
 **Goal:** Make the repository match what the planning documents already claim about it (Latent finding #1 in the Current State Audit), and resolve the `tier1_ml/` vs. `pipelines/training/` boundary (Latent finding #2) before any code exists to blur it.
 
@@ -68,7 +68,7 @@ Stage 5 already includes one deliberate falsification: disabling the data-contra
 
 ---
 
-## Stage 2 — Environment, Dependencies & Base Image
+## Stage 2 — Environment, Dependencies & Base Image ✅ **PASSED**
 
 **Goal:** A working, reproducible environment before any real logic is written into it.
 
@@ -86,22 +86,22 @@ Stage 5 already includes one deliberate falsification: disabling the data-contra
 
 ---
 
-## Stage 3 — Dataset Acquisition & DVC Remote
+## Stage 3 — Dataset Acquisition & DVC Remote ✅ **PASSED**
 
 **Goal:** A real, versioned, remotely-reproducible dataset — not just a file on one machine.
 
 **Actions:**
 
-- Download the dataset verified in Stage 0; record its exact version/snapshot identifier.
-- Provision the AWS S3 bucket and a least-privilege IAM identity scoped only to that bucket; credentials go through the environment/secrets path, never into the repo.
-- `dvc init`; configure the S3 remote; `dvc add` the raw dataset; `dvc push`.
+- Download the dataset verified in Stage 0; record its exact version/snapshot identifier (6,819 rows × 96 columns, SHA-256 `67BF2E7C75490F7AD3F76BBCE57D49CDC25967CDAB607527B94F944863FA14D8`, DVC MD5 `da9cda1b8f7cb99d03fbb65b86c15b0f`).
+- Configure a dedicated local filesystem DVC remote located outside the repository root (e.g., `../acras_dvc_remote`), providing physical separation from the working tree copy.
+- `dvc init`; configure the local filesystem remote; `dvc add` the raw dataset; `dvc push`.
 - Simulate a fresh clone in a separate directory and confirm `dvc pull` reconstructs the dataset from the remote alone.
 
-**ADR logged this stage:** **ADR-011** — dataset pin (Kaggle Company Bankruptcy Prediction, exact version/row-count as verified in Stage 0, entity-type caveat restated). **ADR-012** — DVC remote (AWS S3, least-privilege IAM, credential-handling approach).
+**ADR logged this stage:** **ADR-011** — dataset pin (Kaggle Company Bankruptcy Prediction, exact version/row-count as verified in Stage 0, entity-type caveat restated). **ADR-012 (Revised)** — DVC remote (Local filesystem remote outside repo root, superseding initial AWS S3 decision due to account availability; isolates remote store from working copy).
 
-**Falsification:** from the same simulated fresh clone, point `dvc pull` at a deliberately wrong remote URL once and confirm it fails loudly — rather than silently succeeding against stale local cache, which would make the Gate 3 "success" meaningless. Separately, confirm the credential-hygiene check actually flags a secret-shaped string, using an obviously fake placeholder in an uncommitted, unpushed scratch file only — never anything that resembles a real key, and never anything that reaches git history, even briefly.
+**Falsification:** from the simulated fresh clone, point `dvc pull` at a deliberately wrong remote path once and confirm it fails loudly — rather than silently succeeding against stale local cache, which would make the Gate 3 "success" meaningless. Separately, verify gitignore enforcement: confirm that `data/raw/data.csv` is completely ignored by Git and cannot be accidentally staged, while `.dvc` files and `.dvc/config` remain properly tracked.
 
-**Gate 3 (must pass before Stage 4):** `dvc pull` succeeds from the simulated fresh clone; the dataset's checksum is recorded in the ADR; a manual check of `git log`/`git diff` confirms no AWS credentials were ever committed; both falsifications above were run and caught.
+**Gate 3 (must pass before Stage 4):** `dvc pull` succeeds from the simulated fresh clone; the dataset's checksum is recorded in the ADR; a manual check of `git status`/`git diff` confirms no raw data files are staged; both falsifications above were run and caught.
 
 ---
 
@@ -213,18 +213,18 @@ Stage 5 already includes one deliberate falsification: disabling the data-contra
 
 ## Summary Table
 
-| Stage | Name                                 | Builds / Implements                                                                     | Gate Verification                                                                 | ADR Logged                                                              | Falsification Method                                                             | Blocks Until Passed |
-| :---- | :----------------------------------- | :-------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------- | :---------------------------------------------------------------------- | :------------------------------------------------------------------------------- | :------------------ |
-| **0** | **Pre-Implementation Verification**  | Tool versions, AWS access, Kaggle dataset snapshot, GX API verification                 | Zero unverified assumptions; explicit exception logging                           | None                                                                    | N/A (Manual confirmation of ground-truth facts)                                  | Stage 1             |
-| **1** | **Repo Init & Structural Scaffold**  | Directory tree, moved planning docs (`reports/docs/...`), structural boundary markers   | Tree matches spec; docs reachable; clean initial commit                           | **ADR-010** (`tier1_ml`/`pipelines/training` boundary)                  | Temporarily remove required doc / add unexpected dir; verify detection           | Stage 2             |
-| **2** | **Environment & Base Image**         | `pyproject.toml` (`uv.lock`), `Dockerfile` (`python:3.12-slim`), `check_module_size.py` | `uv sync`, non-zero empty `pytest`, `docker build`, `ruff`, `pyright` all pass    | None (D-0.2 & D-0.8 confirmed)                                          | Induce 1 error per tool (dep conflict, lint, type mismatch, broken Dockerfile)   | Stage 3             |
-| **3** | **Dataset Acquisition & DVC Remote** | Raw dataset download, S3 bucket/IAM, `.dvc/config` + S3 remote, `dvc push`              | `dvc pull` works on fresh clone; checksum logged; zero committed secrets          | **ADR-011** (Dataset pin & caveat)<br>**ADR-012** (DVC S3 remote & IAM) | Bad remote URL fails loudly; credential scanner catches fake placeholder key     | Stage 4             |
-| **4** | **Data Contract: GX Suite**          | Expectation suite (schema, nulls, value ranges, uniqueness) on dataset                  | 100% pass rate against valid raw dataset                                          | **ADR-013** (GX API generation & suite scope)                           | Deferred to Stage 5 (avoids duplicate testing)                                   | Stage 5             |
-| **5** | **The Gate: Adversarial Proof**      | `dvc.yaml` validation gating stub training; corrupted fixture; gate test                | Corrupted fixture blocked, valid passes; test verified capable of failing         | None (Demonstrates INV-7 & ADR-007)                                     | Temporarily disable GX gate in pipeline; verify gate test fails                  | Stage 6             |
-| **6** | **Evidence-Bundle Schema Draft**     | `src/schemas/evidence_bundle.py` (pre-v0 draft with typed `Optional` fields)            | Module imports clean, passes type checks, instantiates defaults                   | **ADR-014** (Pre-v0 evidence bundle schema scope)                       | Pass invalid type / omit required field; verify Pydantic `ValidationError`       | Stage 7             |
-| **7** | **MLflow Tracking Wiring**           | Local `./mlruns` tracking initialized; dummy run logging GX metrics & checksum          | Run visible in local `mlflow ui` with metrics and parameters                      | None (D-0.4 confirmed)                                                  | N/A (Starting state is already empty / low-value probe)                          | Stage 8             |
-| **8** | **CI Assembly & First Green Run**    | `.github/workflows/ci.yml` (lint → type-check → size → unit tests → docker)             | All jobs green on GitHub Actions on real push                                     | **ADR-015** (CI skeleton scope for Phase 0)                             | Probe commit with deliberate lint/test error turns CI red before real green push | Stage 9             |
-| **9** | **ADR Consolidation & Sign-Off**     | `system_design.md` ADR ledger updated, PIR table filled, status table updated           | PIR table 100% filled with zero unresolved severities; exit criterion re-verified | None (Consolidates ADR-010 to ADR-015)                                  | N/A (Documentation audit; manual verification of line references)                | **Phase 1**         |
+| Stage | Name                                 | Builds / Implements                                                                     | Gate Verification                                                                 | ADR Logged                                                                  | Falsification Method                                                             | Blocks Until Passed |
+| :---- | :----------------------------------- | :-------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------- | :-------------------------------------------------------------------------- | :------------------------------------------------------------------------------- | :------------------ |
+| **0** | **Pre-Implementation Verification**  | Tool versions, AWS access, Kaggle dataset snapshot, GX API verification                 | Zero unverified assumptions; explicit exception logging                           | None                                                                        | N/A (Manual confirmation of ground-truth facts)                                  | Stage 1             |
+| **1** | **Repo Init & Structural Scaffold**  | Directory tree, moved planning docs (`reports/docs/...`), structural boundary markers   | Tree matches spec; docs reachable; clean initial commit                           | **ADR-010** (`tier1_ml`/`pipelines/training` boundary)                      | Temporarily remove required doc / add unexpected dir; verify detection           | Stage 2             |
+| **2** | **Environment & Base Image**         | `pyproject.toml` (`uv.lock`), `Dockerfile` (`python:3.12-slim`), `check_module_size.py` | `uv sync`, non-zero empty `pytest`, `docker build`, `ruff`, `pyright` all pass    | None (D-0.2 & D-0.8 confirmed)                                              | Induce 1 error per tool (dep conflict, lint, type mismatch, broken Dockerfile)   | Stage 3             |
+| **3** | **Dataset Acquisition & DVC Remote** | Raw dataset download, local filesystem remote outside repo, `.dvc/config`, `dvc push`   | `dvc pull` works on fresh clone; checksum logged; raw data excluded from git      | **ADR-011** (Dataset pin & caveat)<br>**ADR-012** (Local filesystem remote) | Bad remote URL/path fails loudly; gitignore enforcement catches raw data         | Stage 4             |
+| **4** | **Data Contract: GX Suite**          | Expectation suite (schema, nulls, value ranges, uniqueness) on dataset                  | 100% pass rate against valid raw dataset                                          | **ADR-013** (GX API generation & suite scope)                               | Deferred to Stage 5 (avoids duplicate testing)                                   | Stage 5             |
+| **5** | **The Gate: Adversarial Proof**      | `dvc.yaml` validation gating stub training; corrupted fixture; gate test                | Corrupted fixture blocked, valid passes; test verified capable of failing         | None (Demonstrates INV-7 & ADR-007)                                         | Temporarily disable GX gate in pipeline; verify gate test fails                  | Stage 6             |
+| **6** | **Evidence-Bundle Schema Draft**     | `src/schemas/evidence_bundle.py` (pre-v0 draft with typed `Optional` fields)            | Module imports clean, passes type checks, instantiates defaults                   | **ADR-014** (Pre-v0 evidence bundle schema scope)                           | Pass invalid type / omit required field; verify Pydantic `ValidationError`       | Stage 7             |
+| **7** | **MLflow Tracking Wiring**           | Local `./mlruns` tracking initialized; dummy run logging GX metrics & checksum          | Run visible in local `mlflow ui` with metrics and parameters                      | None (D-0.4 confirmed)                                                      | N/A (Starting state is already empty / low-value probe)                          | Stage 8             |
+| **8** | **CI Assembly & First Green Run**    | `.github/workflows/ci.yml` (lint → type-check → size → unit tests → docker)             | All jobs green on GitHub Actions on real push                                     | **ADR-015** (CI skeleton scope for Phase 0)                                 | Probe commit with deliberate lint/test error turns CI red before real green push | Stage 9             |
+| **9** | **ADR Consolidation & Sign-Off**     | `system_design.md` ADR ledger updated, PIR table filled, status table updated           | PIR table 100% filled with zero unresolved severities; exit criterion re-verified | None (Consolidates ADR-010 to ADR-015)                                      | N/A (Documentation audit; manual verification of line references)                | **Phase 1**         |
 
 ---
 
@@ -234,4 +234,4 @@ Stage 5 already includes one deliberate falsification: disabling the data-contra
 2. **Standing Hygiene Checks:** From Stage 2 onward, `uv run ruff check .`, `uv run pyright`, and `uv run python scripts/check_module_size.py` must be re-run at the close of every subsequent stage.
 3. **Falsification Lifecycle:** Every falsification mutation is executed locally or in a probe commit, confirmed caught by the gate, and immediately reverted. No mutation artifact or probe error is left in the permanent Git history.
 4. **Atomic ADR Recording:** ADR-010 through ADR-015 are written and verified at their designated stages, then consolidated in `system_design.md` during Stage 9 before Phase 1 kickoff.
-5. **Zero Secrets in Code:** S3 credentials, API keys, and access tokens must never enter repository files, configuration files, test fixtures, or Git history.
+5. **Zero Secrets in Code:** Cloud credentials, API keys, and access tokens must never enter repository files, configuration files, test fixtures, or Git history.

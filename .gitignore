@@ -96,7 +96,11 @@ venv.bak/
 # DVC - We commit .dvc files, but ignore the actual data/model files
 # Note: DVC usually manages its own .gitignore files in subfolders, 
 # but these global ignores provide a safety net.
-data/
+data/*
+!data/raw/
+data/raw/*
+!data/raw/.gitignore
+!data/raw/data.csv.dvc
 artifacts/
 models/*.pkl
 models/*.h5

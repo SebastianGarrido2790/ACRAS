@@ -117,5 +117,17 @@ fluent_datasources:
           batch_def_data:
             id: 1fde7ec8-ce23-4a71-9218-8b9270efffcb
             partitioner:
+  validation_ds_corrupted_data:
+    type: pandas
+    id: 60a38bea-93c6-4368-aab2-22665d96f0e5
+    assets:
+      asset_corrupted_data:
+        type: dataframe
+        id: e9c70b21-73a1-4be1-85e8-495279af5cf0
+        batch_metadata: {}
+        batch_definitions:
+          batch_def_corrupted_data:
+            id: d376ae3e-9231-4d5c-9832-3104509ee82c
+            partitioner:
 analytics_enabled:
 data_context_id: c52847c2-c309-483b-af02-fd5f42713b97

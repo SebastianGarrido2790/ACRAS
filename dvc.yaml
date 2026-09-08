@@ -1,0 +1,27 @@
+# ACRAS DVC Pipeline — Phase 0 Proof (INV-7 Gate Demonstration)
+#
+# Two stages:
+#   validate  — Runs the Great Expectations data contract.  Produces
+#               outputs/gate_signal.txt ONLY on full success.
+#   stub_train — Reads the gate signal.  Blocked if validate fails because
+#               DVC will not run a stage whose declared deps are absent.
+#
+# This is the minimal pipeline that demonstrates the Roadmap Phase 0 exit
+# criterion: INV-7 is not a stated rule but an observed, testable behaviour.
+# Real training stages will extend this file in Phase 1.
+
+stages:
+  validate:
+    cmd: uv run python -m src.pipelines.validate_gate data/raw/data.csv --gate-signal outputs/gate_signal.txt
+    deps:
+      - src/pipelines/validate_gate.py
+      - src/pipelines/data_contracts.py
+      - data/raw/data.csv
+    outs:
+      - outputs/gate_signal.txt
+
+  stub_train:
+    cmd: uv run python -m src.pipelines.training.stub_train --gate-signal outputs/gate_signal.txt
+    deps:
+      - src/pipelines/training/stub_train.py
+      - outputs/gate_signal.txt

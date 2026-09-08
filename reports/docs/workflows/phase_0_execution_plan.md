@@ -123,7 +123,7 @@ Stage 5 already includes one deliberate falsification: disabling the data-contra
 
 ---
 
-## Stage 5 — The Gate Itself: Wiring & Adversarial Proof
+## Stage 5 — The Gate Itself: Wiring & Adversarial Proof ✅ PASSED
 
 **Goal:** Actually demonstrate Phase 0's Roadmap exit criterion, not just build the pieces that should theoretically produce it. This is where INV-7 stops being a stated rule and becomes an observed behavior.
 

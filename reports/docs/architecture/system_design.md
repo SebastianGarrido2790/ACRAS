@@ -1,7 +1,7 @@
 # System Design — Architectural Decision Record
 
 **Project:** ACRAS (Agentic Credit Risk & Analysis System)
-**Author:** Sebastián Garrido Arévalo · **Date:** 2026-08-28 · **Status:** Phase 0 stub — pre-implementation
+**Author:** Sebastián Garrido Arévalo · **Date:** 2026-08-28 (Phase 0 closed: 2026-09-21) · **Status:** Phase 0 complete — Phase 1 pending
 
 > This document reflects the **actual implemented state** of the system. At Phase 0, that state is "not yet built" — every component and diagram below is a planning-stage placeholder, explicitly marked as such, not a description of working code. It is updated at the close of each roadmap phase per the Update Protocol in §8; nothing here should be read as "done" until a phase's exit criteria have actually been demonstrated.
 
@@ -21,17 +21,17 @@ ACRAS is a three-tier decision-support system built on one non-negotiable bounda
 
 ## 2. Current Implementation Status
 
-| Component                                                 | Status       | Notes                                           |
-| --------------------------------------------------------- | ------------ | ----------------------------------------------- |
-| Planning docs (Canvas, Charter, PRD, User Story, Roadmap) | **Complete** | This ADR is the next artifact in that sequence. |
-| Phase 0 — Scaffolding & data contracts                    | Not started  | —                                               |
-| Phase 1 — Tier 1 ML core                                  | Not started  | —                                               |
-| Phase 2 — Tier 2 Monte Carlo                              | Not started  | —                                               |
-| Phase 3 — LLM gateway & circuit breaker                   | Not started  | —                                               |
-| Phase 4 — Tier 3 multi-agent core                         | Not started  | —                                               |
-| Phase 5 — Evaluation harness & governance gates           | Not started  | —                                               |
-| Phase 6 — Dashboard & trace logging                       | Not started  | —                                               |
-| Phase 7 — Integration & doc close-out                     | Not started  | —                                               |
+| Component                                                 | Status           | Notes                                                                                                                                                                                                                                                        |
+| --------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Planning docs (Canvas, Charter, PRD, User Story, Roadmap) | **Complete**     | This ADR is the next artifact in that sequence.                                                                                                                                                                                                              |
+| Phase 0 — Scaffolding & data contracts                    | **Complete**     | Closed 2026-09-21. Deliverables: uv-managed env (Python 3.12), Docker base image (`python:3.12-slim`), DVC-tracked dataset (6,819 × 96, SHA-256 pinned, local filesystem remote, ADR-012), GX 1.21 data contract (ADR-013), pre-v0 evidence-bundle schema (ADR-014), MLflow tracking wired, CI (Ruff + Pyright + module-size + 15-test suite, ADR-015). Partial exception: Docker build verified locally only — CI Docker step not triggered on GitHub Actions (documented Stage 2 exception, no blocking impact). Exit criterion demonstrated: corrupted fixture halts pipeline; falsification confirms test sensitivity. ADR-010 through ADR-015 all filed. |
+| Phase 1 — Tier 1 ML core                                  | Not started      | —                                                                                                                                                                                                                                                            |
+| Phase 2 — Tier 2 Monte Carlo                              | Not started      | —                                                                                                                                                                                                                                                            |
+| Phase 3 — LLM gateway & circuit breaker                   | Not started      | —                                                                                                                                                                                                                                                            |
+| Phase 4 — Tier 3 multi-agent core                         | Not started      | —                                                                                                                                                                                                                                                            |
+| Phase 5 — Evaluation harness & governance gates           | Not started      | —                                                                                                                                                                                                                                                            |
+| Phase 6 — Dashboard & trace logging                       | Not started      | —                                                                                                                                                                                                                                                            |
+| Phase 7 — Integration & doc close-out                     | Not started      | —                                                                                                                                                                                                                                                            |
 
 This table is the authoritative "what actually exists" record. It is the first thing updated at the close of each phase — see §8.
 

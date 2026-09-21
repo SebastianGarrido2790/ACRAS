@@ -192,7 +192,7 @@ Stage 5 already includes one deliberate falsification: disabling the data-contra
 
 ---
 
-## Stage 9 — ADR Consolidation & Phase 0 Sign-Off
+## Stage 9 — ADR Consolidation & Phase 0 Sign-Off ✅ PASSED
 
 **Goal:** Close the loop between "decided," "built," and "recorded" before Phase 1 is allowed to start.
 
@@ -207,7 +207,13 @@ Stage 5 already includes one deliberate falsification: disabling the data-contra
 
 **Falsification:** not applicable. This stage checks that documentation reflects what was built — a behavioral mutation has nothing to act on here; the equivalent discipline is simply not accepting a "matches as designed" finding without having actually looked at the file it claims to describe.
 
-**Gate 9 (Phase 0 complete; Phase 1 may begin):** every Post-Implementation Review row is populated with a real finding and no unresolved severity; `system_design.md`'s status table reflects reality; ADR-010 through ADR-015 are all filed; the exit criterion holds on the final re-run.
+**Gate 9 result (2026-09-21):**
+- **ADR-010 through ADR-015:** all filed in `system_design.md` §6, each in Accepted format, verified by line-number check.
+- **Implementation status table:** Phase 0 row updated from "Not started" → **Complete** with full deliverable inventory and documented exception.
+- **Post-Implementation Review:** all 7 rows populated with real findings; 6 × None severity, 1 × Low (documented Docker CI exception, accepted). No unresolved severities.
+- **Final exit criterion re-run:** `uv run pytest tests/ -v` — **15/15 passed** (Ruff + Pyright + module-size all clean). No regressions since Stage 5.
+
+**Phase 0 is complete. Phase 1 may begin.**
 
 ---
 

@@ -140,7 +140,7 @@ Stage 5 already includes one deliberate falsification: disabling the data-contra
 
 ---
 
-## Stage 6 — Evidence-Bundle Schema Draft
+## Stage 6 — Evidence-Bundle Schema Draft ✅ PASSED
 
 **Goal:** Implement D-0.6's resolution as actual code, so the ambiguity found in the audit can't recur for the next person (or the next session) reading the schema module.
 

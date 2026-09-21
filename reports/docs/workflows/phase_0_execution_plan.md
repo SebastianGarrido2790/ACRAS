@@ -174,7 +174,7 @@ Stage 5 already includes one deliberate falsification: disabling the data-contra
 
 ---
 
-## Stage 8 — CI Assembly & First Green Run
+## Stage 8 — CI Assembly & First Green Run ✅ PASSED
 
 **Goal:** Everything proven locally in Stages 2–7 now has to prove itself in a clean CI environment, not just on the one machine that built it.
 

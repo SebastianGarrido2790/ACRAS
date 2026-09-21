@@ -157,7 +157,7 @@ Stage 5 already includes one deliberate falsification: disabling the data-contra
 
 ---
 
-## Stage 7 — MLflow Tracking Wiring
+## Stage 7 — MLflow Tracking Wiring ✅ PASSED
 
 **Goal:** Prove the tracking plumbing works end to end before there's a real model to track.
 

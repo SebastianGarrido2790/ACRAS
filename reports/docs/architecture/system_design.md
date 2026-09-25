@@ -177,6 +177,8 @@ Decisions deliberately deferred to implementation time, not yet resolved:
 - Exact divergence-score escalation threshold value — pending Phase 5 calibration against the labeled golden set (ADR-004 fixes the _mechanism_, not the _number_).
 - Dashboard framework (Streamlit vs. lightweight FastAPI+HTML) — deferred to Phase 6, pending time budget remaining after Phases 4–5.
 - Exact HF Inference API model pin (Llama-3.1-8B-Instruct vs. Mistral-7B-Instruct-v0.3, or a current equivalent) — ADR-009 locks the provider and gateway architecture, not the exact model; confirm live availability at Phase 3.
+- **Deferred Tier 3 schema fields (fold in as ADR-016 when Phase 4 begins):** `tier3_persona_architecture.md` specifies additional `EvidenceBundle` fields (`tail_loss_estimate`, `covenant_flags`, `revenue_growth_rate`, `pipeline_value_estimate`, `capital_consumption_estimate`, `concentration_flag`) and a `PersonaVerdict.limitations` field that were deliberately excluded from the Phase 0 pre-v0 skeleton. Add these to the typed schema under a new `schema_version` (v2 or per the versioning sequence in ADR-014) and log as ADR-016 at Phase 4 start.
+- **Recommendation enum canonical spelling:** `"reject"` is the locked value (not `"decline"`). This is enforced by the `Literal` type in `src/schemas/evidence_bundle.py` `PersonaVerdict.recommendation`. Phase 4 system prompts and rubrics must use `"reject"` exactly.
 
 ## 8. Update Protocol
 

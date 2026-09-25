@@ -55,6 +55,7 @@ class PersonaVerdict(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     persona: Literal["cro", "growth", "capital"]
+    # canonical: "reject" (not "decline") — enforced here for all tiers and Phase 4 prompts
     recommendation: Literal["approve", "conditional", "reject"]
     lean: Annotated[float, Field(ge=-1.0, le=1.0, description="Directional lean from -1 to 1")]
     confidence: Annotated[

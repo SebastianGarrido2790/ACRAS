@@ -1,7 +1,7 @@
 # Implementation Plan & Decisions — Phase 1 (Tier 1: Frozen ML Core)
 
 **Project:** ACRAS (Agentic Credit Risk & Analysis System)
-**Author:** Sebastián Garrido Arévalo · **Date:** 2026-09-25 · **Status:** ✅ All 7 approval-required decisions (D-1.1–D-1.6, D-1.8) approved as recommended, 2026-09-26 — implementation may proceed
+**Author:** Sebastián Garrido Arévalo · **Date:** 2026-09-25 (EDA reassessment added 2026-09-27) · **Status:** ✅ All 7 approval-required decisions (D-1.1–D-1.6, D-1.8) approved 2026-09-26. Real EDA now complete — §6 below reassesses those decisions against actual numbers and adds 3 new decisions the EDA surfaced, 2 requiring approval before training code is written.
 
 Same discipline as Phase 0's plan: nothing below has been built, every decision is either approved, amended, or rejected before a line of Phase 1 code is written, and decisions marked "no input required" are recorded for completeness, not silently assumed. **This document is kept in full, including every rejected/unselected option and its trade-offs, for traceability — approvals are marked inline, nothing is deleted.**
 
@@ -196,7 +196,58 @@ This dataset is known for a small positive (bankrupt) class relative to the whol
 
 ---
 
-## 6. Post-Implementation Review & Remediation Records
+## 6. EDA Reassessment (Real Data, 2026-09-27)
+
+Real EDA now exists (`scripts/explore_dataset.py`, outputs in `reports/eda/`). This section checks every EDA-relevant approved decision against actual numbers rather than the estimates they were made with, and surfaces new decisions the real data revealed that the original Decision Index (§4) had no way to anticipate.
+
+### Confirmed by real data, not changed
+
+- **D-1.2 (CV-based calibration over a naive split).** Confirmed, and the actual numbers make the original reasoning stronger than it was: the real imbalance is **30:1** (220 bankrupt / 6,599 solvent) — sharper than assumed when D-1.2 was approved. A naive three-way split would have been an even worse idea than originally argued.
+- **D-1.3 (class weighting over resampling).** Confirmed — and this is the one finding worth stating plainly rather than glossing over: **the EDA script's own printed output recommends "SMOTE + class_weight='balanced'," which directly contradicts the already-approved ADR-019.** That's generic boilerplate a stock EDA template prints regardless of context, not a reasoned recommendation weighed against this project's calibration priority — don't follow it. If anything, 30:1 makes SMOTE _more_ dangerous than it looked in the abstract: balancing to 50/50 at this ratio means synthesizing roughly 29 fake minority points for every 1 real one (≈6,159 synthetic rows against 220 real ones). The higher the imbalance, the more the resulting model's probabilities reflect manufactured data rather than the true population base rate — worse for calibration, not better. ADR-019 stands as approved.
+
+### New decisions the EDA surfaced
+
+**D-1.10 — Duplicate feature column**
+_Requires approval:_ No — mechanical and unambiguous.
+_Finding:_ `Current Liability to Liability` and `Current Liabilities/Liability` are perfectly correlated (r = 1.000) — almost certainly the same computed ratio stored under two column names.
+_Decision:_ drop one before training. Keep `Current Liabilities/Liability` (matches the "/" naming convention used by the dataset's other ratio columns, e.g. `Quick Assets/Total Assets`, `Cash/Total Assets`). **This changes the canonical feature list D-1.8/ADR-023's inference-time validator checks against** — the dropped column must not appear in that list, or the validator will reject legitimate requests that correctly omit it.
+
+**D-1.11 — Skewed-feature transformation**
+_Requires approval:_ Yes.
+_Finding:_ 73 of 95 features have |skew| > 2.
+
+| Option                                                                                                                                                                     | Trade-offs                                                                                                                                                                                                                                                            |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A. No transform — all three models see raw values.                                                                                                                         | Simplest, but leaves the Logistic Regression baseline (D-1.1/ADR-017) exposed to exactly the kind of skewed, unscaled input that meaningfully distorts a linear model's fit and calibration.                                                                          |
+| **[APPROVED] B. Apply Yeo-Johnson (not log — several ratios, e.g. growth rates, can be negative, which log can't handle) as one shared preprocessing step feeding all three models.** | Tree-based models (XGBoost, LightGBM) are invariant to monotonic transforms of individual features — this costs them nothing. Directly helps the one model whose entire job is being a calibration-diagnostic baseline. One shared pipeline, not two to keep in sync. |
+| C. Model-specific preprocessing — transform only for Logistic Regression.                                                                                                  | Means maintaining two divergent preprocessing paths against one canonical feature list — the exact duplication risk D-1.8's own reasoning already flagged elsewhere in this project.                                                                                  |
+
+**Recommendation:** B.
+
+**D-1.12 — Outlier handling**
+_Requires approval:_ Yes — and this is the one I'd push back on hardest if the instinct were to follow generic EDA-report advice.
+_Finding:_ 71 of 95 features exceed 5% outliers by the IQR×1.5 rule; the worst (Degree of Financial Leverage) sits at 22%.
+
+| Option                                                                                                                                                                                           | Trade-offs                                                                       |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
+| A. Remove or winsorize outliers per the standard IQR rule, as generic EDA guidance would suggest.                                                                                                | This is the wrong default for this specific dataset — see reasoning below.       |
+| **[APPROVED] B. Leave outliers untouched; rely on tree-model robustness plus D-1.11's Yeo-Johnson transform (which compresses extreme values for the Logistic Regression baseline without deleting them).** | Preserves exactly the cases the rest of the system is architected to care about. |
+
+**Reasoning:** in credit-risk data specifically, an "outlier" ratio — extreme leverage, near-zero interest coverage — is frequently the genuine signal of a company in real financial distress, not a data error. Those are the same tail-risk cases Tier 2's P90 band and the CRO persona's `tail_loss_estimate` field (`tier3_persona_architecture.md` §4) exist to surface downstream. Blanket outlier removal here wouldn't clean the data; it would delete the tail-risk signal ACRAS's own three-tier architecture is built around, before Tier 2 ever gets a chance to see it.
+
+**Recommendation:** B, unequivocally.
+
+### Refinement flagged for confirmation (not a new decision — a parameter check within already-approved D-1.2)
+
+With 220 total positive cases, 5-fold CV leaves roughly 30–40 positive cases per held-out fold once a test set is carved out first — thin, workable, but right at the edge of what's reliable for a per-fold calibration read. Recommendation: keep 5-fold (fewer folds trades calibration-fold density for training-data density, not obviously a better trade) — but the calibration report deliverable must state this thin-fold-count caveat explicitly, not present the resulting calibration curve with more confidence than the sample size actually earns.
+
+### Correctly left unaddressed
+
+The EDA script's own summary also suggests "consider VIF filtering or PCA" for "high inter-feature correlation" — not adopted. The actual correlation matrix found exactly one near-duplicate pair (D-1.10), not the broad multicollinearity that generic line implies. PCA specifically is rejected outright: it would replace interpretable, named financial ratios with opaque components, directly undermining the auditability this entire project is positioned on (Charter §2 / `scoping_doc.md` §2).
+
+---
+
+## 7. Post-Implementation Review & Remediation Records
 
 _To be completed at the close of Phase 1 implementation. Not yet applicable — nothing has been built._
 
@@ -211,6 +262,9 @@ _To be completed at the close of Phase 1 implementation. Not yet applicable — 
 | Calibration check matches D-1.7                         | Standalone, unit-tested, importable function — not inline script logic                                                                                                                     | _pending_ |         |          |             |        |
 | FastAPI schema matches D-1.8                            | Thin wrapper + canonical feature-list validator; no duplicated feature list                                                                                                                | _pending_ |         |          |             |        |
 | `params.yaml` actually used                             | No hardcoded split ratio, seed, threshold, or hyperparameter found in source                                                                                                               | _pending_ |         |          |             |        |
+| Duplicate column excluded (D-1.10)                      | `Current Liability to Liability` absent from canonical feature list and training data                                                                                                      | _pending_ |         |          |             |        |
+| Skew transform matches D-1.11 (if approved)             | Yeo-Johnson applied uniformly across all three models' input pipeline                                                                                                                      | _pending_ |         |          |             |        |
+| Outliers untouched (D-1.12, if approved)                | No IQR-based removal/winsorization present in the feature pipeline                                                                                                                         | _pending_ |         |          |             |        |
 | Exit criterion genuinely demonstrated — both directions | A deliberately miscalibrated candidate is blocked, **and** a well-calibrated model is correctly allowed through — a check that always blocks is as uninformative as one that always passes | _pending_ |         |          |             |        |
 
 No row is marked "Resolved" from a description alone — each needs the actual file, metric, or test output checked before Phase 1 is signed off and Phase 2 starts.

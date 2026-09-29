@@ -13,7 +13,7 @@ Same discipline as Phase 0's execution plan: nothing here is code, ADRs are assi
 
 | Stage | Name                                                         | Gate (one line)                                                                         | Falsification                                                   |
 | ----- | ------------------------------------------------------------ | --------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| 0     | Pre-Implementation Verification & Dependency Check           | Every checklist item confirmed true, including explicit D-1.11/D-1.12 approval          | N/A — manual confirmations                                      |
+| 0     | Pre-Implementation Verification & Dependency Check           | Every checklist item confirmed true                                                     |
 | 1     | `params.yaml`, Canonical Feature List & Transform Definition | Feature list is 94 fields (post-D-1.10); transformer unit-tested in isolation           | Deferred — nothing to break yet against real data               |
 | 2     | Feature Pipeline: Preprocessing & Split                      | Stratification holds; no train/test leakage in the fitted transformer                   | Yes                                                             |
 | 3     | Model Training & Cross-Validated Calibration                 | All 12 configurations trained and logged; a winner identified by Brier score            | Yes — label-shuffle sanity check                                |
@@ -28,11 +28,10 @@ Same discipline as Phase 0's execution plan: nothing here is code, ADRs are assi
 
 ## Stage 0 — Pre-Implementation Verification & Dependency Check
 
-**Goal:** Confirm the ground truth every later stage assumes, including the one open approval gap, before any pipeline code exists.
+**Goal:** Confirm the ground truth every later stage assumes, before any pipeline code exists.
 
 **Actions:**
 
-- **Get explicit confirmation of D-1.11 and D-1.12** — do not proceed to Stage 1 on an assumed "Great."
 - Confirm `lightgbm` (D-1.1/ADR-017) is added to `pyproject.toml` and installs cleanly via `uv sync`.
 - Confirm the exact duplicate-column finding (D-1.10) against the live DVC-tracked dataset directly — check actual values match, not just trust the printed correlation coefficient.
 - Decide whether `reports/eda/` outputs (the PNGs/CSVs from `explore_dataset.py`) are committed or gitignored-and-regenerable. Recommendation: gitignore the generated artifacts (they're reproducible on demand from the DVC-pinned dataset), commit the script itself — avoids bloating the repo with binary report images that duplicate what's already written into this plan's §6.
@@ -44,7 +43,7 @@ Same discipline as Phase 0's execution plan: nothing here is code, ADRs are assi
 
 **Falsification:** Not applicable — every item is a manual confirmation with no programmatic failure mode to induce.
 
-**Gate 0:** every item above confirmed true (including explicit D-1.11/D-1.12 sign-off) or logged as an exception with its own resolution.
+**Gate 0:** every item above confirmed true or logged as an exception with its own resolution.
 
 ---
 

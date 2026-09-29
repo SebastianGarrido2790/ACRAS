@@ -1,0 +1,3 @@
+# Ignore generated EDA artifacts (reproducible via scripts/explore_dataset.py)
+*
+!.gitignore

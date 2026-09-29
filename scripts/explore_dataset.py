@@ -20,16 +20,10 @@ Outputs (saved to reports/eda/):
 from __future__ import annotations
 
 import sys
+import warnings
 from pathlib import Path
 
-# ── repo root on sys.path so relative imports work when called from scripts/ ──
-REPO_ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(REPO_ROOT))
-
-import warnings
-
 import matplotlib
-matplotlib.use("Agg")  # headless — no display required
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import numpy as np
@@ -39,6 +33,13 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.inspection import permutation_importance
 from sklearn.model_selection import StratifiedShuffleSplit
 from sklearn.preprocessing import StandardScaler
+
+matplotlib.use("Agg")  # headless — no display required
+
+# ── repo root on sys.path so relative imports work when called from scripts/ ──
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -172,7 +173,7 @@ def plot_class_imbalance(df: pd.DataFrame) -> None:
 # ─────────────────────────────────────────────────────────────────────────────
 def plot_missingness(df: pd.DataFrame) -> None:
     null_pct = df.isnull().mean() * 100
-    missing  = null_pct[null_pct > 0].sort_values(ascending=False)
+    missing = null_pct[null_pct > 0].sort_values(ascending=False)  # type: ignore
 
     if missing.empty:
         print("\n[4] Missingness: No missing values — heatmap skipped.")
@@ -204,8 +205,8 @@ def plot_missingness(df: pd.DataFrame) -> None:
 def plot_correlation(df: pd.DataFrame) -> None:
     features = df.drop(columns=[TARGET_COL])
     # Select top-N highest-variance features for readability
-    top_cols = features.var().nlargest(TOP_N_CORR).index.tolist()
-    corr     = features[top_cols].corr()
+    top_cols = features.var().nlargest(TOP_N_CORR).index.tolist()  # type: ignore
+    corr = features[top_cols].corr()  # type: ignore
 
     fig, ax = plt.subplots(figsize=(16, 14))
     mask = np.triu(np.ones_like(corr, dtype=bool))
@@ -226,7 +227,7 @@ def plot_correlation(df: pd.DataFrame) -> None:
 
     # Highly correlated pairs report
     corr_abs  = corr.abs()
-    upper     = corr_abs.where(~mask)
+    upper     = corr_abs.where(~mask)  # type: ignore
     high_pairs = (
         upper.stack()
              .reset_index()
@@ -272,15 +273,15 @@ def plot_feature_importance(df: pd.DataFrame) -> pd.Index:
     rf.fit(X_train, y_train)
 
     # Permutation importance on test set (more reliable than MDI)
-    pi = permutation_importance(
+    pi = permutation_importance(  # type: ignore
         rf, X_test, y_test,
         n_repeats=5, random_state=RANDOM_SEED, n_jobs=-1, scoring="roc_auc",
     )
     imp_df = (
         pd.DataFrame({
             "feature":    feature_names,
-            "importance": pi.importances_mean,
-            "std":        pi.importances_std,
+            "importance": pi.importances_mean,  # type: ignore
+            "std":        pi.importances_std,   # type: ignore
         })
         .sort_values("importance", ascending=False)
         .reset_index(drop=True)
@@ -310,7 +311,7 @@ def plot_feature_importance(df: pd.DataFrame) -> pd.Index:
     top_features = imp_df.head(TOP_N_BOX)["feature"]
     print(f"    Top 5 features: {top_features.tolist()[:5]}")
     print(f"    -> Saved: {out}")
-    return top_features
+    return top_features  # type: ignore
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -395,7 +396,7 @@ def outlier_report(df: pd.DataFrame) -> None:
 # ─────────────────────────────────────────────────────────────────────────────
 def print_summary(df: pd.DataFrame) -> None:
     features = df.drop(columns=[TARGET_COL])
-    skewed   = (features.skew().abs() > 2).sum()
+    skewed   = (features.skew().abs() > 2).sum()  # type: ignore
 
     print(f"\n{'='*60}")
     print(" EDA Complete — Summary")

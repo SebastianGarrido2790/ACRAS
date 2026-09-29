@@ -26,7 +26,7 @@ Same discipline as Phase 0's execution plan: nothing here is code, ADRs are assi
 
 ---
 
-## Stage 0 — Pre-Implementation Verification & Dependency Check
+## Stage 0 — Pre-Implementation Verification & Dependency Check ✅ **PASSED**
 
 **Goal:** Confirm the ground truth every later stage assumes, before any pipeline code exists.
 
@@ -47,7 +47,7 @@ Same discipline as Phase 0's execution plan: nothing here is code, ADRs are assi
 
 ---
 
-## Stage 1 — `params.yaml`, Canonical Feature List & Transform Definition
+## Stage 1 — `params.yaml`, Canonical Feature List & Transform Definition 📌 **PENDING**
 
 **Goal:** Establish D-1.0's file and the single-source-of-truth feature list and transformer that every later stage — training, evaluation, and eventually the FastAPI validator — imports rather than redefines.
 
@@ -65,7 +65,7 @@ Same discipline as Phase 0's execution plan: nothing here is code, ADRs are assi
 
 ---
 
-## Stage 2 — Feature Pipeline: Preprocessing & Split
+## Stage 2 — Feature Pipeline: Preprocessing & Split 📌 **PENDING**
 
 **Goal:** Build `src/pipelines/feature/` — the deterministic stage that turns the GX-validated raw dataset into model-ready data, honoring D-1.10, D-1.11, and D-1.12 together for the first time against real data.
 
@@ -87,7 +87,7 @@ Same discipline as Phase 0's execution plan: nothing here is code, ADRs are assi
 
 ---
 
-## Stage 3 — Model Training & Cross-Validated Calibration (Core)
+## Stage 3 — Model Training & Cross-Validated Calibration (Core) 📌 **PENDING**
 
 **Goal:** Train XGBoost, LightGBM, and Logistic Regression (D-1.1/ADR-017), each weighted and unweighted (D-1.3/ADR-019), each calibrated with both Platt and isotonic (D-1.4/ADR-020) — 12 configurations total — and identify a winner by calibration first, discrimination second.
 
@@ -106,7 +106,7 @@ Same discipline as Phase 0's execution plan: nothing here is code, ADRs are assi
 
 ---
 
-## Stage 4 — Calibration Gate: Standalone Testable Function
+## Stage 4 — Calibration Gate: Standalone Testable Function 📌 **PENDING**
 
 **Goal:** Extract the promotion check into an isolated, pure function per D-1.7 — not left as inline script logic — so Phase 5 can wire it into CI later without a refactor.
 
@@ -123,7 +123,7 @@ Same discipline as Phase 0's execution plan: nothing here is code, ADRs are assi
 
 ---
 
-## Stage 5 — Model Promotion, Freezing & Export
+## Stage 5 — Model Promotion, Freezing & Export 📌 **PENDING**
 
 **Goal:** Run Stage 3's real winner through Stage 4's real gate, promote it, and export it per D-1.6/ADR-022.
 
@@ -142,7 +142,7 @@ Same discipline as Phase 0's execution plan: nothing here is code, ADRs are assi
 
 ---
 
-## Stage 6 — FastAPI Serving Layer
+## Stage 6 — FastAPI Serving Layer 📌 **PENDING**
 
 **Goal:** Build `tier1_ml`'s service per ADR-010's boundary and D-1.8/ADR-023's schema.
 
@@ -162,7 +162,7 @@ Same discipline as Phase 0's execution plan: nothing here is code, ADRs are assi
 
 ---
 
-## Stage 7 — Containerization
+## Stage 7 — Containerization 📌 **PENDING**
 
 **Goal:** Package `tier1_ml` as the lean serving image D-1.6/ADR-022 specifies.
 
@@ -179,7 +179,7 @@ Same discipline as Phase 0's execution plan: nothing here is code, ADRs are assi
 
 ---
 
-## Stage 8 — Endpoint & Pipeline Test Suite
+## Stage 8 — Endpoint & Pipeline Test Suite 📌 **PENDING**
 
 **Goal:** Formalize every falsification performed by hand in Stages 2–7 into a permanent, automated suite (D-1.9).
 
@@ -197,7 +197,7 @@ Same discipline as Phase 0's execution plan: nothing here is code, ADRs are assi
 
 ---
 
-## Stage 9 — ADR Consolidation & Phase 1 Sign-Off
+## Stage 9 — ADR Consolidation & Phase 1 Sign-Off 📌 **PENDING**
 
 **Goal:** Close the loop between decided, built, and recorded — the same discipline as Phase 0's own Stage 9.
 

@@ -47,7 +47,7 @@ Same discipline as Phase 0's execution plan: nothing here is code, ADRs are assi
 
 ---
 
-## Stage 1 — `params.yaml`, Canonical Feature List & Transform Definition 📌 **PENDING**
+## Stage 1 — `params.yaml`, Canonical Feature List & Transform Definition ✅ **PASSED**
 
 **Goal:** Establish D-1.0's file and the single-source-of-truth feature list and transformer that every later stage — training, evaluation, and eventually the FastAPI validator — imports rather than redefines.
 

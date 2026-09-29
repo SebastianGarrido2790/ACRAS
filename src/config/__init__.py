@@ -1,4 +1,23 @@
-"""Config Module.
+"""Config package initialization."""
 
-Global parameters and configuration loader for params.yaml.
-"""
+from src.config.loader import (
+    CalibrationConfig,
+    CVConfig,
+    ImbalanceConfig,
+    PreprocessingConfig,
+    ProjectParams,
+    RatingThreshold,
+    SplitConfig,
+    load_params,
+)
+
+__all__ = [
+    "CalibrationConfig",
+    "CVConfig",
+    "ImbalanceConfig",
+    "PreprocessingConfig",
+    "ProjectParams",
+    "RatingThreshold",
+    "SplitConfig",
+    "load_params",
+]

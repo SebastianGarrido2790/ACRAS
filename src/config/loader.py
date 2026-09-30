@@ -51,6 +51,13 @@ class CalibrationConfig(BaseModel):
     methods: list[str]
 
 
+class PromotionGateConfig(BaseModel):
+    """Model promotion gate threshold parameters (INV-3 / FR12)."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    brier_threshold: float = Field(gt=0.0, lt=1.0)
+    auc_threshold: float = Field(gt=0.5, lt=1.0)
+
 class RatingThreshold(BaseModel):
     """Discrete credit rating bracket bound."""
 
@@ -70,6 +77,8 @@ class ProjectParams(BaseModel):
     imbalance: ImbalanceConfig
     calibration: CalibrationConfig
     models: dict[str, dict[str, Any]]
+    promotion_gate: PromotionGateConfig
+
     rating_thresholds: list[RatingThreshold]
 
 

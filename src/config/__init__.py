@@ -6,6 +6,7 @@ from src.config.loader import (
     ImbalanceConfig,
     PreprocessingConfig,
     ProjectParams,
+    PromotionGateConfig,
     RatingThreshold,
     SplitConfig,
     load_params,
@@ -17,7 +18,10 @@ __all__ = [
     "ImbalanceConfig",
     "PreprocessingConfig",
     "ProjectParams",
+    "PromotionGateConfig",
     "RatingThreshold",
     "SplitConfig",
     "load_params",
 ]
+
+

@@ -106,7 +106,7 @@ Same discipline as Phase 0's execution plan: nothing here is code, ADRs are assi
 
 ---
 
-## Stage 4 — Calibration Gate: Standalone Testable Function 📌 **PENDING**
+## Stage 4 — Calibration Gate: Standalone Testable Function ✅ **PASSED**
 
 **Goal:** Extract the promotion check into an isolated, pure function per D-1.7 — not left as inline script logic — so Phase 5 can wire it into CI later without a refactor.
 

@@ -1,0 +1,13 @@
+rank,model_family,weighted,calibration_method,brier_score,roc_auc,ks_statistic
+1,xgboost,False,isotonic,0.020766,0.959496,0.793182
+2,xgboost,False,sigmoid,0.021031,0.960933,0.793939
+3,lightgbm,False,sigmoid,0.021046,0.955303,0.768939
+4,lightgbm,False,isotonic,0.021302,0.955183,0.785606
+5,xgboost,True,isotonic,0.021416,0.953426,0.765909
+6,lightgbm,True,isotonic,0.021718,0.950422,0.761364
+7,lightgbm,True,sigmoid,0.021807,0.950327,0.768182
+8,xgboost,True,sigmoid,0.022281,0.953633,0.787879
+9,logistic_regression,False,isotonic,0.024298,0.917433,0.725
+10,logistic_regression,True,isotonic,0.024624,0.919473,0.734848
+11,logistic_regression,False,sigmoid,0.024997,0.918027,0.742424
+12,logistic_regression,True,sigmoid,0.025941,0.918612,0.732576

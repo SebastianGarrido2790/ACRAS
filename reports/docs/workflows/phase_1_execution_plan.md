@@ -87,7 +87,7 @@ Same discipline as Phase 0's execution plan: nothing here is code, ADRs are assi
 
 ---
 
-## Stage 3 — Model Training & Cross-Validated Calibration (Core) 📌 **PENDING**
+## Stage 3 — Model Training & Cross-Validated Calibration (Core) ✅ **PASSED**
 
 **Goal:** Train XGBoost, LightGBM, and Logistic Regression (D-1.1/ADR-017), each weighted and unweighted (D-1.3/ADR-019), each calibrated with both Platt and isotonic (D-1.4/ADR-020) — 12 configurations total — and identify a winner by calibration first, discrimination second.
 

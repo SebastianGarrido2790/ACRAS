@@ -65,7 +65,7 @@ Same discipline as Phase 0's execution plan: nothing here is code, ADRs are assi
 
 ---
 
-## Stage 2 — Feature Pipeline: Preprocessing & Split 📌 **PENDING**
+## Stage 2 — Feature Pipeline: Preprocessing & Split ✅ **PASSED**
 
 **Goal:** Build `src/pipelines/feature/` — the deterministic stage that turns the GX-validated raw dataset into model-ready data, honoring D-1.10, D-1.11, and D-1.12 together for the first time against real data.
 

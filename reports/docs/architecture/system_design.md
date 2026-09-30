@@ -9,7 +9,7 @@
 
 ## Document Overview
 
-- **What it is:** The primary System Design specification and Architectural Decision Record (ADR) detailing system topology, data flow, component interfaces, evidence-bundle contracts, and formal architectural decisions (ADR-001 through ADR-025).
+- **What it is:** The primary System Design specification and Architectural Decision Record (ADR) detailing system topology, data flow, component interfaces, evidence-bundle contracts, and formal architectural decisions (ADR-001 through ADR-026).
 - **Why it exists:** Codifies the immutable architectural boundaries (deterministic ML/simulation core vs. non-deterministic LLM reasoning layer), maintains a living record of implementation progress, and preserves technical decision rationale.
 - **How to use it:** Refer to this document during component design and integration to adhere to architectural boundaries and interface schemas; update the status table and architecture specifications at the close of each development phase per the Update Protocol (§8).
 
@@ -204,6 +204,10 @@ Decisions deliberately deferred to implementation time, not yet resolved:
 
 - **Partially resolved by ADR-017:** the model _candidate set_ is locked (XGBoost, LightGBM, Logistic Regression) — but which one is ultimately promoted is still pending actual Phase 1 training/evaluation results, not decided here. Do not read ADR-017 as having chosen a final algorithm.
 - Exact divergence-score escalation threshold value — pending Phase 5 calibration against the labeled golden set (ADR-004 fixes the _mechanism_, not the _number_).
+
+**ADR-026 — Outlier handling: explicitly no removal or winsorization (D-1.12)**
+_Status:_ Accepted. _Context:_ EDA revealed that 71 of the 95 raw features exceed 5% outliers under the IQR×1.5 heuristic, with severe skewness in several ratios (e.g. Degree of Financial Leverage reaching 22% outliers). D-1.12 evaluated standard IQR-based outlier pruning or winsorization against retaining all observed values untouched. _Decision:_ explicitly do not remove or winsorize outliers. Extreme financial ratios (e.g., highly compressed interest coverage, extreme leverage) represent genuine distressed SME risk signals rather than data measurement corruption. Retaining these records preserves the tail-risk signal that downstream components — Tier 2 Monte Carlo P90 loss distribution and Tier 3 CRO persona tail-loss interpretation — are explicitly designed to evaluate. Skew compression for the linear baseline is achieved monotonically via Yeo-Johnson transformation (ADR-025) without deleting critical default observations. _Consequences:_ prevents deleting true distressed-firm default signal; guarantees the 100% data retention invariant for Tier 2 and Tier 3 inputs.
+
 - Dashboard framework (Streamlit vs. lightweight FastAPI+HTML) — deferred to Phase 6, pending time budget remaining after Phases 4–5.
 - Exact HF Inference API model pin (Llama-3.1-8B-Instruct vs. Mistral-7B-Instruct-v0.3, or a current equivalent) — ADR-009 locks the provider and gateway architecture, not the exact model; confirm live availability at Phase 3.
 - **Deferred Tier 3 schema fields (fold in as ADR-016 when Phase 4 begins):** `tier3_persona_architecture.md` specifies additional `EvidenceBundle` fields (`tail_loss_estimate`, `covenant_flags`, `revenue_growth_rate`, `pipeline_value_estimate`, `capital_consumption_estimate`, `concentration_flag`) and a `PersonaVerdict.limitations` field that were deliberately excluded from the Phase 0 pre-v0 skeleton. Add these to the typed schema under a new `schema_version` (v2 or per the versioning sequence in ADR-014) and log as ADR-016 at Phase 4 start.

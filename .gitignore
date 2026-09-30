@@ -101,6 +101,9 @@ data/*
 data/raw/*
 !data/raw/.gitignore
 !data/raw/data.csv.dvc
+data/processed/*
+!data/processed/.gitkeep
+
 artifacts/
 models/*.pkl
 models/*.h5

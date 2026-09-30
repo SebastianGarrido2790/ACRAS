@@ -80,3 +80,8 @@ class CustomException(Exception):
 
     def __str__(self) -> str:
         return self.detailed_message
+
+
+class ACRASValidationError(Exception):
+    """Base exception for validation errors across ACRAS pipeline boundaries."""
+

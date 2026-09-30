@@ -9,7 +9,7 @@
 
 ## Document Overview
 
-- **What it is:** The primary System Design specification and Architectural Decision Record (ADR) detailing system topology, data flow, component interfaces, evidence-bundle contracts, and formal architectural decisions (ADR-001 through ADR-026).
+- **What it is:** The primary System Design specification and Architectural Decision Record (ADR) detailing system topology, data flow, component interfaces, evidence-bundle contracts, and formal architectural decisions (ADR-001 through ADR-027).
 - **Why it exists:** Codifies the immutable architectural boundaries (deterministic ML/simulation core vs. non-deterministic LLM reasoning layer), maintains a living record of implementation progress, and preserves technical decision rationale.
 - **How to use it:** Refer to this document during component design and integration to adhere to architectural boundaries and interface schemas; update the status table and architecture specifications at the close of each development phase per the Update Protocol (§8).
 
@@ -211,6 +211,14 @@ _Status:_ Accepted. _Context:_ EDA revealed that 71 of the 95 raw features excee
 - Dashboard framework (Streamlit vs. lightweight FastAPI+HTML) — deferred to Phase 6, pending time budget remaining after Phases 4–5.
 - Exact HF Inference API model pin (Llama-3.1-8B-Instruct vs. Mistral-7B-Instruct-v0.3, or a current equivalent) — ADR-009 locks the provider and gateway architecture, not the exact model; confirm live availability at Phase 3.
 - **Deferred Tier 3 schema fields (fold in as ADR-016 when Phase 4 begins):** `tier3_persona_architecture.md` specifies additional `EvidenceBundle` fields (`tail_loss_estimate`, `covenant_flags`, `revenue_growth_rate`, `pipeline_value_estimate`, `capital_consumption_estimate`, `concentration_flag`) and a `PersonaVerdict.limitations` field that were deliberately excluded from the Phase 0 pre-v0 skeleton. Add these to the typed schema under a new `schema_version` (v2 or per the versioning sequence in ADR-014) and log as ADR-016 at Phase 4 start.
+
+**ADR-027 — Tier 1 Promoted Model Selection: XGBoost (Unweighted, Isotonic Calibration) (D-1.6 / D-1.7)**
+_Status:_ Accepted. _Context:_ ADR-017 established the three candidate model families (XGBoost, LightGBM, Logistic Regression) with the final selection explicitly deferred to Phase 1 empirical evaluation against the dual promotion gate (INV-3 / PRD FR12: calibration check first, discrimination check second). D-1.3 evaluated class weighting vs. unweighted empirical loss, and D-1.4 evaluated Platt scaling vs. isotonic regression. _Decision:_ promote XGBoost trained on unweighted empirical cross-entropy loss and calibrated via 5-fold cross-validated Isotonic regression as the frozen Tier 1 model for serving. On the held-out test split (1,364 rows, 44 defaults), this configuration achieved:
+- Brier score: **0.020766** (ranked #1 of 12 candidate configurations, comfortably surpassing the $\le 0.030$ release threshold).
+- ROC-AUC: **0.959496** (surpassing the $\ge 0.850$ release threshold).
+- KS Statistic: **0.793182**.
+The promoted model is registered in MLflow (`acras-tier1-pd-model`) for lineage tracking and exported together with the fitted `YeoJohnsonTransformer` as a lean `joblib` bundle (`artifacts/promoted_model_bundle.joblib`) for serving with zero MLflow dependency in the inference container (ADR-022). This decision closes the "candidate set locked, winner pending" note in §7. _Consequences:_ Locks XGBoost (unweighted, isotonic) as the deterministic PD engine powering Tiers 1 and 2; guarantees training-serving parity by bundling the preprocessor with the model; satisfies the Roadmap Phase 1 model deliverable.
+
 - **Recommendation enum canonical spelling:** `"reject"` is the locked value (not `"decline"`). This is enforced by the `Literal` type in `src/schemas/evidence_bundle.py` `PersonaVerdict.recommendation`. Phase 4 system prompts and rubrics must use `"reject"` exactly.
 
 ## 8. Update Protocol

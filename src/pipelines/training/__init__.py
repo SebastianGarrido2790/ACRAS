@@ -9,6 +9,15 @@ Training code and serving code (`src/tier1_ml/`) are strictly separated.
 All training runs must be gated by Great Expectations data contracts.
 """
 
+from src.pipelines.training.promote import (
+    DEFAULT_EXPORT_PATH,
+    DEFAULT_PROMOTED_MODEL_NAME,
+    PromotedModelBundle,
+    PromotionGateError,
+    load_promoted_bundle,
+    promote_and_export_model,
+    run_stage_5_promotion,
+)
 from src.pipelines.training.promotion_gate import (
     CalibrationCheckResult,
     DiscriminationCheckResult,
@@ -17,6 +26,7 @@ from src.pipelines.training.promotion_gate import (
     check_discrimination,
     evaluate_promotion_gate,
 )
+from src.pipelines.training.rating_mapping import map_pd_to_credit_rating
 from src.pipelines.training.train import (
     DEFAULT_TRACKING_DIR,
     DEFAULT_TRAINING_EXPERIMENT,
@@ -29,6 +39,15 @@ from src.pipelines.training.train import (
 )
 
 __all__ = [
+    "DEFAULT_EXPORT_PATH",
+    "DEFAULT_PROMOTED_MODEL_NAME",
+    "PromotedModelBundle",
+    "PromotionGateError",
+    "load_promoted_bundle",
+    "map_pd_to_credit_rating",
+    "promote_and_export_model",
+    "run_stage_5_promotion",
+
     "CalibrationCheckResult",
     "DEFAULT_TRACKING_DIR",
     "DEFAULT_TRAINING_EXPERIMENT",

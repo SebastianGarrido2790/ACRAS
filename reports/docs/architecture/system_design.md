@@ -1,7 +1,7 @@
 # System Design — Architectural Decision Record
 
 **Project:** ACRAS (Agentic Credit Risk & Analysis System)
-**Author:** Sebastián Garrido Arévalo · **Date:** 2026-08-28 (Phase 0 closed: 2026-09-21) · **Status:** Phase 0 complete — Phase 1 pending
+**Author:** Sebastián Garrido Arévalo · **Date:** 2026-08-28 (Phase 0 closed: 2026-09-21) · **Status:** Phase 0 complete — Phase 1 (Working)
 
 > This document reflects the **actual implemented state** of the system. At Phase 0, that state is "not yet built" — every component and diagram below is a planning-stage placeholder, explicitly marked as such, not a description of working code. It is updated at the close of each roadmap phase per the Update Protocol in §8; nothing here should be read as "done" until a phase's exit criteria have actually been demonstrated.
 

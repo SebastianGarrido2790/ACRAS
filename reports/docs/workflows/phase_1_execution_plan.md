@@ -123,7 +123,7 @@ Same discipline as Phase 0's execution plan: nothing here is code, ADRs are assi
 
 ---
 
-## Stage 5 — Model Promotion, Freezing & Export 📌 **PENDING**
+## Stage 5 — Model Promotion, Freezing & Export ✅ **PASSED**
 
 **Goal:** Run Stage 3's real winner through Stage 4's real gate, promote it, and export it per D-1.6/ADR-022.
 
@@ -142,7 +142,7 @@ Same discipline as Phase 0's execution plan: nothing here is code, ADRs are assi
 
 ---
 
-## Stage 6 — FastAPI Serving Layer 📌 **PENDING**
+## Stage 6 — FastAPI Serving Layer ✅ **PASSED**
 
 **Goal:** Build `tier1_ml`'s service per ADR-010's boundary and D-1.8/ADR-023's schema.
 

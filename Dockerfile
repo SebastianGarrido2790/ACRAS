@@ -7,18 +7,18 @@ FROM python:3.12-slim AS builder
 # Install uv into the builder stage
 RUN pip install --no-cache-dir uv==0.8.11
 
-WORKDIR /build
+WORKDIR /app
 
 # Copy only the dependency manifest files — not source code.
 # Cache this layer; only re-runs when pyproject.toml or uv.lock change.
 COPY pyproject.toml ./
 COPY uv.lock* ./
 
-# Create the virtual environment and install runtime deps (no dev extras).
-RUN uv sync --no-dev --frozen --no-install-project
+# Create the virtual environment and install ONLY lean serving runtime deps (no dev, no training group).
+RUN uv sync --no-default-groups --frozen --no-install-project
 
 # =============================================================================
-# Stage 2 — Runtime
+# Stage 2 — Runtime (Lean Serving Container)
 # =============================================================================
 FROM python:3.12-slim AS runtime
 
@@ -29,23 +29,32 @@ RUN groupadd --gid 1001 acras && \
 WORKDIR /app
 
 # Copy the pre-built virtual environment from builder
-COPY --from=builder /build/.venv /app/.venv
+COPY --from=builder --chown=acras:acras /app/.venv /app/.venv
 
-# Set PATH so the venv's site-packages are used
+# Set PATH and Python environment variables
 ENV PATH="/app/.venv/bin:$PATH" \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PYTHONPATH="/app"
+    PYTHONPATH="/app" \
+    PORT=8000
 
-# ----
-# NOTE: No application source code is copied in this Phase 0 skeleton.
-# Source files are added in later phase-specific image layers.
-# ----
+# Copy application configuration, source code, and promoted model artifact
+COPY --chown=acras:acras params.yaml /app/params.yaml
+COPY --chown=acras:acras src /app/src
+
+# Create artifacts directory and copy promoted model bundle if present
+RUN mkdir -p /app/artifacts && chown -R acras:acras /app/artifacts
+COPY --chown=acras:acras artifacts/promoted_model_bundle.joblib* /app/artifacts/
 
 USER acras
 
-# Prove Python is importable from the venv; container fails if env is broken
-HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
-    CMD python -c "import sys; sys.exit(0)"
+EXPOSE 8000
 
-CMD ["python", "--version"]
+# Healthcheck hitting the FastAPI /health endpoint
+HEALTHCHECK --interval=10s --timeout=5s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"
+
+# Run FastAPI serving engine via uvicorn module
+CMD ["python", "-m", "uvicorn", "src.tier1_ml.app:app", "--host", "0.0.0.0", "--port", "8000"]
+
+

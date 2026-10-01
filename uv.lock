@@ -11,19 +11,14 @@ name = "acras"
 version = "0.0.1.dev0"
 source = { editable = "." }
 dependencies = [
-    { name = "dvc", extra = ["s3"] },
     { name = "fastapi" },
-    { name = "great-expectations" },
     { name = "lightgbm" },
-    { name = "matplotlib" },
-    { name = "mlflow" },
     { name = "numpy" },
     { name = "pandas" },
     { name = "pydantic" },
     { name = "pydantic-settings" },
     { name = "pyyaml" },
     { name = "scikit-learn" },
-    { name = "seaborn" },
     { name = "uvicorn", extra = ["standard"] },
     { name = "xgboost" },
 ]
@@ -37,22 +32,24 @@ dev = [
     { name = "pytest-cov" },
     { name = "ruff" },
 ]
+training = [
+    { name = "dvc", extra = ["s3"] },
+    { name = "great-expectations" },
+    { name = "matplotlib" },
+    { name = "mlflow" },
+    { name = "seaborn" },
+]
 
 [package.metadata]
 requires-dist = [
-    { name = "dvc", extras = ["s3"], specifier = ">=3.55,<4" },
     { name = "fastapi", specifier = ">=0.115,<1" },
-    { name = "great-expectations", specifier = ">=1.21,<2" },
     { name = "lightgbm", specifier = ">=4.7.0" },
-    { name = "matplotlib", specifier = ">=3.11.1" },
-    { name = "mlflow", specifier = ">=2.15,<3" },
     { name = "numpy", specifier = ">=1.26,<3" },
     { name = "pandas", specifier = ">=2.2,<3" },
     { name = "pydantic", specifier = ">=2.7,<3" },
     { name = "pydantic-settings", specifier = ">=2.3,<3" },
     { name = "pyyaml", specifier = ">=6.0,<7" },
     { name = "scikit-learn", specifier = ">=1.5,<2" },
-    { name = "seaborn", specifier = ">=0.13.2" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.30,<1" },
     { name = "xgboost", specifier = ">=2.0,<3" },
 ]
@@ -65,6 +62,13 @@ dev = [
     { name = "pytest", specifier = ">=8.2,<9" },
     { name = "pytest-cov", specifier = ">=5.0,<6" },
     { name = "ruff", specifier = ">=0.9,<1" },
+]
+training = [
+    { name = "dvc", extras = ["s3"], specifier = ">=3.55,<4" },
+    { name = "great-expectations", specifier = ">=1.21,<2" },
+    { name = "matplotlib", specifier = ">=3.11.1" },
+    { name = "mlflow", specifier = ">=2.15,<3" },
+    { name = "seaborn", specifier = ">=0.13.2" },
 ]
 
 [[package]]

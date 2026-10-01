@@ -162,7 +162,7 @@ Same discipline as Phase 0's execution plan: nothing here is code, ADRs are assi
 
 ---
 
-## Stage 7 — Containerization 📌 **PENDING**
+## Stage 7 — Containerization ✅ **PASSED**
 
 **Goal:** Package `tier1_ml` as the lean serving image D-1.6/ADR-022 specifies.
 

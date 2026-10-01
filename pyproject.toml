@@ -11,30 +11,21 @@ license = { file = "LICENSE.txt" }
 requires-python = ">=3.12,<3.13"
 authors = [{ name = "Sebastián Garrido Arévalo" }]
 
-# Runtime dependencies — scoped to what each phase actually needs.
-# Deps for later phases (LangGraph, pydantic-ai, FastAPI gateway, MLflow serving) are added at their phase boundary.
+# Runtime dependencies — scoped to Tier 1 lean serving image (ADR-010 / ADR-022).
 dependencies = [
-    # Data & ML (Phase 1+)
+    # Data & ML inference (Serving)
     "numpy>=1.26,<3",
     "pandas>=2.2,<3",
     "scikit-learn>=1.5,<2",
     "xgboost>=2.0,<3",
-    # Data contracts (Phase 0)
-    "great-expectations>=1.21,<2",
-    # Pipeline & versioning (Phase 0)
-    "dvc[s3]>=3.55,<4",
-    # Experiment tracking (Phase 0)
-    "mlflow>=2.15,<3",
-    # Schema & config (Phase 0–1)
+    "lightgbm>=4.7.0",
+    # Schema & config
     "pydantic>=2.7,<3",
     "pydantic-settings>=2.3,<3",
     "pyyaml>=6.0,<7",
-    # Serving (Phase 1+)
+    # Serving
     "fastapi>=0.115,<1",
     "uvicorn[standard]>=0.30,<1",
-    "seaborn>=0.13.2",
-    "matplotlib>=3.11.1",
-    "lightgbm>=4.7.0",
 ]
 
 [dependency-groups]
@@ -46,6 +37,17 @@ dev = [
     "httpx>=0.27,<1",
     "httpx2>=2.13.1",
 ]
+training = [
+    # Training & data pipeline dependencies (excluded from serving container per ADR-022)
+    "great-expectations>=1.21,<2",
+    "dvc[s3]>=3.55,<4",
+    "mlflow>=2.15,<3",
+    "seaborn>=0.13.2",
+    "matplotlib>=3.11.1",
+]
+
+[tool.uv]
+default-groups = ["dev", "training"]
 
 
 [tool.hatch.build.targets.wheel]

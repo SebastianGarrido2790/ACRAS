@@ -179,7 +179,7 @@ Same discipline as Phase 0's execution plan: nothing here is code, ADRs are assi
 
 ---
 
-## Stage 8 — Endpoint & Pipeline Test Suite 📌 **PENDING**
+## Stage 8 — Endpoint & Pipeline Test Suite ✅ **PASSED**
 
 **Goal:** Formalize every falsification performed by hand in Stages 2–7 into a permanent, automated suite (D-1.9).
 

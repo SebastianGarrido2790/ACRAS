@@ -1,11 +1,11 @@
 # Implementation Plan & Decisions — Phase 2 (Tier 2: Vectorized Monte Carlo Simulation Engine)
 
 **Project:** ACRAS (Agentic Credit Risk & Analysis System)  
-**Author:** Sebastián Garrido Arévalo · **Date:** 2026-10-02 · **Status:** ⏳ Pending Review & Approval  
+**Author:** Sebastián Garrido Arévalo · **Date:** 2026-10-02 · **Status:** ✅ All 6 approval-required decisions (D-2.1: C, D-2.1a: A, D-2.1b: A, D-2.2: A, D-2.3: B, D-2.4: A) approved 2026-10-02  
 
 This is a living governance and architectural planning document for **Phase 2**. It translates the Phase 2 requirements from the Technical Roadmap and PRD into actionable, concrete engineering decisions based on the project's actual current state, invariants, and constraints (sub-5ms latency budget, zero LLM involvement in calculation, numerical reproducibility, schema validation).
 
-Nothing below has been implemented yet. Every decision is presented with explicit options, concrete trade-offs, and an architectural recommendation. Where a primary decision branches meaningfully, nested sub-decisions are defined. Decisions requiring human sign-off are clearly separated from uncontested engineering facts. Approvals and selections will be recorded inline upon review before any Phase 2 code is written.
+Nothing below has been implemented yet. Every decision is presented with explicit options, concrete trade-offs, and an architectural recommendation. Where a primary decision branches meaningfully, nested sub-decisions are defined. Approved choices are highlighted inline while preserving all alternative options and trade-offs for historical traceability.
 
 ---
 
@@ -59,12 +59,12 @@ A critical assessment of the Technical Roadmap's wording and specifications for 
 | ID | Title | Scope / Impact | Status |
 | :--- | :--- | :--- | :--- |
 | **D-2.0** | Monte Carlo Configuration Schema in `params.yaml` | Codifies $N$, seed, correlation, and tolerances in config | ✅ Confirmed (No input required) |
-| **D-2.1** | Mathematical Engine & Simulation Methodology | Vasicek Structural Model vs. Multi-Factor Correlated Cash-Flow Shock Engine vs. Hybrid | ⏳ Pending Approval |
-| **D-2.1a** | *Sub-decision:* Correlation Matrix Parameterization | Cholesky Decomposition vs. Empirical Copula Sampling | ⏳ Pending Approval |
-| **D-2.1b** | *Sub-decision:* Shock Innovation Family | Multivariate Gaussian vs. Student-t (Fat Tails) | ⏳ Pending Approval |
-| **D-2.2** | Analytical Closed-Form Benchmark & Verification Tolerance | Exact Vasicek Quantile Function and convergence bounds ($\epsilon \le 0.015$) | ⏳ Pending Approval |
-| **D-2.3** | Architectural Boundary & Tier 1/2 Integration Pattern | In-Process Pure Function / Pipeline Consumer vs. HTTP Microservice Client | ⏳ Pending Approval |
-| **D-2.4** | EvidenceBundle Schema Migration to Version 1 (`v1`) | Upgrade from `pre-v0-draft` to `v1`; strict validation on `PDBand` | ⏳ Pending Approval |
+| **D-2.1** | Mathematical Engine & Simulation Methodology | Vasicek Structural Model vs. Multi-Factor Correlated Cash-Flow Shock Engine vs. Hybrid | ✅ **APPROVED — Option C** |
+| **D-2.1a** | *Sub-decision:* Correlation Matrix Parameterization | Cholesky Decomposition vs. Empirical Copula Sampling | ✅ **APPROVED — Option A** |
+| **D-2.1b** | *Sub-decision:* Shock Innovation Family | Multivariate Gaussian vs. Student-t (Fat Tails) | ✅ **APPROVED — Option A** |
+| **D-2.2** | Analytical Closed-Form Benchmark & Verification Tolerance | Exact Vasicek Quantile Function and convergence bounds ($\epsilon \le 0.015$) | ✅ **APPROVED — Option A** |
+| **D-2.3** | Architectural Boundary & Tier 1/2 Integration Pattern | In-Process Pure Function / Pipeline Consumer vs. HTTP Microservice Client | ✅ **APPROVED — Option B** |
+| **D-2.4** | EvidenceBundle Schema Migration to Version 1 (`v1`) | Upgrade from `pre-v0-draft` to `v1`; strict validation on `PDBand` | ✅ **APPROVED — Option A** |
 | **D-2.5** | Financial Ratios Domain Module & Schema Population | Deterministic extraction of liquidity, leverage, and profitability ratios | ✅ Confirmed (No input required) |
 | **D-2.6** | Performance Profiling & Latency Regression Gate | Sub-5ms latency test fixture with 100 warm runs in CI | ✅ Confirmed (No input required) |
 
@@ -103,34 +103,35 @@ simulation:
 
 ### D-2.1 — Mathematical Engine & Simulation Methodology
 
-**Requires approval:** Yes  
+**Status: ✅ APPROVED — Option C**  
+**Requires approval:** Yes (Approved 2026-10-02)  
 **Governing Requirements:** PRD FR3, PRD FR6; INV-1 (ADR-001: Purely deterministic mathematics using NumPy).
 
 **Question:** What mathematical simulation framework generates the risk distribution from Tier 1's calibrated scalar PD ($PD$) and the SME's financial characteristics?
 
 | Option | Description | Trade-offs |
 | :--- | :--- | :--- |
-| **Option A: Asymptotic Single Risk Factor (Vasicek / Merton Structural Model)** | Simulates normalized SME firm asset return $Z_i = \sqrt{\rho} X + \sqrt{1-\rho} \epsilon_i$, where $X \sim \mathcal{N}(0, 1)$ is systemic economic factor and $\epsilon_i \sim \mathcal{N}(0, 1)$ is idiosyncratic firm shock. Default occurs if $Z_i < \Phi^{-1}(PD)$. Generates empirical default rates across $N$ economic scenarios. | **Pros:** Rigorous financial engineering foundation (Basel II/III ASRF formula); exact mathematical correspondence to a known closed-form analytical distribution; lightning fast ($<1.0$ms in NumPy); guaranteed numerical tractability.<br>**Cons:** Focuses purely on default probability distribution rather than simulating multi-dimensional financial statement dynamics (revenue shocks, debt service, haircuts) directly. |
-| **Option B: Multi-Factor Financial Statement Shock Engine** | Simulates correlated multivariate shocks to specific financial variables: Revenue ($-\Delta R$), Debt Service Burden ($+\Delta DS$), and Collateral/Asset Haircut ($-\Delta A$) via correlated normal or lognormal paths. Default condition is evaluated pathwise when Cash Flow falls below Debt Service or net asset value drops below zero. | **Pros:** Closely mirrors PRD FR6 narrative (*"debt service, revenue shocks, asset haircuts"*); generates intuitive paths for analyst review.<br>**Cons:** Lacks a single closed-form analytical benchmark; highly sensitive to arbitrary threshold calibrations that are not fitted on real longitudinal panel data; slower execution latency. |
-| **Option C: Unified Structural-Macro Engine (Hybrid Model) — RECOMMENDED** | Combines the Basel Vasicek structural default core with a correlated 3-factor macro/operational shock vector ($S_{\text{macro}}, S_{\text{debt}}, S_{\text{asset}}$). The structural core evaluates pathwise default rate and loss distribution under correlated stress (satisfying PRD FR3/FR7 and permitting exact analytical benchmark validation), while the shock engine simultaneously computes stressed financial ratios (stressed interest coverage, asset haircut) to enrich the evidence bundle. | **Pros:** Fully satisfies PRD FR3, FR6, and FR7 simultaneously; maintains exact mathematical equivalence with analytical closed-form Vasicek benchmark in asymptotic limit; computes both P10/P50/P90 default bands and stressed financial metrics; vectorizes effortlessly in NumPy with runtime $\approx 1.5$ms.<br>**Cons:** Slightly more code than Option A alone, but provides complete grounding for Tier 3 personas. |
+| Option A: Asymptotic Single Risk Factor (Vasicek / Merton Structural Model) | Simulates normalized SME firm asset return $Z_i = \sqrt{\rho} X + \sqrt{1-\rho} \epsilon_i$, where $X \sim \mathcal{N}(0, 1)$ is systemic economic factor and $\epsilon_i \sim \mathcal{N}(0, 1)$ is idiosyncratic firm shock. Default occurs if $Z_i < \Phi^{-1}(PD)$. Generates empirical default rates across $N$ economic scenarios. | **Pros:** Rigorous financial engineering foundation (Basel II/III ASRF formula); exact mathematical correspondence to a known closed-form analytical distribution; lightning fast ($<1.0$ms in NumPy); guaranteed numerical tractability.<br>**Cons:** Focuses purely on default probability distribution rather than simulating multi-dimensional financial statement dynamics (revenue shocks, debt service, haircuts) directly. |
+| Option B: Multi-Factor Financial Statement Shock Engine | Simulates correlated multivariate shocks to specific financial variables: Revenue ($-\Delta R$), Debt Service Burden ($+\Delta DS$), and Collateral/Asset Haircut ($-\Delta A$) via correlated normal or lognormal paths. Default condition is evaluated pathwise when Cash Flow falls below Debt Service or net asset value drops below zero. | **Pros:** Closely mirrors PRD FR6 narrative (*"debt service, revenue shocks, asset haircuts"*); generates intuitive paths for analyst review.<br>**Cons:** Lacks a single closed-form analytical benchmark; highly sensitive to arbitrary threshold calibrations that are not fitted on real longitudinal panel data; slower execution latency. |
+| **[APPROVED] Option C: Unified Structural-Macro Engine (Hybrid Model)** | Combines the Basel Vasicek structural default core with a correlated 3-factor macro/operational shock vector ($S_{\text{macro}}, S_{\text{debt}}, S_{\text{asset}}$). The structural core evaluates pathwise default rate and loss distribution under correlated stress (satisfying PRD FR3/FR7 and permitting exact analytical benchmark validation), while the shock engine simultaneously computes stressed financial ratios (stressed interest coverage, asset haircut) to enrich the evidence bundle. | **Pros:** Fully satisfies PRD FR3, FR6, and FR7 simultaneously; maintains exact mathematical equivalence with analytical closed-form Vasicek benchmark in asymptotic limit; computes both P10/P50/P90 default bands and stressed financial metrics; vectorizes effortlessly in NumPy with runtime $\approx 1.5$ms.<br>**Cons:** Slightly more code than Option A alone, but provides complete grounding for Tier 3 personas. |
 
 **Recommendation:** **Option C (Unified Structural-Macro Engine)**. It provides complete analytical rigor by grounding default probabilities in the proven Merton/Vasicek structural framework (enabling exact closed-form benchmark validation per Roadmap exit criteria), while natively simulating correlated shocks to debt service and asset values as required by PRD FR6.
-
 
 ---
 
 ### D-2.1a — *Sub-decision:* Correlation Matrix Parameterization
 
-**Requires approval:** Yes  
+**Status: ✅ APPROVED — Option A**  
+**Requires approval:** Yes (Approved 2026-10-02)  
 **Governing Invariant:** INV-1 (NumPy deterministic linear algebra).
 
 **Question:** How should correlation across systemic and operational shock variables be parameterized and sampled?
 
 | Option | Trade-offs |
 | :--- | :--- |
-| **A. Lower-Triangular Cholesky Factorization ($\mathbf{L} \mathbf{L}^T = \mathbf{\Sigma}$) of a Positive-Definite Correlation Matrix ✅ RECOMMENDED** | Standard quantitative finance practice. Given correlation matrix $\mathbf{R}$, compute lower-triangular Cholesky factor $\mathbf{L}$. Correlated standard normals are obtained via $\mathbf{Y} = \mathbf{Z} \mathbf{L}^T$, where $\mathbf{Z} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$. Fast, numerically stable, fully vectorized in NumPy (`np.linalg.cholesky`), execution $<0.2$ms. |
-| **B. Principal Component / Eigenvalue Decomposition** | Handles positive semi-definite or rank-deficient matrices by clipping negative eigenvalues. Unnecessary here because our 3-variable correlation matrix is explicitly configured to be strictly positive definite. |
-| **C. Copula Sampling (e.g. Clayton / Gumbel)** | Allows non-linear tail dependence, but substantially increases runtime latency and eliminates the closed-form Gaussian Vasicek benchmark. |
+| **[APPROVED] Option A: Lower-Triangular Cholesky Factorization ($\mathbf{L} \mathbf{L}^T = \mathbf{\Sigma}$) of a Positive-Definite Correlation Matrix** | Standard quantitative finance practice. Given correlation matrix $\mathbf{R}$, compute lower-triangular Cholesky factor $\mathbf{L}$. Correlated standard normals are obtained via $\mathbf{Y} = \mathbf{Z} \mathbf{L}^T$, where $\mathbf{Z} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$. Fast, numerically stable, fully vectorized in NumPy (`np.linalg.cholesky`), execution $<0.2$ms. |
+| Option B: Principal Component / Eigenvalue Decomposition | Handles positive semi-definite or rank-deficient matrices by clipping negative eigenvalues. Unnecessary here because our 3-variable correlation matrix is explicitly configured to be strictly positive definite. |
+| Option C: Copula Sampling (e.g. Clayton / Gumbel) | Allows non-linear tail dependence, but substantially increases runtime latency and eliminates the closed-form Gaussian Vasicek benchmark. |
 
 **Recommendation:** **Option A (Cholesky Factorization)**.
 
@@ -138,15 +139,16 @@ simulation:
 
 ### D-2.1b — *Sub-decision:* Shock Innovation Distribution Family
 
-**Requires approval:** Yes  
+**Status: ✅ APPROVED — Option A**  
+**Requires approval:** Yes (Approved 2026-10-02)  
 **Governing Invariant:** PRD FR3, Roadmap Exit Criteria (sub-5ms budget, closed-form benchmark).
 
 **Question:** What distribution family should govern the random innovation variables?
 
 | Option | Trade-offs |
 | :--- | :--- |
-| **A. Standard Multivariate Gaussian ($\mathcal{N}(\mathbf{0}, \mathbf{\Sigma})$) ✅ RECOMMENDED** | Directly aligns with the Vasicek structural framework and the closed-form analytical benchmark; generates symmetric systemic shocks; executes via standard Box-Muller / Ziggurat in NumPy (`Generator.standard_normal`) with zero performance overhead. |
-| **B. Multivariate Student-$t$ ($\nu = 4$ or $5$)** | Generates fatter tails and joint extreme events. However, breaks the exact closed-form analytical Vasicek benchmark quantiles and requires higher $N$ ($>50,000$) to stabilize quantile variance. |
+| **[APPROVED] Option A: Standard Multivariate Gaussian ($\mathcal{N}(\mathbf{0}, \mathbf{\Sigma})$)** | Directly aligns with the Vasicek structural framework and the closed-form analytical benchmark; generates symmetric systemic shocks; executes via standard Box-Muller / Ziggurat in NumPy (`Generator.standard_normal`) with zero performance overhead. |
+| Option B: Multivariate Student-$t$ ($\nu = 4$ or $5$) | Generates fatter tails and joint extreme events. However, breaks the exact closed-form analytical Vasicek benchmark quantiles and requires higher $N$ ($>50,000$) to stabilize quantile variance. |
 
 **Recommendation:** **Option A (Multivariate Gaussian)** for the baseline engine, ensuring strict adherence to the closed-form benchmark exit criteria.
 
@@ -154,7 +156,8 @@ simulation:
 
 ### D-2.2 — Analytical Closed-Form Benchmark & Verification Tolerance
 
-**Requires approval:** Yes  
+**Status: ✅ APPROVED — Option A**  
+**Requires approval:** Yes (Approved 2026-10-02)  
 **Governing Requirements:** Roadmap Exit Criteria (*"simulation output matches the analytical benchmark within a defined tolerance"*).
 
 **Question:** What closed-form mathematical benchmark validates the Monte Carlo engine, and what numerical tolerance is enforced?
@@ -168,27 +171,27 @@ For $\alpha \in \{0.10, 0.50, 0.90\}$, this yields closed-form analytical target
 
 | Option | Description | Trade-offs |
 | :--- | :--- | :--- |
-| **Option A: Absolute Error Bound ($|\hat{P}_\alpha - P_\alpha^{\text{analytical}}| \le \epsilon$) ✅ RECOMMENDED** | Evaluates absolute deviation between simulated percentiles $\hat{P}_{10}, \hat{P}_{50}, \hat{P}_{90}$ and analytical quantiles. Thresholds set in `params.yaml`: $\epsilon \le 0.015$ (1.5 percentage points) for P10/P50, and $\epsilon \le 0.020$ for P90 at $N=10,000$. | Standard Monte Carlo validation practice. Direct, transparent, and robust across both low-PD ($<1\%$) and high-PD ($>10\%$) borrowers. |
-| **Option B: Relative Percentage Error ($|\hat{P}_\alpha - P_\alpha| / P_\alpha \le \delta$)** | Evaluates relative percentage difference. | Unstable for prime AAA/AA borrowers where $P_{10} \approx 0.0005$; a tiny numerical variance ($0.0003$) triggers an unacceptable $60\%$ relative error even though the absolute difference is negligible. |
-| **Option C: Kolmogorov-Smirnov Two-Sample Test** | Runs KS test comparing empirical Monte Carlo distribution against analytical CDF. | Validates full distribution shape rather than just percentiles, but adds runtime cost to every execution. Better suited as a unit test validation gate rather than runtime per-request check. |
+| **[APPROVED] Option A: Absolute Error Bound ($\lvert \hat{P}_\alpha - P_\alpha^{\text{analytical}} \rvert \le \epsilon$)** | Evaluates absolute deviation between simulated percentiles $\hat{P}_{10}, \hat{P}_{50}, \hat{P}_{90}$ and analytical quantiles. Thresholds set in `params.yaml`: $\epsilon \le 0.015$ (1.5 percentage points) for P10/P50, and $\epsilon \le 0.020$ for P90 at $N=10,000$. | Standard Monte Carlo validation practice. Direct, transparent, and robust across both low-PD ($<1\%$) and high-PD ($>10\%$) borrowers. |
+| Option B: Relative Percentage Error ($\lvert \hat{P}_\alpha - P_\alpha \rvert / P_\alpha \le \delta$) | Evaluates relative percentage difference. | Unstable for prime AAA/AA borrowers where $P_{10} \approx 0.0005$; a tiny numerical variance ($0.0003$) triggers an unacceptable $60\%$ relative error even though the absolute difference is negligible. |
+| Option C: Kolmogorov-Smirnov Two-Sample Test | Runs KS test comparing empirical Monte Carlo distribution against analytical CDF. | Validates full distribution shape rather than just percentiles, but adds runtime cost to every execution. Better suited as a unit test validation gate rather than runtime per-request check. |
 
 **Recommendation:** **Option A (Absolute Error Bound)** as the primary verification gate, complemented by Option C in unit tests.
-
 
 ---
 
 ### D-2.3 — Architectural Boundary & Tier 1/2 Integration Pattern
 
-**Requires approval:** Yes  
+**Status: ✅ APPROVED — Option B**  
+**Requires approval:** Yes (Approved 2026-10-02)  
 **Governing Requirements:** INV-1, INV-2; ADR-010 (Decoupled boundaries).
 
 **Question:** How does Tier 2 consume Tier 1's output without introducing unnecessary network overhead or tight retraining coupling?
 
 | Option | Trade-offs |
 | :--- | :--- |
-| **Option A: HTTP Microservice Call** | Tier 2 calls Tier 1's FastAPI `/predict` endpoint over localhost HTTP. Adds network overhead (~5–15ms), requires managing running server processes during unit tests, and violates the sub-5ms total budget. |
-| **Option B: Direct In-Memory Function / Service Consumer ✅ RECOMMENDED** | Tier 2 provides a standalone engine module (`src/tier2_simulation/engine.py`) whose core function `simulate_risk_distribution(pd: float, raw_features: dict, config: SimulationConfig) -> SimulationResult` operates as a pure, deterministic in-memory calculation. An orchestration service accepts an `EvidenceBundle` (with Tier 1 fields populated) and returns an updated `EvidenceBundle` (with Tier 2 fields populated). |
-| **Option C: Subclassing / Tightly Coupled Class** | Couples Tier 2 directly to XGBoost model internals. Rejected: violates ADR-010 and creates retraining coupling. |
+| Option A: HTTP Microservice Call | Tier 2 calls Tier 1's FastAPI `/predict` endpoint over localhost HTTP. Adds network overhead (~5–15ms), requires managing running server processes during unit tests, and violates the sub-5ms total budget. |
+| **[APPROVED] Option B: Direct In-Memory Function / Service Consumer** | Tier 2 provides a standalone engine module (`src/tier2_simulation/engine.py`) whose core function `simulate_risk_distribution(pd: float, raw_features: dict, config: SimulationConfig) -> SimulationResult` operates as a pure, deterministic in-memory calculation. An orchestration service accepts an `EvidenceBundle` (with Tier 1 fields populated) and returns an updated `EvidenceBundle` (with Tier 2 fields populated). |
+| Option C: Subclassing / Tightly Coupled Class | Couples Tier 2 directly to XGBoost model internals. Rejected: violates ADR-010 and creates retraining coupling. |
 
 **Recommendation:** **Option B (Direct In-Memory Function / Service Consumer)**. Preserves the sub-5ms budget, eliminates network latency, guarantees 100% testability, and strictly complies with INV-1 and INV-2.
 
@@ -196,7 +199,8 @@ For $\alpha \in \{0.10, 0.50, 0.90\}$, this yields closed-form analytical target
 
 ### D-2.4 — EvidenceBundle Schema Migration to Version 1 (`v1`)
 
-**Requires approval:** Yes  
+**Status: ✅ APPROVED — Option A**  
+**Requires approval:** Yes (Approved 2026-10-02)  
 **Governing Invariant:** INV-2 (ADR-002: Single versioned contract); ADR-014 (Phased schema evolution).
 
 **Question:** How should `EvidenceBundle` advance its schema version from `pre-v0-draft` to `v1`?
@@ -206,9 +210,9 @@ In Phase 0, `src/schemas/evidence_bundle.py` was created as `pre-v0-draft`. ADR-
 
 | Option | Trade-offs |
 | :--- | :--- |
-| **Option A: In-Place Schema Update with Tagged Versions (`v1`) ✅ RECOMMENDED** | Update `schema_version` to `Literal["v0", "v1"]` (with default `"v1"` for Tier 2 output). In `v1`, enforce via Pydantic model validator that `pd`, `credit_rating`, and `pd_band` are non-null and valid. Downstream Tier 3 fields (`persona_verdicts`) remain optional (`None`). |
-| **Option B: Distinct Schema Classes (`EvidenceBundleV0`, `EvidenceBundleV1`)** | Create separate classes in separate files. Adds class proliferation and conversion boilerplate without meaningful safety benefits. |
-| **Option C: Keep `pre-v0-draft` Until Tier 3** | Keeps schema unversioned until Phase 4. Violates ADR-014 and the Technical Roadmap deliverable (*"extend the evidence-bundle schema to v1 with P10/P50/P90 fields"*). |
+| **[APPROVED] Option A: In-Place Schema Update with Tagged Versions (`v1`)** | Update `schema_version` to `Literal["v0", "v1"]` (with default `"v1"` for Tier 2 output). In `v1`, enforce via Pydantic model validator that `pd`, `credit_rating`, and `pd_band` are non-null and valid. Downstream Tier 3 fields (`persona_verdicts`) remain optional (`None`). |
+| Option B: Distinct Schema Classes (`EvidenceBundleV0`, `EvidenceBundleV1`) | Create separate classes in separate files. Adds class proliferation and conversion boilerplate without meaningful safety benefits. |
+| Option C: Keep `pre-v0-draft` Until Tier 3 | Keeps schema unversioned until Phase 4. Violates ADR-014 and the Technical Roadmap deliverable (*"extend the evidence-bundle schema to v1 with P10/P50/P90 fields"*). |
 
 **Recommendation:** **Option A (In-Place Schema Update with Tagged Versions `v1`)**.
 
@@ -256,7 +260,7 @@ Create a dedicated benchmark test in `tests/benchmarks/test_simulation_perf.py`.
 
 ## 5. What Happens After Approval
 
-Once decisions **D-2.1**, **D-2.1a**, **D-2.1b**, **D-2.2**, **D-2.3**, and **D-2.4** are reviewed and approved:
+**Status: All 6 approval-required decisions approved (D-2.1: C, D-2.1a: A, D-2.1b: A, D-2.2: A, D-2.3: B, D-2.4: A). The implementation steps below are now active:**
 
 1. **ADR Ledger Update:** Approved decisions are registered in `reports/docs/architecture/system_design.md` as **ADR-028 through ADR-033**.
 2. **Parameters Codified:** `params.yaml` is updated with the `simulation:` hyperparameter block, and `src/config/loader.py` is updated with typed Pydantic parsing.

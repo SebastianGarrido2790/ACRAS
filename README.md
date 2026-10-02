@@ -113,6 +113,7 @@ ACRAS follows the **Deterministic Core / Probabilistic Shell** architectural axi
      │ DECISION-READY REPORT      │              │ HUMAN-IN-THE-LOOP (HITL)   │
      │ (Executive Risk Memo)      │              │ ESCALATION FLAG            │
      └────────────────────────────┘              └────────────────────────────┘
+```
 
 ---
 
@@ -128,8 +129,6 @@ ACRAS follows the **Deterministic Core / Probabilistic Shell** architectural axi
 | **Phase 5** | **Evaluation Harness & Golden Dataset:** Automated calibration and divergence release gates, LLM-as-judge grounding checks. | *Pending* | PRD FR12–FR13 |
 | **Phase 6** | **Dashboard & Trace Logging:** Interactive risk officer UI and structured run persistence. | *Pending* | PRD FR8 |
 | **Phase 7** | **Integration & Close-Out:** End-to-end system audits, documentation finalization. | *Pending* | PRD |
-
-```
 
 ---
 

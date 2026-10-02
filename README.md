@@ -53,8 +53,11 @@ ACRAS follows the **Deterministic Core / Probabilistic Shell** architectural axi
                                           ▼
      ┌────────────────────────────────────────────────────────────────────────┐
      │ TIER 1: FROZEN ML CORE (Deterministic)                                 │
-     │ - Gradient Boosted Model (XGBoost / LightGBM) served via FastAPI       │
-     │ - Produces Calibrated Probability of Default (PD) [Brier Score Gated]  │
+     │ - Promoted Model: XGBoost (Unweighted, Isotonic Calibration) [ADR-027] │
+     │ - Shared Yeo-Johnson Skew Preprocessing (94 Canonical Features)        │
+     │ - Dual Release Gate (INV-3 / FR12): Brier = 0.020766, ROC-AUC = 0.9595 │
+     │ - Produces Calibrated PD & Discrete Credit Rating (AAA to CCC/C)       │
+     │ - Served via Lean FastAPI Microservice (Zero MLflow Runtime Dep)       │
      └────────────────────────────────────┬───────────────────────────────────┘
                                           │
                                           ▼
@@ -110,6 +113,22 @@ ACRAS follows the **Deterministic Core / Probabilistic Shell** architectural axi
      │ DECISION-READY REPORT      │              │ HUMAN-IN-THE-LOOP (HITL)   │
      │ (Executive Risk Memo)      │              │ ESCALATION FLAG            │
      └────────────────────────────┘              └────────────────────────────┘
+
+---
+
+## 🚦 Roadmap & Implementation Status
+
+| Milestone | Scope & Deliverables | Status | Reference |
+| :--- | :--- | :---: | :--- |
+| **Phase 0** | **Scaffolding & Data Contracts:** uv environment, Great Expectations suite, DVC remote (6,819 rows × 96 columns pinned), pre-v0 evidence bundle schema, MLflow tracking, CI pipeline with adversarial gate tests. | **Complete** | ADR-010 to ADR-015 |
+| **Phase 1** | **Tier 1 ML Core:** 94 canonical feature schema (ADR-024), shared Yeo-Johnson transform (ADR-025), zero outlier deletion (ADR-026), 12-model training benchmark, dual calibration gate (INV-3 / FR12), promoted XGBoost isotonic model (ADR-027), PD-to-rating mapping (ADR-021), lean FastAPI microservice (ADR-022 / ADR-023), hardened container image. | **Complete** | ADR-017 to ADR-027 |
+| **Phase 2** | **Tier 2 Monte Carlo Engine:** Vectorized simulation engine generating P10/P50/P90 loss and default bands across 10,000 iterations. | *Up Next* | PRD FR5–FR7 |
+| **Phase 3** | **LLM Gateway & Circuit Breaker:** Multi-provider resilience (Gemini primary + open-source secondary), timeout & failover state machine. | *Pending* | ADR-006 / ADR-009 |
+| **Phase 4** | **Tier 3 Multi-Agent Personas:** Parallel LangGraph fan-out for CRO, Growth, and Capital personas with deterministic divergence scoring. | *Pending* | ADR-004 / ADR-005 |
+| **Phase 5** | **Evaluation Harness & Golden Dataset:** Automated calibration and divergence release gates, LLM-as-judge grounding checks. | *Pending* | PRD FR12–FR13 |
+| **Phase 6** | **Dashboard & Trace Logging:** Interactive risk officer UI and structured run persistence. | *Pending* | PRD FR8 |
+| **Phase 7** | **Integration & Close-Out:** End-to-end system audits, documentation finalization. | *Pending* | PRD |
+
 ```
 
 ---
@@ -148,44 +167,61 @@ ACRAS follows the **Deterministic Core / Probabilistic Shell** architectural axi
 ```text
 ACRAS/
 ├── src/
-│   ├── tier1_ml/              # Calibrated PD model training & FastAPI serving
-│   ├── tier2_simulation/       # Vectorized Monte Carlo risk distribution engine
-│   ├── agents/
+│   ├── tier1_ml/              # Lean FastAPI serving microservice (zero MLflow dep, ADR-010/022)
+│   │   ├── app.py             # FastAPI application (/health, /predict)
+│   │   ├── service.py         # Model loader & inference scoring engine
+│   │   ├── schemas.py         # Thin request/response schemas with canonical feature validation (ADR-023)
+│   │   └── rating.py          # Calibrated PD to discrete rating bracket mapping (ADR-021)
+│   ├── tier2_simulation/      # Vectorized Monte Carlo risk distribution engine (Phase 2)
+│   ├── agents/                # Multi-agent persona interpretation layer (Phase 4)
 │   │   ├── prompts/           # Role-conditioned persona rubrics & system prompts
-│   │   ├── tools/             # Data Scientist & Financial Analyst tool endpoints
-│   │   └── orchestration/      # LangGraph state graph & convergence evaluator
-│   ├── gateway/               # LLM gateway, rate limiter, and circuit breaker
-│   ├── schemas/               # Evidence bundle & PersonaVerdict Pydantic contracts
-│   ├── pipeline/              # Feature extraction, training, and inference pipelines
-│   └── utils/                 # Structured logging, metrics, and error handling
-├── reports/docs/
-│   ├── references/            # Canvas, Project Charter, PRD, User Stories, Roadmap
-│   ├── architecture/          # System Design & Architectural Decision Records (ADRs)
-│   └── runbooks/              # Challenges & Solutions guide (Runbook)
+│   │   ├── tools/             # Bounded analytical tool endpoints
+│   │   └── orchestration/     # LangGraph state graph & convergence evaluator
+│   ├── gateway/               # LLM gateway, rate limiter, and circuit breaker (Phase 3)
+│   ├── pipelines/             # Deterministic training & feature engineering pipelines
+│   │   ├── feature/           # Split & Yeo-Johnson transforms (ADR-024/025/026)
+│   │   ├── training/          # 12-config model training, calibration & promotion (ADR-027)
+│   │   ├── data_contracts.py  # Great Expectations data contracts (ADR-013)
+│   │   ├── validate_gate.py   # DVC validation gate runner (INV-7 / ADR-007)
+│   │   └── tracking.py        # MLflow experiment tracking wiring
+│   ├── schemas/               # Cross-tier contract schemas (EvidenceBundle, CANONICAL_FEATURES)
+│   ├── config/                # Strongly-typed loader for params.yaml
+│   └── utils/                 # Logging, exception handling, and custom error types
+├── reports/
+│   ├── docs/                  # Six Pillars of Groundedness documentation
+│   │   ├── architecture/      # system_design.md (Living ADR ledger: ADR-001 through ADR-027)
+│   │   ├── groundedness/      # canvas.md, project_charter.md, prd.md, user_story.md, roadmap.md
+│   │   ├── evaluations/       # model_leaderboard.md, capability_profile_gates.md
+│   │   ├── decisions/         # Phase implementation plans & Post-Implementation Reviews (PIRs)
+│   │   ├── workflows/         # Phase execution plans & falsification matrices
+│   │   └── runbooks/          # challenges_and_solutions_guide.md
+│   └── model_leaderboard.csv  # Machine-readable 12-configuration benchmark metrics
 ├── tests/
-│   ├── unit/                  # Fast deterministic unit tests (Tiers 1 & 2)
-│   ├── integration/           # API and service integration tests
-│   └── evals/                 # Golden set evaluation, calibration & divergence gates
-├── params.yaml                # Global hyperparameters, simulation counts & thresholds
-├── pyproject.toml             # Project dependencies & tool configurations
+│   ├── unit/                  # Unit tests (config, features, transforms, pipeline, gates, serving)
+│   └── integration/           # Integration tests (adversarial gate, container live scoring)
+├── artifacts/                 # Promoted frozen model bundle & feature transformer (gitignored)
+├── params.yaml                # Global parameters, split ratios, seeds, thresholds & rating table
+├── pyproject.toml             # uv package management, tool configs, dependency groups
+├── Dockerfile                 # Hardened multi-stage serving image (non-root, zero MLflow runtime)
 ├── docker-compose.yaml        # Local full-stack orchestration
-└── dvc.yaml                   # DVC data pipeline definitions
+└── dvc.yaml                   # DVC pipeline definitions
 ```
 
 ---
 
 ## 📚 Documentation Index
 
-The complete architectural, product, and governance documentation set is located in `reports/docs/`:
+The complete architectural, product, and governance documentation set is organized into the **Six Pillars of Groundedness** under `reports/docs/`:
 
 | Document | Purpose & Description |
 | :--- | :--- |
-| **[Machine Learning Canvas](reports/docs/references/canvas.md)** | Strategic one-page overview of business value, ML objectives, simulation tiers, and evaluation metrics. |
-| **[Project Charter](reports/docs/references/project_charter.md)** | Project scope, target personas, ROI appraisal, Definition of Done, and cost models. |
-| **[User Stories & Problem Framing](reports/docs/references/user_story.md)** | Stakeholder personas, 5 Whys root cause analysis, Jobs-to-be-Done, and user journeys. |
-| **[Product Requirements Document (PRD)](reports/docs/references/prd.md)** | Functional requirements (FR1–FR13), non-functional requirements, release gates, and governance rules. |
-| **[Technical Roadmap](reports/docs/references/technical_roadmap.md)** | Phased engineering execution plan (Phase 0 through Phase 7) with explicit exit criteria. |
-| **[System Design & ADRs](reports/docs/architecture/system_design.md)** | Component topology, sequence flows, contract specifications, and Architectural Decision Records (ADR-001 to ADR-008). |
+| **[Machine Learning Canvas](reports/docs/groundedness/canvas.md)** | Strategic one-page overview of business value, ML objectives, simulation tiers, and evaluation metrics. |
+| **[Project Charter](reports/docs/groundedness/project_charter.md)** | Project scope, target personas, ROI appraisal, Definition of Done, and cost models. |
+| **[User Stories & Problem Framing](reports/docs/groundedness/user_story.md)** | Stakeholder personas, 5 Whys root cause analysis, Jobs-to-be-Done, and user journeys. |
+| **[Product Requirements Document (PRD)](reports/docs/groundedness/prd.md)** | Functional requirements (FR1–FR13), non-functional requirements, release gates, and governance rules. |
+| **[Technical Roadmap](reports/docs/groundedness/technical_roadmap.md)** | Phased engineering execution plan (Phase 0 through Phase 7) with explicit exit criteria. |
+| **[System Design & ADRs](reports/docs/architecture/system_design.md)** | Living system architecture specification and formal decision ledger (**ADR-001 through ADR-027**). |
+| **[Model Evaluation Leaderboard](reports/docs/evaluations/model_leaderboard.md)** | Auditable benchmark report of all 12 trained/calibrated model configurations with sample density caveats. |
 | **[Challenges & Solutions Guide](reports/docs/runbooks/challenges_and_solutions_guide.md)** | Operational runbook mapping anticipated/encountered failure modes to validated solutions. |
 
 ---
@@ -229,6 +265,11 @@ uv run python main.py
 | **Lint & Format Check** | `uv run ruff check .` | Enforces linting, import sorting, and formatting rules. |
 | **Type Checking** | `uv run pyright` | Validates strict static typing across `src/` and `tests/`. |
 | **Reproduce Data Pipeline** | `uv run dvc repro` | Executes DVC pipeline gated by Great Expectations checks. |
+| **Train & Benchmark Models** | `uv run python -m src.pipelines.training.train --output-csv reports/model_leaderboard.csv` | Trains 12 configurations, computes calibration metrics, logs to MLflow. |
+| **Promote & Export Winner** | `uv run python -m src.pipelines.training.promote` | Gated model promotion (INV-3) & lean bundle serialization. |
+| **Launch Tier 1 API** | `uv run python -m uvicorn src.tier1_ml.app:app --host 0.0.0.0 --port 8000` | Starts the lean Tier 1 FastAPI microservice. |
+| **Build Tier 1 Serving Image** | `docker build -t acras-tier1:latest .` | Builds lean, hardened serving container without training dependencies. |
+
 | **Experiment Tracking** | `uv run mlflow ui` | Launches local MLflow dashboard for model tracking. |
 | **Docker Build & Run** | `docker compose up --build` | Builds and launches all services via Docker Compose. |
 

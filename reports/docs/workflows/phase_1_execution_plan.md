@@ -197,7 +197,7 @@ Same discipline as Phase 0's execution plan: nothing here is code, ADRs are assi
 
 ---
 
-## Stage 9 — ADR Consolidation & Phase 1 Sign-Off 📌 **PENDING**
+## Stage 9 — ADR Consolidation & Phase 1 Sign-Off ✅ **PASSED**
 
 **Goal:** Close the loop between decided, built, and recorded — the same discipline as Phase 0's own Stage 9.
 

@@ -38,13 +38,10 @@ ENV PATH="/app/.venv/bin:$PATH" \
     PYTHONPATH="/app" \
     PORT=8000
 
-# Copy application configuration, source code, and promoted model artifact
+# Copy application configuration, source code, and artifacts directory
 COPY --chown=acras:acras params.yaml /app/params.yaml
 COPY --chown=acras:acras src /app/src
-
-# Create artifacts directory and copy promoted model bundle if present
-RUN mkdir -p /app/artifacts && chown -R acras:acras /app/artifacts
-COPY --chown=acras:acras artifacts/promoted_model_bundle.joblib* /app/artifacts/
+COPY --chown=acras:acras artifacts /app/artifacts
 
 USER acras
 

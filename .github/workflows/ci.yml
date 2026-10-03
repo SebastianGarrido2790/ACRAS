@@ -62,14 +62,29 @@ jobs:
         run: uv run pytest tests/ -v
 
   docker:
-    name: Docker Build Verification
+    name: Docker Build Verification & Container Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          version: "0.8.11"
+
+      - name: Install Python 3.12
+        run: uv python install 3.12
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Build Docker image
-        run: docker build -t acras:ci .
+        run: docker build -t acras-tier1:stage7 -t acras:ci .
+
+      - name: Run Container Integration Tests
+        run: uv run pytest tests/integration/test_container.py -v

@@ -104,7 +104,8 @@ data/raw/*
 data/processed/*
 !data/processed/.gitkeep
 
-artifacts/
+artifacts/*
+!artifacts/.gitkeep
 models/*.pkl
 models/*.h5
 models/*.pt

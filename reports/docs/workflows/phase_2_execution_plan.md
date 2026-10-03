@@ -27,16 +27,16 @@ Same discipline as Phase 0 and Phase 1: nothing here is code, ADRs are assigned 
 
 ---
 
-## Stage 0 — Pre-Implementation Verification & Dependency Check
+## Stage 0 — Pre-Implementation Verification & Dependency Check ✅ **PASSED**
 
 **Goal:** Confirm the workspace, dependencies, and Phase 1 artifacts are in a known, stable state before any Phase 2 implementation begins.
 
 **Checklist:**
-- [ ] Working tree is clean on `main` branch (`git status`).
-- [ ] Virtual environment dependencies (`uv run pytest`, `uv run ruff check .`, `uv run pyright`) pass with 0 errors.
-- [ ] Phase 1 model artifact exists and loads correctly (`artifacts/promoted_model_bundle.joblib`).
-- [ ] `src/tier2_simulation/__init__.py` is present as an empty scaffold.
-- [ ] All Phase 2 architectural decisions (D-2.0 through D-2.6) are marked Approved in `phase_2_implementation_plan.md`.
+- [x] Working tree is clean on `main` branch (`git status`).
+- [x] Virtual environment dependencies (`uv run pytest`, `uv run ruff check .`, `uv run pyright`) pass with 0 errors.
+- [x] Phase 1 model artifact exists and loads correctly (`artifacts/promoted_model_bundle.joblib`).
+- [x] `src/tier2_simulation/__init__.py` is present as an empty scaffold.
+- [x] All Phase 2 architectural decisions (D-2.0 through D-2.6) are marked Approved in `phase_2_implementation_plan.md`.
 
 **ADR Implements:** None new.
 

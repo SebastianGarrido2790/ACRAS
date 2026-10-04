@@ -1,6 +1,7 @@
 """Config package initialization."""
 
 from src.config.loader import (
+    AppConfig,
     CalibrationConfig,
     CVConfig,
     ImbalanceConfig,
@@ -8,11 +9,13 @@ from src.config.loader import (
     ProjectParams,
     PromotionGateConfig,
     RatingThreshold,
+    SimulationConfig,
     SplitConfig,
     load_params,
 )
 
 __all__ = [
+    "AppConfig",
     "CalibrationConfig",
     "CVConfig",
     "ImbalanceConfig",
@@ -20,6 +23,7 @@ __all__ = [
     "ProjectParams",
     "PromotionGateConfig",
     "RatingThreshold",
+    "SimulationConfig",
     "SplitConfig",
     "load_params",
 ]

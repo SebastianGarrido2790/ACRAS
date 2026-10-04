@@ -46,7 +46,7 @@ Same discipline as Phase 0 and Phase 1: nothing here is code, ADRs are assigned 
 
 ---
 
-## Stage 1 — Simulation Configuration & Parameters Pipeline
+## Stage 1 — Simulation Configuration & Parameters Pipeline ✅ **PASSED**
 
 **Goal:** Codify Monte Carlo simulation hyperparameters into `params.yaml` (D-2.0) and implement typed Pydantic loading in `src/config/loader.py` to prevent hardcoded magic numbers (INV-1).
 

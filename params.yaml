@@ -67,6 +67,18 @@ models:
     n_jobs: -1
     eval_metric: "logloss"
 
+simulation:
+  n_iterations: 10000
+  seed: 42
+  asset_correlation: 0.15
+  tolerance_p10: 0.015
+  tolerance_p50: 0.015
+  tolerance_p90: 0.020
+  latency_budget_ms: 5.0
+  macro_volatility: 0.20
+  debt_service_shock_std: 0.15
+  asset_haircut_std: 0.10
+
 # PD-to-Credit-Rating Mapping Table (ADR-021 / PRD FR4)
 # DISCLAIMER & HONESTY CAVEAT:
 # These thresholds are illustrative bands drawn loosely from public rating agency conventions.

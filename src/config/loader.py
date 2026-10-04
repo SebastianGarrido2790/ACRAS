@@ -58,6 +58,23 @@ class PromotionGateConfig(BaseModel):
     brier_threshold: float = Field(gt=0.0, lt=1.0)
     auc_threshold: float = Field(gt=0.5, lt=1.0)
 
+
+class SimulationConfig(BaseModel):
+    """Monte Carlo simulation reproducibility and tolerance controls."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    n_iterations: int = Field(ge=1, le=1_000_000)
+    seed: int = Field(ge=0, le=2**31 - 1)
+    asset_correlation: float = Field(ge=0.0, le=1.0)
+    tolerance_p10: float = Field(ge=0.0, le=1.0)
+    tolerance_p50: float = Field(ge=0.0, le=1.0)
+    tolerance_p90: float = Field(ge=0.0, le=1.0)
+    latency_budget_ms: float = Field(ge=0.0, le=1_000.0)
+    macro_volatility: float = Field(ge=0.0, le=1.0)
+    debt_service_shock_std: float = Field(ge=0.0, le=10.0)
+    asset_haircut_std: float = Field(ge=0.0, le=10.0)
+
+
 class RatingThreshold(BaseModel):
     """Discrete credit rating bracket bound."""
 
@@ -66,11 +83,11 @@ class RatingThreshold(BaseModel):
     max_pd: float = Field(ge=0.0, le=1.0)
 
 
-class ProjectParams(BaseModel):
+class AppConfig(BaseModel):
     """Root configuration object loaded from params.yaml."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
-    seed: int
+    seed: int = Field(ge=0, le=2**31 - 1)
     split: SplitConfig
     cv: CVConfig
     preprocessing: PreprocessingConfig
@@ -78,11 +95,14 @@ class ProjectParams(BaseModel):
     calibration: CalibrationConfig
     models: dict[str, dict[str, Any]]
     promotion_gate: PromotionGateConfig
-
+    simulation: SimulationConfig
     rating_thresholds: list[RatingThreshold]
 
 
-def load_params(params_path: Path | str = "params.yaml") -> ProjectParams:
+ProjectParams = AppConfig
+
+
+def load_params(params_path: Path | str = "params.yaml") -> AppConfig:
     """Load and validate parameters from a YAML file.
 
     Args:

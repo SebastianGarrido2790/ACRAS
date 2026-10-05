@@ -16,6 +16,7 @@ dependencies = [
     # Data & ML inference (Serving)
     "numpy>=1.26,<3",
     "pandas>=2.2,<3",
+    "scipy>=1.14,<2",
     "scikit-learn>=1.5,<2",
     "xgboost>=2.0,<3",
     "lightgbm>=4.7.0",

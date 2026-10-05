@@ -19,6 +19,7 @@ dependencies = [
     { name = "pydantic-settings" },
     { name = "pyyaml" },
     { name = "scikit-learn" },
+    { name = "scipy" },
     { name = "uvicorn", extra = ["standard"] },
     { name = "xgboost" },
 ]
@@ -50,6 +51,7 @@ requires-dist = [
     { name = "pydantic-settings", specifier = ">=2.3,<3" },
     { name = "pyyaml", specifier = ">=6.0,<7" },
     { name = "scikit-learn", specifier = ">=1.5,<2" },
+    { name = "scipy", specifier = ">=1.14,<2" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.30,<1" },
     { name = "xgboost", specifier = ">=2.0,<3" },
 ]

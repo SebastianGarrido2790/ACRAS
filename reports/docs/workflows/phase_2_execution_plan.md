@@ -64,7 +64,7 @@ Same discipline as Phase 0 and Phase 1: nothing here is code, ADRs are assigned 
 
 ---
 
-## Stage 2 — Analytical Benchmark Module (Vasicek Closed-Form)
+## Stage 2 — Analytical Benchmark Module (Vasicek Closed-Form) ✅ **PASSED**
 
 **Goal:** Author the closed-form Vasicek analytical verification benchmark in `src/tier2_simulation/benchmark.py` (D-2.2) to establish the mathematical truth against which the Monte Carlo simulation will be validated.
 

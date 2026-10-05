@@ -86,7 +86,7 @@ Same discipline as Phase 0 and Phase 1: nothing here is code, ADRs are assigned 
 
 ---
 
-## Stage 3 — Vectorized Monte Carlo Engine (Core)
+## Stage 3 — Vectorized Monte Carlo Engine (Core) ✅ **PASSED**
 
 **Goal:** Implement the pure vectorized NumPy Monte Carlo engine in `src/tier2_simulation/engine.py` (D-2.1, D-2.1a, D-2.1b) executing $N \ge 10,000$ iterations within the sub-5ms latency budget.
 

@@ -10,8 +10,11 @@ from src.tier2_simulation.benchmark import (
     vasicek_quantile,
     verify_simulation_benchmark,
 )
+from src.tier2_simulation.engine import SimulationConfigError, run_monte_carlo_simulation
 
 __all__ = [
+    "SimulationConfigError",
+    "run_monte_carlo_simulation",
     "vasicek_cdf",
     "vasicek_pdf",
     "vasicek_quantile",

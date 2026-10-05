@@ -112,7 +112,7 @@ Same discipline as Phase 0 and Phase 1: nothing here is code, ADRs are assigned 
 
 ---
 
-## Stage 4 — Domain Financial Ratios Extraction Module
+## Stage 4 — Domain Financial Ratios Extraction Module ✅ **PASSED**
 
 **Goal:** Implement `src/tier2_simulation/ratios.py` (D-2.5) to deterministically extract domain credit ratios from verified `raw_features` for downstream persona consumption (PRD FR5).
 

@@ -11,9 +11,11 @@ from src.tier2_simulation.benchmark import (
     verify_simulation_benchmark,
 )
 from src.tier2_simulation.engine import SimulationConfigError, run_monte_carlo_simulation
+from src.tier2_simulation.ratios import compute_financial_ratios
 
 __all__ = [
     "SimulationConfigError",
+    "compute_financial_ratios",
     "run_monte_carlo_simulation",
     "vasicek_cdf",
     "vasicek_pdf",

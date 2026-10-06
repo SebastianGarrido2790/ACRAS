@@ -161,7 +161,7 @@ Same discipline as Phase 0 and Phase 1: nothing here is code, ADRs are assigned 
 
 ---
 
-## Stage 6 — Tier 1/Tier 2 In-Memory Orchestration Service
+## Stage 6 — Tier 1/Tier 2 In-Memory Orchestration Service ✅ **PASSED**
 
 **Goal:** Implement `src/tier2_simulation/service.py` (D-2.3) providing the decoupled in-memory integration pattern connecting Tier 1 outputs to Tier 2 simulation.
 

@@ -12,11 +12,19 @@ from src.tier2_simulation.benchmark import (
 )
 from src.tier2_simulation.engine import SimulationConfigError, run_monte_carlo_simulation
 from src.tier2_simulation.ratios import compute_financial_ratios
+from src.tier2_simulation.service import (
+    InvalidTier1InputError,
+    Tier2SimulationService,
+    run_simulation_pipeline,
+)
 
 __all__ = [
+    "InvalidTier1InputError",
     "SimulationConfigError",
+    "Tier2SimulationService",
     "compute_financial_ratios",
     "run_monte_carlo_simulation",
+    "run_simulation_pipeline",
     "vasicek_cdf",
     "vasicek_pdf",
     "vasicek_quantile",

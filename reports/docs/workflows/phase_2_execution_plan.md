@@ -137,7 +137,7 @@ Same discipline as Phase 0 and Phase 1: nothing here is code, ADRs are assigned 
 
 ---
 
-## Stage 5 — EvidenceBundle Schema Migration to Version 1 (`v1`)
+## Stage 5 — EvidenceBundle Schema Migration to Version 1 (`v1`) ✅ **PASSED**
 
 **Goal:** Advance `src/schemas/evidence_bundle.py` (D-2.4) from `pre-v0-draft` to `schema_version = "v1"`, enforcing strict validation on Tier 1 and Tier 2 outputs while keeping downstream Tier 3 fields decoupled.
 

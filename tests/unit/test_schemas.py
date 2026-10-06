@@ -32,6 +32,7 @@ def test_evidence_bundle_pre_v0_smoke_instantiation() -> None:
     bundle = EvidenceBundle(
         company_id="COMP-001",
         raw_features=raw_sample,
+        schema_version="pre-v0-draft",
     )
 
     assert bundle.company_id == "COMP-001"
@@ -60,6 +61,7 @@ def test_evidence_bundle_full_tier_structure_simulation() -> None:
     bundle = EvidenceBundle(
         company_id="COMP-002",
         raw_features={"Debt ratio %": 0.35},
+        schema_version="v1",
         pd=0.072,
         credit_rating="BBB",
         pd_band=band,
@@ -144,6 +146,67 @@ def test_evidence_bundle_falsification_extra_fields_forbidden() -> None:
 
 def test_evidence_bundle_immutability() -> None:
     """[GATE 6 Falsification] Evidence bundle is frozen and immutable."""
-    bundle = EvidenceBundle(company_id="COMP-006", raw_features={})
+    bundle = EvidenceBundle(
+        company_id="COMP-006", raw_features={}, schema_version="pre-v0-draft"
+    )
     with pytest.raises(ValidationError):
         bundle.company_id = "NEW_ID"  # type: ignore[misc]
+
+
+def _valid_v1_kwargs() -> dict[str, object]:
+    """Baseline valid v1 payload for Stage 5 contract tests."""
+    return {
+        "company_id": "COMP-V1",
+        "raw_features": {"Debt ratio %": 0.35},
+        "schema_version": "v1",
+        "pd": 0.032,
+        "credit_rating": "BB",
+        "pd_band": PDBand(p10=0.02, p50=0.032, p90=0.06),
+        "financial_ratios": {"current_ratio": 1.5, "debt_to_equity": 0.8},
+    }
+
+
+def test_evidence_bundle_v1_valid_contract() -> None:
+    """[Stage 5 Gate] A complete Tier 1 + Tier 2 payload validates as v1."""
+    bundle = EvidenceBundle(**_valid_v1_kwargs())  # type: ignore[arg-type]
+    assert bundle.schema_version == "v1"
+    assert bundle.pd_band is not None
+    assert bundle.financial_ratios is not None
+    # Tier 3 stays decoupled: persona_verdicts=None is valid for v1.
+    assert bundle.persona_verdicts is None
+
+
+def test_evidence_bundle_v1_falsification_missing_pd_band() -> None:
+    """[Stage 5 Falsification 1] v1 with pd_band=None raises ValidationError."""
+    kwargs = _valid_v1_kwargs()
+    kwargs["pd_band"] = None
+    with pytest.raises(ValidationError) as exc_info:
+        EvidenceBundle(**kwargs)  # type: ignore[arg-type]
+    assert "pd_band" in str(exc_info.value)
+
+
+def test_evidence_bundle_v1_falsification_inverted_monotonicity() -> None:
+    """[Stage 5 Falsification 2] Inverted percentiles raise ValidationError."""
+    with pytest.raises(ValidationError) as exc_info:
+        PDBand(p10=0.05, p50=0.02, p90=0.10)
+    assert "p10 <= p50 <= p90" in str(exc_info.value)
+
+
+def test_evidence_bundle_v1_falsification_invalid_rating_and_ratios() -> None:
+    """[Stage 5] v1 rejects unknown ratings and empty/non-finite ratio maps."""
+    base = _valid_v1_kwargs()
+
+    invalid_rating = dict(base)
+    invalid_rating["credit_rating"] = "NOT-A-RATING"
+    with pytest.raises(ValidationError):
+        EvidenceBundle(**invalid_rating)  # type: ignore[arg-type]
+
+    empty_ratios = dict(base)
+    empty_ratios["financial_ratios"] = {}
+    with pytest.raises(ValidationError):
+        EvidenceBundle(**empty_ratios)  # type: ignore[arg-type]
+
+    non_finite_ratios = dict(base)
+    non_finite_ratios["financial_ratios"] = {"current_ratio": float("nan")}
+    with pytest.raises(ValidationError):
+        EvidenceBundle(**non_finite_ratios)  # type: ignore[arg-type]

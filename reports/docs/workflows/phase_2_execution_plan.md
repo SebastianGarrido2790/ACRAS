@@ -181,7 +181,7 @@ Same discipline as Phase 0 and Phase 1: nothing here is code, ADRs are assigned 
 
 ---
 
-## Stage 7 — Performance Benchmark & Latency Gate
+## Stage 7 — Performance Benchmark & Latency Gate ✅ **PASSED**
 
 **Goal:** Author a dedicated performance test in `tests/benchmarks/test_simulation_perf.py` (D-2.6) enforcing the sub-5ms latency budget at $N=10,000$ iterations.
 

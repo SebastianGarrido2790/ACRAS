@@ -1,7 +1,7 @@
 {
   "expectations": [
     {
-      "id": "0f69f6d8-67c3-4576-b3df-0e4b392d726e",
+      "id": "084b23f0-fe7f-4767-87a8-845d063c8a73",
       "kwargs": {
         "value": 96
       },
@@ -10,7 +10,7 @@
       "type": "expect_table_column_count_to_equal"
     },
     {
-      "id": "2044768a-3bfe-43ac-8210-9db47f61f2cd",
+      "id": "f49ac25f-9c9d-4412-9299-e3710c1b46bc",
       "kwargs": {
         "max_value": 7500,
         "min_value": 6000
@@ -20,7 +20,7 @@
       "type": "expect_table_row_count_to_be_between"
     },
     {
-      "id": "a4e1d509-151a-40ea-91f6-a87f531535ec",
+      "id": "a8b779f8-9d05-42c5-86d4-e63d47012755",
       "kwargs": {
         "column_set": [
           "Bankrupt?",
@@ -126,7 +126,7 @@
       "type": "expect_table_columns_to_match_set"
     },
     {
-      "id": "466c5c9f-1339-48d0-9a20-df14ccb6b269",
+      "id": "5bc9aa85-94e6-4fb3-a522-df830c9e78ca",
       "kwargs": {
         "column": "Bankrupt?"
       },
@@ -135,7 +135,7 @@
       "type": "expect_column_values_to_not_be_null"
     },
     {
-      "id": "77464512-3bd7-4f75-a9de-f74a85a85215",
+      "id": "34a88157-b1f3-418d-a889-a9f3ac33a593",
       "kwargs": {
         "column": "Bankrupt?",
         "value_set": [
@@ -148,7 +148,7 @@
       "type": "expect_column_values_to_be_in_set"
     },
     {
-      "id": "ee09c7a9-df03-47d9-a809-fa84b714a4bf",
+      "id": "0f391a49-077e-4190-b70a-7231e8f81cbe",
       "kwargs": {
         "column": "Bankrupt?",
         "type_": "int64"
@@ -158,7 +158,7 @@
       "type": "expect_column_values_to_be_of_type"
     },
     {
-      "id": "a7ab99ed-db8f-4e75-ae03-e971575e36e4",
+      "id": "6e88f8e5-f651-4e68-af88-c0097a03bdb8",
       "kwargs": {
         "column": " Liability-Assets Flag"
       },
@@ -167,7 +167,7 @@
       "type": "expect_column_values_to_not_be_null"
     },
     {
-      "id": "8de5e3e6-916e-4479-8a72-ac37d48ed54b",
+      "id": "d8533290-99c0-4bbe-8588-cf8b471b2a65",
       "kwargs": {
         "column": " Liability-Assets Flag",
         "value_set": [
@@ -180,7 +180,7 @@
       "type": "expect_column_values_to_be_in_set"
     },
     {
-      "id": "a584a76c-77bc-4ff5-9ee7-8c702f84e767",
+      "id": "a0ddffca-e1f0-4737-91d4-d52ff6e74a95",
       "kwargs": {
         "column": " Liability-Assets Flag",
         "type_": "int64"
@@ -190,7 +190,7 @@
       "type": "expect_column_values_to_be_of_type"
     },
     {
-      "id": "ce06622b-b7a4-425e-96b7-df8c85a9584c",
+      "id": "5a3e09e1-61b0-42b4-abfe-6ce26bc62d60",
       "kwargs": {
         "column": " Net Income Flag"
       },
@@ -199,7 +199,7 @@
       "type": "expect_column_values_to_not_be_null"
     },
     {
-      "id": "4ac1ed4f-7885-4fb9-8ba4-bea3845ff847",
+      "id": "30e25750-31c9-4107-a031-4cd221afa1da",
       "kwargs": {
         "column": " Net Income Flag",
         "value_set": [
@@ -211,7 +211,7 @@
       "type": "expect_column_values_to_be_in_set"
     },
     {
-      "id": "ee63fcfd-8ebd-46d7-89ef-ff5e9e383b17",
+      "id": "4e8c5363-cc65-4565-85a2-9b369adf3332",
       "kwargs": {
         "column": " Net Income Flag",
         "type_": "int64"
@@ -221,7 +221,7 @@
       "type": "expect_column_values_to_be_of_type"
     },
     {
-      "id": "f904996e-0ec5-4c19-9291-ca3bc30e30a2",
+      "id": "b3e0dab3-ca12-474b-a2ef-955e36528320",
       "kwargs": {
         "column": " ROA(A) before interest and % after tax"
       },
@@ -230,7 +230,7 @@
       "type": "expect_column_values_to_not_be_null"
     },
     {
-      "id": "0b885463-54b7-4318-ada4-057b42875275",
+      "id": "be63914d-5530-48fb-82c1-bc6191569a85",
       "kwargs": {
         "column": " ROA(A) before interest and % after tax",
         "max_value": 1.0,
@@ -241,7 +241,7 @@
       "type": "expect_column_values_to_be_between"
     },
     {
-      "id": "ffb8cc8d-bc02-488d-b3be-58f8939bab7d",
+      "id": "967eb04a-5814-4203-ba70-5c5cc4039ebf",
       "kwargs": {
         "column": " ROA(A) before interest and % after tax",
         "type_": "float64"
@@ -251,7 +251,7 @@
       "type": "expect_column_values_to_be_of_type"
     },
     {
-      "id": "290be801-bdf2-4224-bcc2-b1c535dd601a",
+      "id": "502624b4-e147-4b8a-9635-20cdb72aef65",
       "kwargs": {
         "column": " Operating Gross Margin"
       },
@@ -260,7 +260,7 @@
       "type": "expect_column_values_to_not_be_null"
     },
     {
-      "id": "91733d78-78f9-485f-9eba-fe794d11880a",
+      "id": "87fa3ffb-7f03-46ea-ab80-56e9ce2413fa",
       "kwargs": {
         "column": " Operating Gross Margin",
         "max_value": 1.0,
@@ -271,7 +271,7 @@
       "type": "expect_column_values_to_be_between"
     },
     {
-      "id": "55e6fd5c-9abd-4dcb-a511-2a3f0cbef5d0",
+      "id": "4201994b-787f-4e1d-b30e-58bed40eabc3",
       "kwargs": {
         "column": " Operating Gross Margin",
         "type_": "float64"
@@ -281,7 +281,7 @@
       "type": "expect_column_values_to_be_of_type"
     },
     {
-      "id": "e112454f-2a73-406a-a8e3-7ade469c0408",
+      "id": "5e988b60-5054-4399-abdf-f2b6bf6dc2ef",
       "kwargs": {
         "column": " Net Income to Total Assets"
       },
@@ -290,7 +290,7 @@
       "type": "expect_column_values_to_not_be_null"
     },
     {
-      "id": "310b2e9f-4e31-441a-92a6-d8b78ccd5fe1",
+      "id": "5bd44c55-6adb-4df6-aaf2-727438122cee",
       "kwargs": {
         "column": " Net Income to Total Assets",
         "max_value": 1.0,
@@ -301,7 +301,7 @@
       "type": "expect_column_values_to_be_between"
     },
     {
-      "id": "9eb5b6e3-db48-47d5-9f41-bc84b9995fa7",
+      "id": "9e20f052-4a5c-4660-934c-955f22d5abe7",
       "kwargs": {
         "column": " Net Income to Total Assets",
         "type_": "float64"
@@ -311,7 +311,7 @@
       "type": "expect_column_values_to_be_of_type"
     },
     {
-      "id": "43f5bc90-821d-4746-b084-d4cd888167b5",
+      "id": "9dbabe2b-f4ff-4ff0-92fa-fa817dd27046",
       "kwargs": {
         "column": " Debt ratio %"
       },
@@ -320,7 +320,7 @@
       "type": "expect_column_values_to_not_be_null"
     },
     {
-      "id": "4e021353-955d-42f6-9bf6-e5c4bfcd312c",
+      "id": "1addcd58-e265-44a2-985c-6eec3bb02129",
       "kwargs": {
         "column": " Debt ratio %",
         "max_value": 1.0,
@@ -331,7 +331,7 @@
       "type": "expect_column_values_to_be_between"
     },
     {
-      "id": "d9cd2c23-e906-422b-939e-018dac2e6b14",
+      "id": "eae0be39-c9d5-409d-8313-5fa25f484fe8",
       "kwargs": {
         "column": " Debt ratio %",
         "type_": "float64"
@@ -341,7 +341,7 @@
       "type": "expect_column_values_to_be_of_type"
     },
     {
-      "id": "d8334273-0d10-4411-adf2-27ddbb3cb5d6",
+      "id": "398fd632-db13-4a37-855b-a50cb9652f7f",
       "kwargs": {
         "column": " Net worth/Assets"
       },
@@ -350,7 +350,7 @@
       "type": "expect_column_values_to_not_be_null"
     },
     {
-      "id": "25321a6d-aebf-4e84-8b2e-5eb1da0f146f",
+      "id": "2898f18d-c22f-40d1-a8a3-f8602d5c9884",
       "kwargs": {
         "column": " Net worth/Assets",
         "max_value": 1.0,
@@ -361,7 +361,7 @@
       "type": "expect_column_values_to_be_between"
     },
     {
-      "id": "08d74db1-1fda-444b-8804-5921322c0741",
+      "id": "076fea15-7372-4d99-9cef-5f43bb5d0d55",
       "kwargs": {
         "column": " Net worth/Assets",
         "type_": "float64"
@@ -371,7 +371,7 @@
       "type": "expect_column_values_to_be_of_type"
     },
     {
-      "id": "25e2cbb9-c668-4454-8f62-bec56d836bd8",
+      "id": "bed7aba2-092e-45e9-b8ff-bf3ff116b27b",
       "kwargs": {
         "column": " Borrowing dependency"
       },
@@ -380,7 +380,7 @@
       "type": "expect_column_values_to_not_be_null"
     },
     {
-      "id": "66ac7a34-e437-4d84-af0d-79d45d35e9d9",
+      "id": "f38e0310-e24f-4e01-91e2-819b40a4400f",
       "kwargs": {
         "column": " Borrowing dependency",
         "max_value": 1.0,
@@ -391,7 +391,7 @@
       "type": "expect_column_values_to_be_between"
     },
     {
-      "id": "441d7905-30b0-40d8-a51c-259aad36d072",
+      "id": "87e08ee2-dc46-47af-9158-5a790d661194",
       "kwargs": {
         "column": " Borrowing dependency",
         "type_": "float64"
@@ -401,7 +401,7 @@
       "type": "expect_column_values_to_be_of_type"
     },
     {
-      "id": "f34ae66f-524f-4a23-adce-7116fb151cd6",
+      "id": "60b23899-8c41-4108-b5fb-9487a01bb570",
       "kwargs": {
         "column": " Current Assets/Total Assets"
       },
@@ -410,7 +410,7 @@
       "type": "expect_column_values_to_not_be_null"
     },
     {
-      "id": "ad328e65-9660-4503-a568-b0b2d7023d39",
+      "id": "920cdc7e-6229-4229-993c-407a29e12193",
       "kwargs": {
         "column": " Current Assets/Total Assets",
         "max_value": 1.0,
@@ -421,7 +421,7 @@
       "type": "expect_column_values_to_be_between"
     },
     {
-      "id": "5b9f023c-2fd1-4fbb-9e5c-0e4dc79a5156",
+      "id": "0f403e27-cec4-49d2-9b64-47e40309eea1",
       "kwargs": {
         "column": " Current Assets/Total Assets",
         "type_": "float64"
@@ -431,7 +431,7 @@
       "type": "expect_column_values_to_be_of_type"
     },
     {
-      "id": "1d9e8af6-6a49-47cd-8c4e-b6afe1ef82a9",
+      "id": "b7e3031c-7bc7-431b-9dc9-ba7ebbdd0cc4",
       "kwargs": {
         "column": " Working Capital to Total Assets"
       },
@@ -440,7 +440,7 @@
       "type": "expect_column_values_to_not_be_null"
     },
     {
-      "id": "2018c359-27c6-4253-b7eb-4f749a3a75b7",
+      "id": "91c4b742-d4a2-4505-aec0-d4a2fe484053",
       "kwargs": {
         "column": " Working Capital to Total Assets",
         "max_value": 1.0,
@@ -451,7 +451,7 @@
       "type": "expect_column_values_to_be_between"
     },
     {
-      "id": "abff521f-c842-4114-90d6-e73db955be10",
+      "id": "b913eac3-eecf-422f-b8fb-30435a8e94ec",
       "kwargs": {
         "column": " Working Capital to Total Assets",
         "type_": "float64"
@@ -461,7 +461,7 @@
       "type": "expect_column_values_to_be_of_type"
     },
     {
-      "id": "36a2cfc8-ea56-4cb8-8e77-5fbbb05916a4",
+      "id": "41f1fa5c-eee8-4116-a7f6-581694eb965f",
       "kwargs": {
         "column": " Cash/Total Assets"
       },
@@ -470,7 +470,7 @@
       "type": "expect_column_values_to_not_be_null"
     },
     {
-      "id": "7294dc3f-b4a0-4e7b-8851-0e47758a3b7f",
+      "id": "1e713538-25ab-4206-bb10-de49b64da2f3",
       "kwargs": {
         "column": " Cash/Total Assets",
         "max_value": 1.0,
@@ -481,7 +481,7 @@
       "type": "expect_column_values_to_be_between"
     },
     {
-      "id": "17d83246-fc8f-4469-8864-a432c8875b8f",
+      "id": "c308fa39-b393-44a4-99ee-8aac5fad7e90",
       "kwargs": {
         "column": " Cash/Total Assets",
         "type_": "float64"
@@ -491,7 +491,7 @@
       "type": "expect_column_values_to_be_of_type"
     },
     {
-      "id": "902d234c-427e-4ba3-a911-c959d1cbf0f8",
+      "id": "44393bf9-b21e-47cb-a9f2-67cd34cbd435",
       "kwargs": {
         "column": " Interest Coverage Ratio (Interest expense to EBIT)"
       },
@@ -500,7 +500,7 @@
       "type": "expect_column_values_to_not_be_null"
     },
     {
-      "id": "3517e8fe-2aa5-4a18-9a6a-eb8b2a17c324",
+      "id": "ddaaf40d-c653-4a79-82ec-290e8105ca6c",
       "kwargs": {
         "column": " Interest Coverage Ratio (Interest expense to EBIT)",
         "max_value": 1.0,
@@ -511,7 +511,7 @@
       "type": "expect_column_values_to_be_between"
     },
     {
-      "id": "ccd89f90-0392-4afb-baf5-aa098558a073",
+      "id": "7a28b16a-4ff3-4a16-9072-ce54b444ccd8",
       "kwargs": {
         "column": " Interest Coverage Ratio (Interest expense to EBIT)",
         "type_": "float64"
@@ -521,7 +521,7 @@
       "type": "expect_column_values_to_be_of_type"
     },
     {
-      "id": "02f21fbc-709d-44df-84ea-6caa6f9d45b1",
+      "id": "2863f1a3-355f-452f-9fa4-2c0185ed60b0",
       "kwargs": {
         "column": " Cash Flow to Total Assets"
       },
@@ -530,7 +530,7 @@
       "type": "expect_column_values_to_not_be_null"
     },
     {
-      "id": "16a35bb5-8225-4a38-8389-3a06022a8942",
+      "id": "fe01cec2-4ddf-4918-b157-826274eea233",
       "kwargs": {
         "column": " Cash Flow to Total Assets",
         "max_value": 1.0,
@@ -541,7 +541,7 @@
       "type": "expect_column_values_to_be_between"
     },
     {
-      "id": "b98d0614-38b1-4336-845e-b8a1aafd42d2",
+      "id": "b85388f3-b864-46bd-9aa4-c6e8d54252df",
       "kwargs": {
         "column": " Cash Flow to Total Assets",
         "type_": "float64"
@@ -551,7 +551,7 @@
       "type": "expect_column_values_to_be_of_type"
     },
     {
-      "id": "43706358-a579-4130-a926-1d0f89052abe",
+      "id": "3e4f9e5d-1d53-4f70-887e-fcea77ffa9bc",
       "kwargs": {
         "column_list": [
           " ROA(A) before interest and % after tax",

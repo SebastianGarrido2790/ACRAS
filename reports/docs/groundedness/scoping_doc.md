@@ -16,7 +16,7 @@
 - **Why it matters / impact:** Collapses a throughput-bound, judgment-inconsistent manual process into a minutes-long, auditable one — without giving up the risk/growth/capital tension a real credit committee holds internally, which a single blended score or summary would erase.
 - **Proposed approach:** A frozen, calibrated ML core (Tier 1) feeding a vectorized Monte Carlo risk distribution (Tier 2), interpreted by three parallel, rubric-differentiated LLM personas (Tier 3) that converge or explicitly diverge via a deterministic scoring function — never an LLM judging another LLM's prose.
 - **Primary success metric:** % of divergence-engineered golden-set cases where the three personas register a materially different verdict — this is the one metric that validates the entire premise of building Tier 3 as multiple agents rather than one.
-- **Key risks / unknowns:** persona non-divergence (Runbook §1), silent model miscalibration (Runbook §2), and the schedule risk already on record in the Technical Roadmap (Phase 4 is the largest, least de-risked phase).
+- **Key risks / unknowns:** persona non-divergence (Runbook §1), silent model miscalibration (Runbook §2), and the schedule risk already on record in the Implementation Roadmap (Phase 4 is the largest, least de-risked phase).
 
 ## 2. Business / User Problem
 
@@ -26,7 +26,7 @@ Full detail in `user_story.md`. In brief: an SME credit analyst, a Head of Credi
 
 ## 3. Goal
 
-Reduce SME file turnaround from 5–10 days to under 15 minutes; replace a single PD point estimate with a full risk distribution; produce genuinely divergent, auditable interpretation rather than one blended recommendation; keep every quantitative claim traceable to a deterministic calculation; route contested files to a human rather than auto-resolving them. Tied to the certificate's own timeline: full system through Phase 7 by late September 2026 (Technical Roadmap, with the schedule risk already documented there).
+Reduce SME file turnaround from 5–10 days to under 15 minutes; replace a single PD point estimate with a full risk distribution; produce genuinely divergent, auditable interpretation rather than one blended recommendation; keep every quantitative claim traceable to a deterministic calculation; route contested files to a human rather than auto-resolving them. Tied to the certificate's own timeline: full system through Phase 7 by late September 2026 (Implementation Roadmap, with the schedule risk already documented there).
 
 ## 4. End State
 

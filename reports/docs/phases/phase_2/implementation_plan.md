@@ -3,7 +3,7 @@
 **Project:** ACRAS (Agentic Credit Risk & Analysis System)  
 **Author:** Sebastián Garrido Arévalo · **Date:** 2026-10-02 · **Status:** ✅ All 6 approval-required decisions (D-2.1: C, D-2.1a: A, D-2.1b: A, D-2.2: A, D-2.3: B, D-2.4: A) approved 2026-10-02  
 
-This is a living governance and architectural planning document for **Phase 2**. It translates the Phase 2 requirements from the Technical Roadmap and PRD into actionable, concrete engineering decisions based on the project's actual current state, invariants, and constraints (sub-5ms latency budget, zero LLM involvement in calculation, numerical reproducibility, schema validation).
+This is a living governance and architectural planning document for **Phase 2**. It translates the Phase 2 requirements from the Implementation Roadmap and PRD into actionable, concrete engineering decisions based on the project's actual current state, invariants, and constraints (sub-5ms latency budget, zero LLM involvement in calculation, numerical reproducibility, schema validation).
 
 Nothing below has been implemented yet. Every decision is presented with explicit options, concrete trade-offs, and an architectural recommendation. Where a primary decision branches meaningfully, nested sub-decisions are defined. Approved choices are highlighted inline while preserving all alternative options and trade-offs for historical traceability.
 
@@ -30,10 +30,10 @@ An honest, file-by-file inventory of every file in the Phase 2 scope driving the
 
 ## 2. Roadmap Assessment & Latent Gaps
 
-A critical assessment of the Technical Roadmap's wording and specifications for Phase 2:
+A critical assessment of the Implementation Roadmap's wording and specifications for Phase 2:
 
 1. **Discrepancy in Functional Requirement Numbering:**  
-   In the Technical Roadmap and Session Transition Artifact, the Monte Carlo requirements are referred to as `PRD FR5` ($N \ge 10,000$ iterations), `PRD FR6` (correlated shocks), and `PRD FR7` (P10/P50/P90 output bands). However, in canonical `reports/docs/groundedness/prd.md`, Monte Carlo simulation is specified under **FR3** (*"Run a vectorized Monte Carlo simulation (N ≥ 10,000) producing P10/P50/P90 default/loss bands from the Tier 1 output"*), while **FR5** is designated for financial ratio computation, **FR6** for persona agent fan-out, and **FR7** for convergence scoring.  
+   In the Implementation Roadmap and Session Transition Artifact, the Monte Carlo requirements are referred to as `PRD FR5` ($N \ge 10,000$ iterations), `PRD FR6` (correlated shocks), and `PRD FR7` (P10/P50/P90 output bands). However, in canonical `reports/docs/groundedness/prd.md`, Monte Carlo simulation is specified under **FR3** (*"Run a vectorized Monte Carlo simulation (N ≥ 10,000) producing P10/P50/P90 default/loss bands from the Tier 1 output"*), while **FR5** is designated for financial ratio computation, **FR6** for persona agent fan-out, and **FR7** for convergence scoring.  
    *Assessment & Resolution:* This document explicitly harmonizes the citations: Tier 2 fulfills **PRD FR3** (Vectorized Monte Carlo Risk Distribution), **PRD FR5** (Financial Ratio Computation), and **PRD FR7** (Distribution Percentiles $P_{10}, P_{50}, P_{90}$). All ADRs, docstrings, and tests will reflect this reconciled mapping.
 
 2. **The "Distribution Parameters" Ambiguity:**  
@@ -212,7 +212,7 @@ In Phase 0, `src/schemas/evidence_bundle.py` was created as `pre-v0-draft`. ADR-
 | :--- | :--- |
 | **[APPROVED] Option A: In-Place Schema Update with Tagged Versions (`v1`)** | Update `schema_version` to `Literal["v0", "v1"]` (with default `"v1"` for Tier 2 output). In `v1`, enforce via Pydantic model validator that `pd`, `credit_rating`, and `pd_band` are non-null and valid. Downstream Tier 3 fields (`persona_verdicts`) remain optional (`None`). |
 | Option B: Distinct Schema Classes (`EvidenceBundleV0`, `EvidenceBundleV1`) | Create separate classes in separate files. Adds class proliferation and conversion boilerplate without meaningful safety benefits. |
-| Option C: Keep `pre-v0-draft` Until Tier 3 | Keeps schema unversioned until Phase 4. Violates ADR-014 and the Technical Roadmap deliverable (*"extend the evidence-bundle schema to v1 with P10/P50/P90 fields"*). |
+| Option C: Keep `pre-v0-draft` Until Tier 3 | Keeps schema unversioned until Phase 4. Violates ADR-014 and the Implementation Roadmap deliverable (*"extend the evidence-bundle schema to v1 with P10/P50/P90 fields"*). |
 
 **Recommendation:** **Option A (In-Place Schema Update with Tagged Versions `v1`)**.
 

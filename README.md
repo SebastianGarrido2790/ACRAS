@@ -218,7 +218,7 @@ The complete architectural, product, and governance documentation set is organiz
 | **[Project Charter](reports/docs/groundedness/project_charter.md)** | Project scope, target personas, ROI appraisal, Definition of Done, and cost models. |
 | **[User Stories & Problem Framing](reports/docs/groundedness/user_story.md)** | Stakeholder personas, 5 Whys root cause analysis, Jobs-to-be-Done, and user journeys. |
 | **[Product Requirements Document (PRD)](reports/docs/groundedness/prd.md)** | Functional requirements (FR1–FR13), non-functional requirements, release gates, and governance rules. |
-| **[Technical Roadmap](reports/docs/groundedness/technical_roadmap.md)** | Phased engineering execution plan (Phase 0 through Phase 7) with explicit exit criteria. |
+| **[Implementation Roadmap](reports/docs/implementation_roadmap.md)** | Non-authoritative phase sequencing (Phase 0 through Phase 7): capabilities, dependency order, and evidence-based exit criteria. |
 | **[System Design & ADRs](reports/docs/architecture/system_design.md)** | Living system architecture specification and formal decision ledger (**ADR-001 through ADR-027**). |
 | **[Model Evaluation Leaderboard](reports/docs/evaluations/model_leaderboard.md)** | Auditable benchmark report of all 12 trained/calibrated model configurations with sample density caveats. |
 | **[Challenges & Solutions Guide](reports/docs/runbooks/challenges_and_solutions_guide.md)** | Operational runbook mapping anticipated/encountered failure modes to validated solutions. |

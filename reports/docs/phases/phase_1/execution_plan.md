@@ -1,7 +1,7 @@
 # Phase 1 — Staged Execution Plan
 
 **Project:** ACRAS (Agentic Credit Risk & Analysis System)
-**Author:** Sebastián Garrido Arévalo · **Date:** 2026-09-28 · **Status:** Sequencing only — precondition satisfied (D-1.11 & D-1.12 approved), implementation ready to proceed · **Key References:** [Phase 1 Implementation Plan](../decisions/phase_1_implementation_plan.md) and [Technical Roadmap](../groundedness/technical_roadmap.md)
+**Author:** Sebastián Garrido Arévalo · **Date:** 2026-09-28 · **Status:** Sequencing only — precondition satisfied (D-1.11 & D-1.12 approved), implementation ready to proceed · **Key References:** [Phase 1 Implementation Plan](../decisions/phase_1_implementation_plan.md) and [Implementation Roadmap](../implementation_roadmap.md)
 
 Same discipline as Phase 0's execution plan: nothing here is code, ADRs are assigned to the stage where the underlying fact actually gets built or verified, and falsification is applied selectively — where a stage's gate is a real programmatic check worth deliberately breaking once, not uniformly as a formality.
 

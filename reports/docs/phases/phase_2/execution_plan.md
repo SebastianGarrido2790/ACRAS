@@ -2,7 +2,7 @@
 
 **Project:** ACRAS (Agentic Credit Risk & Analysis System)  
 **Author:** Sebastián Garrido Arévalo · **Date:** 2026-10-02 (Closed: 2026-10-08) · **Status:** Phase 2 Complete — all 10 stages (0 through 9) passed, preconditions satisfied for Phase 3  
-**Key References:** [Phase 2 Implementation Plan](../decisions/phase_2_implementation_plan.md), and [Technical Roadmap](../groundedness/technical_roadmap.md)  
+**Key References:** [Phase 2 Implementation Plan](../decisions/phase_2_implementation_plan.md), and [Implementation Roadmap](../implementation_roadmap.md)  
 
 Same discipline as Phase 0 and Phase 1: nothing here is code, ADRs are assigned strictly to the stage where the underlying architectural fact actually gets built or verified, and falsification is applied selectively — where a stage's gate is a real programmatic check worth deliberately breaking once to prove test sensitivity, not uniformly as a rubber stamp.
 

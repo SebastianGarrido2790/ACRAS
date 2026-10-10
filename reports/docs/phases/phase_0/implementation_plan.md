@@ -3,7 +3,7 @@
 **Project:** ACRAS (Agentic Credit Risk & Analysis System)
 **Author:** Sebastián Garrido Arévalo · **Date:** 2026-08-29 · **Status:** Approved (2026-08-29) — ready for implementation
 
-This is a living document. It translates Phase 0 of the Technical Roadmap into concrete, resolvable decisions, given the project's actual current state and its stated constraints (latency, cost, modularity, solo-builder timeline). Nothing below has been built. If a decision here is later revisited, the revision is logged in-place with a date, not silently overwritten — the same discipline already used for the ADR log.
+This is a living document. It translates the Phase 0 requirements from the Implementation Roadmap into concrete, resolvable decisions, given the project's actual current state and its stated constraints (latency, cost, modularity, solo-builder timeline). Nothing below has been built. If a decision here is later revisited, the revision is logged in-place with a date, not silently overwritten — the same discipline already used for the ADR log.
 
 **All decisions for Phase 0 have been formally reviewed and approved as of 2026-08-29.**
 

@@ -8,7 +8,7 @@
 
 - **What it is:** A non-authoritative, high-level sequencing file: major capabilities, dependency order, and evidence-based phase exit criteria from Phase 0 through Phase 7.
 - **Why it exists:** Expresses what gets built, in what dependency order, and what evidence unlocks the next stage — nothing more.
-- **How to use it:** Read for sequencing and exit gates only. For decisions, see phase implementation plans (`reports/docs/decisions/`, `reports/docs/phases/`); for architecture, see `reports/docs/architecture/system_design.md`; for feature behavior, see specifications; for procedure, see skills and workflows.
+- **How to use it:** Read for sequencing and exit gates only. For decisions, see phase implementation plans (`reports/docs/phases/`); for architecture and the ADR ledger, see `reports/docs/architecture/system_design.md`; for feature behavior, see specifications; for procedure, see skills and workflows.
 
 > This file is deliberately non-authoritative. It MUST NOT contain detailed technical specifications, file-by-file instructions, algorithms, individual requirements, task lists, technical decisions, agent prompts, or detailed architecture. Those belong in phase plans, ADRs, specifications, and code. If this file and an authoritative artifact disagree, the authoritative artifact wins — surface the conflict rather than editing this file to overrule it.
 

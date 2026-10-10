@@ -6,7 +6,7 @@
 
 Same discipline as Phase 0 and Phase 1: nothing here is code, ADRs are assigned strictly to the stage where the underlying architectural fact actually gets built or verified, and falsification is applied selectively — where a stage's gate is a real programmatic check worth deliberately breaking once to prove test sensitivity, not uniformly as a rubber stamp.
 
-**Precondition status:** **Satisfied** — All 6 approval-required decisions (D-2.1: Option C, D-2.1a: Option A, D-2.1b: Option A, D-2.2: Option A, D-2.3: Option B, D-2.4: Option A) and confirmed decisions (D-2.0, D-2.5, D-2.6) are locked in `reports/docs/decisions/phase_2_implementation_plan.md`.
+**Precondition status:** **Satisfied** — All 6 approval-required decisions (D-2.1: Option C, D-2.1a: Option A, D-2.1b: Option A, D-2.2: Option A, D-2.3: Option B, D-2.4: Option A) and confirmed decisions (D-2.0, D-2.5, D-2.6) are locked in `reports/docs/phases/phase_2/implementation_plan.md`.
 
 ---
 
@@ -240,7 +240,7 @@ Same discipline as Phase 0 and Phase 1: nothing here is code, ADRs are assigned 
   - **ADR-032:** EvidenceBundle Schema v1 Migration & PDBand Enforcement (D-2.4).
   - **ADR-033:** Deterministic Financial Ratio Extraction Module (D-2.5).
 - [x] Update `reports/docs/architecture/system_design.md` §2 Current Implementation Status table: Phase 2 moves to **Complete**.
-- [x] Fill in every row of `reports/docs/decisions/phase_2_implementation_plan.md`'s Post-Implementation Review table (§6) with empirical findings, actual metrics, and confirmed test outputs.
+- [x] Fill in every row of `reports/docs/phases/phase_2/implementation_plan.md`'s Post-Implementation Review table (§6) with empirical findings, actual metrics, and confirmed test outputs.
 - [x] Independently re-verify the Roadmap's Phase 2 exit criteria in both directions:
   1. Simulated output matches the analytical benchmark within defined tolerances ($\le 0.015 / 0.020$).
   2. Runtime stays strictly under the 5.0ms budget at $N=10,000$ ($P_{95} = 1.203\text{ ms}$ core, $P_{95} = 2.876\text{ ms}$ full service).

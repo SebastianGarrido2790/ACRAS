@@ -55,7 +55,7 @@ Full detail lives in `user_story.md`. In brief:
 | FR2  | Compute a PD via the frozen Tier 1 model, served through FastAPI.                                                                                                                                            |
 | FR3  | Run a vectorized Monte Carlo simulation (N ≥ 10,000) producing P10/P50/P90 default/loss bands from the Tier 1 output.                                                                                        |
 | FR4  | Convert PD into a credit rating category (e.g., AAA–CCC) via a versioned, documented mapping.                                                                                                                |
-| FR5  | Compute financial ratios (EBITDA, margins, leverage) from structured input via the Financial/Domain Analyst Agent.                                                                                           |
+| FR5  | Compute financial ratios (EBITDA, margins, leverage) deterministically in Tier 2 from verified raw features (ADR-033); Tier 3 personas consume — never recompute — these values. |
 | FR6  | Run three persona agent nodes (CRO (Chief Risk Officer), Portfolio Growth Director, CFO (Chief Finance Officer)/Capital Allocation Director) in parallel against one shared, typed evidence-bundle contract. |
 | FR7  | Run a convergence node that reconciles persona outputs **and computes a quantitative divergence score** between them.                                                                                        |
 | FR8  | Escalate to human-in-the-loop review whenever the divergence score exceeds a documented threshold, or Tier 1 confidence falls below a documented threshold.                                                  |
@@ -79,7 +79,7 @@ FR12 and FR13 exist specifically to prevent the two failure modes flagged during
 
 ## System Architecture
 
-Frozen Tier 1 (FastAPI-served PD model) → Tier 2 (vectorized Monte Carlo, consumes Tier 1's output distribution, no retraining dependency) → Tier 3 (LangGraph fan-out to CRO / Growth / Capital persona nodes reading one Pydantic evidence bundle, fan-in to a convergence node) → Orchestrator (aggregates into the executive report) → Dashboard (Risk Manager–facing input/output). An LLM gateway with a circuit breaker sits in front of all LLM calls; a Great Expectations gate sits in front of the DVC training pipeline. Full component detail lives in `canvas.md` (Solution) and will be finalized as the actual-state record in `system_design.md`.
+Frozen Tier 1 (FastAPI-served PD model) → Tier 2 (vectorized Monte Carlo over Tier 1's scalar PD output plus deterministic financial ratios, no retraining dependency) → Tier 3 (LangGraph fan-out to CRO / Growth / Capital persona nodes reading one Pydantic evidence bundle, fan-in to a convergence node) → Orchestrator (aggregates into the executive report) → Dashboard (Risk Manager–facing input/output). An LLM gateway with a circuit breaker sits in front of all LLM calls; a Great Expectations gate sits in front of the DVC training pipeline. Full component detail lives in `reports/docs/architecture/system_design.md`, the actual-state record.
 
 ## Data Sources
 
@@ -114,7 +114,7 @@ Public dataset availability and quality; LLM provider API access/quotas for both
 
 ```python
 class PersonaVerdict(BaseModel):
-    recommendation: Literal["approve", "conditional", "decline"]
+    recommendation: Literal["approve", "conditional", "reject"]  # canonical: "reject", not "decline"
     lean: float = Field(ge=-1.0, le=1.0)   # risk-appetite position
     confidence: float = Field(ge=0.0, le=1.0)
     rationale: str                          # narrative, for the human report only

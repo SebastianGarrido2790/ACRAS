@@ -160,7 +160,7 @@ def test_falsification_unvectorized_slow_loop_triggers_gate_failure() -> None:
     def mock_unvectorized_simulation() -> list[float]:
         """Deliberate slow simulation path using an unvectorized Python loop."""
         paths: list[float] = []
-        for i in range(10_000):
+        for i in range(50_000):
             z1 = math.sin(float(i))
             z2 = math.cos(float(i))
             z3 = math.tan(float(i % 100) + 0.1)

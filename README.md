@@ -62,9 +62,10 @@ ACRAS follows the **Deterministic Core / Probabilistic Shell** architectural axi
                                           │
                                           ▼
      ┌────────────────────────────────────────────────────────────────────────┐
-     │ TIER 2: MONTE CARLO ENGINE (Deterministic)                             │
-     │ - Vectorized Simulation (NumPy, N ≥ 10,000 iterations)                 │
-     │ - Computes Loss & Default Distributions (P10 / P50 / P90 Bands)        │
+      │ TIER 2: MONTE CARLO ENGINE (Deterministic) ✅ Complete                  │
+      │ - Vectorized Simulation (NumPy, N ≥ 10,000 iterations, P95 ≈ 1.2ms)    │
+      │ - Computes Loss & Default Distributions (P10 / P50 / P90 Bands)        │
+      │ - Vasicek Benchmark Gate + Cholesky Shocks + Schema v1 (ADR-028–033)   │
      └────────────────────────────────────┬───────────────────────────────────┘
                                           │
                                           ▼
@@ -123,8 +124,8 @@ ACRAS follows the **Deterministic Core / Probabilistic Shell** architectural axi
 | :--- | :--- | :---: | :--- |
 | **Phase 0** | **Scaffolding & Data Contracts:** uv environment, Great Expectations suite, DVC remote (6,819 rows × 96 columns pinned), pre-v0 evidence bundle schema, MLflow tracking, CI pipeline with adversarial gate tests. | **Complete** | ADR-010 to ADR-015 |
 | **Phase 1** | **Tier 1 ML Core:** 94 canonical feature schema (ADR-024), shared Yeo-Johnson transform (ADR-025), zero outlier deletion (ADR-026), 12-model training benchmark, dual calibration gate (INV-3 / FR12), promoted XGBoost isotonic model (ADR-027), PD-to-rating mapping (ADR-021), lean FastAPI microservice (ADR-022 / ADR-023), hardened container image. | **Complete** | ADR-017 to ADR-027 |
-| **Phase 2** | **Tier 2 Monte Carlo Engine:** Vectorized simulation engine generating P10/P50/P90 loss and default bands across 10,000 iterations. | *Up Next* | PRD FR5–FR7 |
-| **Phase 3** | **LLM Gateway & Circuit Breaker:** Multi-provider resilience (Gemini primary + open-source secondary), timeout & failover state machine. | *Pending* | ADR-006 / ADR-009 |
+| **Phase 2** | **Tier 2 Monte Carlo Engine:** Vectorized simulation (N=10,000, P95 ≈ 1.2ms), Vasicek closed-form benchmark gate, Cholesky correlated macro shocks, 7 deterministic financial ratios, in-memory Tier 1→Tier 2 service, EvidenceBundle schema v1. | **Complete** | ADR-028 to ADR-033 |
+| **Phase 3** | **LLM Gateway & Circuit Breaker:** Multi-provider resilience (Gemini primary + open-source secondary), timeout & failover state machine. | *Up Next* | ADR-006 / ADR-009 |
 | **Phase 4** | **Tier 3 Multi-Agent Personas:** Parallel LangGraph fan-out for CRO, Growth, and Capital personas with deterministic divergence scoring. | *Pending* | ADR-004 / ADR-005 |
 | **Phase 5** | **Evaluation Harness & Golden Dataset:** Automated calibration and divergence release gates, LLM-as-judge grounding checks. | *Pending* | PRD FR12–FR13 |
 | **Phase 6** | **Dashboard & Trace Logging:** Interactive risk officer UI and structured run persistence. | *Pending* | PRD FR8 |
@@ -171,7 +172,11 @@ ACRAS/
 │   │   ├── service.py         # Model loader & inference scoring engine
 │   │   ├── schemas.py         # Thin request/response schemas with canonical feature validation (ADR-023)
 │   │   └── rating.py          # Calibrated PD to discrete rating bracket mapping (ADR-021)
-│   ├── tier2_simulation/      # Vectorized Monte Carlo risk distribution engine (Phase 2)
+│   ├── tier2_simulation/      # Vectorized Monte Carlo risk distribution engine ✅ (Phase 2)
+│   │   ├── engine.py          # Correlated Gaussian engine, Cholesky, Vasicek mapping (ADR-029)
+│   │   ├── benchmark.py       # Closed-form analytical benchmark + tolerance gate (ADR-030)
+│   │   ├── ratios.py          # Deterministic financial ratio extractor (ADR-033)
+│   │   └── service.py         # In-memory Tier 1→Tier 2 orchestration service (ADR-031)
 │   ├── agents/                # Multi-agent persona interpretation layer (Phase 4)
 │   │   ├── prompts/           # Role-conditioned persona rubrics & system prompts
 │   │   ├── tools/             # Bounded analytical tool endpoints
@@ -187,16 +192,19 @@ ACRAS/
 │   ├── config/                # Strongly-typed loader for params.yaml
 │   └── utils/                 # Logging, exception handling, and custom error types
 ├── reports/
-│   ├── docs/                  # Six Pillars of Groundedness documentation
-│   │   ├── architecture/      # system_design.md (Living ADR ledger: ADR-001 through ADR-027)
-│   │   ├── groundedness/      # canvas.md, project_charter.md, prd.md, user_story.md, roadmap.md
+│   ├── docs/
+│   │   ├── implementation_roadmap.md  # Non-authoritative phase sequencing & exit criteria
+│   │   ├── architecture/      # system_design.md (Living ADR ledger: ADR-001 through ADR-033)
+│   │   ├── groundedness/      # scoping_doc.md, prd.md, user_story.md
 │   │   ├── evaluations/       # model_leaderboard.md, capability_profile_gates.md
-│   │   ├── decisions/         # Phase implementation plans & Post-Implementation Reviews (PIRs)
-│   │   ├── workflows/         # Phase execution plans & falsification matrices
-│   │   └── runbooks/          # challenges_and_solutions_guide.md
+│   │   ├── phases/            # Per-phase implementation plans, execution plans & PIRs
+│   │   │   ├── phase_0/ · phase_1/ · phase_2/  # execution_plan.md + implementation_plan.md each
+│   │   ├── runbooks/          # challenges_and_solutions_guide.md
+│   │   └── specs/             # Feature lifecycle
 │   └── model_leaderboard.csv  # Machine-readable 12-configuration benchmark metrics
 ├── tests/
-│   ├── unit/                  # Unit tests (config, features, transforms, pipeline, gates, serving)
+│   ├── unit/                  # Unit tests (config, features, transforms, pipeline, gates, serving, simulation)
+│   ├── benchmarks/            # Latency regression gate (P95 < 5.0ms @ N=10,000)
 │   └── integration/           # Integration tests (adversarial gate, container live scoring)
 ├── artifacts/                 # Promoted frozen model bundle & feature transformer (gitignored)
 ├── params.yaml                # Global parameters, split ratios, seeds, thresholds & rating table
@@ -219,7 +227,7 @@ The complete architectural, product, and governance documentation set is organiz
 | **[User Stories & Problem Framing](reports/docs/groundedness/user_story.md)** | Stakeholder personas, 5 Whys root cause analysis, Jobs-to-be-Done, and user journeys. |
 | **[Product Requirements Document (PRD)](reports/docs/groundedness/prd.md)** | Functional requirements (FR1–FR13), non-functional requirements, release gates, and governance rules. |
 | **[Implementation Roadmap](reports/docs/implementation_roadmap.md)** | Non-authoritative phase sequencing (Phase 0 through Phase 7): capabilities, dependency order, and evidence-based exit criteria. |
-| **[System Design & ADRs](reports/docs/architecture/system_design.md)** | Living system architecture specification and formal decision ledger (**ADR-001 through ADR-027**). |
+| **[System Design & ADRs](reports/docs/architecture/system_design.md)** | Living system architecture specification and formal decision ledger (**ADR-001 through ADR-033**). |
 | **[Model Evaluation Leaderboard](reports/docs/evaluations/model_leaderboard.md)** | Auditable benchmark report of all 12 trained/calibrated model configurations with sample density caveats. |
 | **[Challenges & Solutions Guide](reports/docs/runbooks/challenges_and_solutions_guide.md)** | Operational runbook mapping anticipated/encountered failure modes to validated solutions. |
 

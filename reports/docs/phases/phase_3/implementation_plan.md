@@ -139,10 +139,10 @@ Keep the feature count small and organized around independently testable behavio
 
 | ID | Question | Status | Material? |
 |---|---|---|---|
-| D3-01 | What provider transport/adapter approach minimizes complexity while supporting reliable, testable failover? | Recommended, pending approval | Yes |
-| D3-02 | Which exact HF Inference API model is the fallback? | Open — human approval required after verification | Yes |
-| D3-03 | What timeout, retry, breaker, and fallback policy bounds latency and cost? | Recommended, pending approval | Yes |
-| D3-04 | What is the minimum sufficient event/cost logging design for auditability? | Recommended, pending approval | Yes |
+| D3-01 | What provider transport/adapter approach minimizes complexity while supporting reliable, testable failover? | ✅ **Approved — Option B** (2026-10-11) | Yes |
+| D3-02 | Which exact HF Inference API model is the fallback? | ✅ **Approved — Option C** (qualification process; final model pin pending evidence, 2026-10-11) | Yes |
+| D3-03 | What timeout, retry, breaker, and fallback policy bounds latency and cost? | ✅ **Approved — Option B with proposed values** (2026-10-11) | Yes |
+| D3-04 | What is the minimum sufficient event/cost logging design for auditability? | ✅ **Approved — Option B** (2026-10-11) | Yes |
 | D3-05 | What gateway contract and failure semantics are allowed across provider boundaries? | Fixed by existing authority, details below | No independent choice on core guarantees |
 | D3-06 | How should gateway reliability and acceptance be tested? | Fixed by requirements; thresholds/passing evidence must be approved with execution plan | No architecture fork |
 
@@ -168,9 +168,9 @@ Keep the feature count small and organized around independently testable behavio
 
 **Recommendation:** Option B. Promote `httpx` to a runtime dependency only if the approved implementation uses it; keep vendor-specific HTTP and parsing logic isolated in adapters behind one gateway contract. Do not add LangChain, LiteLLM, or a multi-provider orchestration framework for this phase.
 
-**Approval:** **Required.**  
-**Decision:** ☐ Approve Option B  ☐ Approve Option A  ☐ Request revision  
-**Consequences if approved:** Define a transport interface and provider adapters; disable hidden adapter retries; use mock transport for deterministic tests.  
+**Approval:** ✅ **Granted — Option B approved 2026-10-11.**  
+**Decision:** ☑ Option B approved  ☐ Option A  ☐ Revision requested  
+**Consequences (now active):** Define a transport interface and provider adapters; disable hidden adapter retries; use mock transport for deterministic tests.  
 **Parent / nested decisions:** D3-02 (fallback model pin) depends on this decision but is independently material because provider availability and response behavior must be verified.
 
 ---
@@ -197,8 +197,8 @@ Keep the feature count small and organized around independently testable behavio
 
 **Recommendation:** Option C as the decision process, then approve A or B based on a small qualification record. Verify the exact model ID and endpoint at implementation time; test authentication, successful completion, malformed/empty response behavior, timeout/failure behavior, latency, usage metadata, and cost-estimation feasibility. Record the exact model ID in version-controlled non-secret configuration only after verification. If neither candidate passes, stop and request a new decision rather than silently substituting another model.
 
-**Approval:** **Required.** Do not mark this decision approved until the qualification evidence identifies the exact model ID.  
-**Decision:** ☐ Approve qualification process  ☐ Select candidate after evidence  ☐ Request different candidate set  
+**Approval:** ✅ **Granted — Option C (qualification process) approved 2026-10-11.** Final model selection (A or B) remains open until qualification evidence exists; do not mark the model pin approved until that evidence identifies the exact model ID.  
+**Decision:** ☑ Qualification process approved  ☐ Candidate selected after evidence (pending)  ☐ Different candidate set requested  
 **Acceptance evidence:** exact endpoint/model identifier; successful controlled request; normalized response contract; failure-mode test; measured latency; known/unknown usage and cost behavior; source/date of provider verification.
 
 ---
@@ -223,7 +223,7 @@ Keep the feature count small and organized around independently testable behavio
 
 **Recommendation:** Option B for the first implementation. Do not add same-provider retries unless qualification tests or observed evidence show a material benefit. Treat provider timeout, connection failure, retryable server failure, and breaker-open state as fallback-eligible. Treat invalid local configuration, missing credentials, invalid gateway input, and response-schema violations according to explicit policy: never retry a deterministic local validation error; response/schema failures should be logged and surfaced as controlled provider failure, with fallback behavior explicitly tested.
 
-**Proposed initial values for approval/testing (not yet accepted):**
+**Initial values (accepted 2026-10-11 as test starting points, subject to qualification evidence):**
 
 | Setting | Proposed starting value | Rationale / qualification |
 |---|---:|---|
@@ -237,9 +237,9 @@ Keep the feature count small and organized around independently testable behavio
 
 These are engineering starting points, not facts derived from existing repository configuration. The implementation stage must verify the selected `pybreaker` version's actual transition semantics and tests must lock down behavior. If the provider qualification shows these values cannot meet the PRD latency/cost constraints, return for approval rather than silently changing the policy.
 
-**Approval:** **Required.**  
-**Decision:** ☐ Approve Option B and proposed values  ☐ Approve Option B with revised values  ☐ Choose another option  
-**Consequences if approved:** Put values in a validated gateway configuration section; define eligible failure categories; use separate breaker instances per provider; prove open/half-open/closed transitions and bounded attempt count in tests.
+**Approval:** ✅ **Granted — Option B with proposed values approved 2026-10-11** (values stand as test starting points, subject to qualification evidence).  
+**Decision:** ☑ Option B and proposed values approved  ☐ Option B with revised values  ☐ Another option  
+**Consequences (now active):** Put values in a validated gateway configuration section; define eligible failure categories; use separate breaker instances per provider; prove open/half-open/closed transitions and bounded attempt count in tests.
 
 ---
 
@@ -263,9 +263,9 @@ These are engineering starting points, not facts derived from existing repositor
 
 **Recommendation:** Option B. Use a versioned `ProviderEvent`-style schema (exact class/name may follow repository naming conventions) with fields sufficient to record: timestamp, request/correlation ID, provider, model ID, attempt number, outcome/category, latency, fallback-used flag, breaker state/transition, provider-reported usage when available, estimated cost when computable, and sanitized error category. Emit structured key/value or JSON-compatible fields through the existing logging path. Do not log prompts/responses by default, secrets, authorization headers, or personally/financially sensitive payloads. If the provider omits usage metadata or a trusted rate is unavailable, record usage/cost as unknown—not zero. Store pricing assumptions as explicit versioned configuration and document their source/date; do not hard-code unexplained prices into business logic.
 
-**Approval:** **Required** for the minimal approach and the proposed event fields.  
-**Decision:** ☐ Approve Option B  ☐ Approve Option A  ☐ Request revision  
-**Consequences if approved:** No OTel/Prometheus rollout in Phase 3; event schema and redaction tests are part of `003-provider-observability` or merged equivalent. Report-level cost acceptance remains provisional until a report-producing consumer exists; Phase 3 must demonstrate auditable per-call usage/cost evidence where supported.
+**Approval:** ✅ **Granted — Option B approved 2026-10-11** (minimal approach and proposed event fields).  
+**Decision:** ☑ Option B approved  ☐ Option A  ☐ Revision requested  
+**Consequences (now active):** No OTel/Prometheus rollout in Phase 3; event schema and redaction tests are part of `003-provider-observability` or merged equivalent. Report-level cost acceptance remains provisional until a report-producing consumer exists; Phase 3 must demonstrate auditable per-call usage/cost evidence where supported.
 
 ---
 
@@ -388,10 +388,10 @@ Please record approval explicitly; silence is not approval.
 
 | Decision | Approved choice / changes requested | Approver decision | Date |
 |---|---|---|---|
-| D3-01 Transport and adapters |  | Pending |  |
-| D3-02 Fallback-model qualification and final pin | Approve qualification process; final model remains pending evidence | Pending |  |
-| D3-03 Resilience policy and proposed initial values |  | Pending |  |
-| D3-04 Structured event and cost logging |  | Pending |  |
+| D3-01 Transport and adapters | Approved Option B | Approved | 2026-10-11 |
+| D3-02 Fallback-model qualification and final pin | Approve qualification process; final model remains pending evidence | Approved (process only; pin pending) | 2026-10-11 |
+| D3-03 Resilience policy and proposed initial values | Approved Option B with proposed values as starting points | Approved | 2026-10-11 |
+| D3-04 Structured event and cost logging | Approved Option B | Approved | 2026-10-11 |
 | D3-05 Gateway contract | Review in SDD; architectural constraints fixed | Pending SDD review |  |
 | D3-06 Reliability test matrix | Include in execution plan; exact evidence references later | Pending execution-plan review |  |
 

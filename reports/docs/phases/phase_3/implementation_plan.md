@@ -140,7 +140,7 @@ Keep the feature count small and organized around independently testable behavio
 | ID | Question | Status | Material? |
 |---|---|---|---|
 | D3-01 | What provider transport/adapter approach minimizes complexity while supporting reliable, testable failover? | ✅ **Approved — Option B** (2026-10-11) | Yes |
-| D3-02 | Which exact HF Inference API model is the fallback? | ✅ **Approved — Option C** (qualification process; final model pin pending evidence, 2026-10-11) | Yes |
+| D3-02 | Which exact HF Inference API model is the fallback? | ✅ **Approved — Option C + R1 route** (hf-inference first; model + final pin pending evidence, 2026-10-11) | Yes |
 | D3-03 | What timeout, retry, breaker, and fallback policy bounds latency and cost? | ✅ **Approved — Option B with proposed values** (2026-10-11) | Yes |
 | D3-04 | What is the minimum sufficient event/cost logging design for auditability? | ✅ **Approved — Option B** (2026-10-11) | Yes |
 | D3-05 | What gateway contract and failure semantics are allowed across provider boundaries? | Fixed by existing authority, details below | No independent choice on core guarantees |
@@ -200,6 +200,21 @@ Keep the feature count small and organized around independently testable behavio
 **Approval:** ✅ **Granted — Option C (qualification process) approved 2026-10-11.** Final model selection (A or B) remains open until qualification evidence exists; do not mark the model pin approved until that evidence identifies the exact model ID.  
 **Decision:** ☑ Qualification process approved  ☐ Candidate selected after evidence (pending)  ☐ Different candidate set requested  
 **Acceptance evidence:** exact endpoint/model identifier; successful controlled request; normalized response contract; failure-mode test; measured latency; known/unknown usage and cost behavior; source/date of provider verification.
+
+**Route resolution — Step 1 of qualification (recorded 2026-10-11 from live provider documentation; ✅ R1 route approved 2026-10-11, no model selected):**
+
+ADR-009's "Hugging Face Inference API" is ambiguous across three non-interchangeable routes. Current HF documentation distinguishes them as follows (sources: `huggingface.co/docs/inference-providers`, `huggingface_hub` InferenceClient reference, fetched 2026-10-11):
+
+- **Route R1 — Inference Providers routed API (recommended, pending approval):** OpenAI-compatible endpoint `https://router.huggingface.co/v1/chat/completions` (or `InferenceClient` with explicit `provider=`), authenticated with a single fine-grained HF token (`HF_TOKEN`, Inference Providers permission). Supports per-call provider policy suffixes (`:fastest`, `:cheapest`, `:preferred`, or an explicit named provider). Fits approved D3-01 Option B directly: plain `httpx` POST, no new SDK dependency (`huggingface_hub` is not installed and not required). Billing via the HF account (pay-as-you-go; PRO credits).
+- **Route R2 — `hf-inference` as the pinned underlying provider:** HF's own first-party serverless provider inside the R1 network (successor to the legacy Serverless Inference API). Selectable as `provider="hf-inference"` within R1. Candidate underlying pin for auditability, subject to per-model availability check in Step 2.
+- **Route R3 — Dedicated Inference Endpoints (rejected for Phase 3):** managed per-model deployment with always-on cost. Disproportionate for a fallback path; out of scope.
+- Also rejected: the legacy `api-inference.huggingface.co` serverless endpoint (superseded by Inference Providers) and `provider="auto"` routing (non-deterministic provider choice per call; incompatible with auditability — the underlying provider MUST be explicitly pinned in configuration).
+
+**Approved route (2026-10-11):** R1 with an explicitly pinned underlying provider. This approves the routing architecture only: one HF credential, one transport (`httpx`, already present at 0.28.1), deterministic per-call routing, and HF-side billing/usage metadata. Qualification order: check the live provider mapping for both candidates against `hf-inference` first (HF documents it as focused mainly on CPU inference and smaller or historically important models, so 7B–8B availability MUST NOT be assumed), then run authenticated requests and collect the evidence. If neither candidate is available through the approved provider, pause for a new provider/model decision rather than silently switching routes. Exact model and final provider pin remain unresolved until the evidence is collected.
+
+**Qualification criteria (Step 2, per candidate model on the approved route):** exact model ID + route URL + pinned provider; controlled completion through the gateway-shaped adapter (not raw SDK); response-schema parse against the gateway contract; empty/malformed-response handling; timeout and connection-failure behavior against D3-03 budgets (15s primary / 20s fallback); measured p50/latency; presence/absence of provider usage metadata and cost computability (unknown stays unknown per D3-04); auth scope used. Sanitized report only: no prompts, responses, tokens, or credentials recorded.
+
+**Step-2 prerequisites (not yet met):** no `HF_TOKEN`/`HUGGINGFACEHUB_API_TOKEN` present in this environment (existence checked 2026-10-11, values never read); operator must supply a fine-grained token out-of-band before controlled requests. `huggingface_hub` deliberately not added (D3-01 B uses raw `httpx`).
 
 ---
 
@@ -389,7 +404,7 @@ Please record approval explicitly; silence is not approval.
 | Decision | Approved choice / changes requested | Approver decision | Date |
 |---|---|---|---|
 | D3-01 Transport and adapters | Approved Option B | Approved | 2026-10-11 |
-| D3-02 Fallback-model qualification and final pin | Approve qualification process; final model remains pending evidence | Approved (process only; pin pending) | 2026-10-11 |
+| D3-02 Fallback-model qualification and final pin | Approve qualification process + R1 route (hf-inference first); final model remains pending evidence | Approved (route + process; pin pending) | 2026-10-11 |
 | D3-03 Resilience policy and proposed initial values | Approved Option B with proposed values as starting points | Approved | 2026-10-11 |
 | D3-04 Structured event and cost logging | Approved Option B | Approved | 2026-10-11 |
 | D3-05 Gateway contract | Review in SDD; architectural constraints fixed | Pending SDD review |  |

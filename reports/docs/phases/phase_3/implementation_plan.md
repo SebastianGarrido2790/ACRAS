@@ -216,6 +216,14 @@ ADR-009's "Hugging Face Inference API" is ambiguous across three non-interchange
 
 **Step-2 prerequisites (not yet met):** no `HF_TOKEN`/`HUGGINGFACEHUB_API_TOKEN` present in this environment (existence checked 2026-10-11, values never read); operator must supply a fine-grained token out-of-band before controlled requests. `huggingface_hub` deliberately not added (D3-01 B uses raw `httpx`).
 
+**Step-2 outcome (executed 2026-10-11, operator-run, 4 bounded calls, sanitized metadata only):**
+
+- Live provider mapping (`GET router.huggingface.co/v1/models`, 127 entries, all with provider data): `meta-llama/Llama-3.1-8B-Instruct` live on novita / nscale / featherless-ai / deepinfra — `hf-inference` absent. `mistralai/Mistral-7B-Instruct-v0.3` absent from the routed listing entirely. Zero of 127 entries list `hf-inference` as a live provider.
+- Controlled requests (`POST router.huggingface.co/v1/chat/completions`, `hf-inference` pin, fine-grained operator token): valid-minimal → HTTP 400 for **both** candidates (329.6ms Llama, 166.4ms Mistral — router-level rejection, auth accepted since no 401); malformed-empty-messages → HTTP 400 both. No completion, usage, or latency-vs-budget evidence obtainable on this pin.
+- **Finding:** neither candidate is servable through the approved `hf-inference` pin. This triggers the approved pause-condition — no silent route switch.
+
+**Step-3 recommendation (proposal, not approved; new human decision required):** qualify `meta-llama/Llama-3.1-8B-Instruct` on an explicitly pinned third-party provider (novita or deepinfra: live per mapping, listed $0.02–0.06/M in / $0.05–0.06/M out — two orders of magnitude inside the <$0.15/report ceiling; billing stays HF-side under the single-token model, so R1 architecture is unchanged). Open items for that run: gated-repo license acceptance for the operator's account, then valid/malformed/latency/usage legs. `mistralai/Mistral-7B-Instruct-v0.3` cannot proceed on the routed API in its current form — either drop it from the candidate set or replace it by separate decision. Exact model + final provider pin remain unselected until that evidence exists.
+
 ---
 
 ### D3-03 — Resilience policy: timeouts, retries, breakers, and fallback

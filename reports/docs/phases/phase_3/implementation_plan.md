@@ -118,9 +118,9 @@ Keep the feature count small and organized around independently testable behavio
 
 | Feature | Purpose and boundary | Depends on | Recommendation |
 |---|---|---|---|
-| `001-llm-gateway` | Provider-neutral request/result/error contracts, provider adapters, configuration, response validation | Approved transport/provider strategy and model pin | Keep as the core feature |
-| `002-provider-resilience` | Timeouts, bounded attempt policy, per-provider circuit breakers, fallback eligibility/routing, recovery | `001-llm-gateway` contract | Separate because failure-state behavior has distinct gates and tests |
-| `003-provider-observability` | Structured redacted events for attempts, latency, provider/model, fallback, breaker transitions, usage/cost | Gateway and resilience events | Keep only if it remains a small event schema plus standard-library log sink; merge into `001`/`002` if a separate feature creates unnecessary ceremony |
+| `001_llm_gateway` | Provider-neutral request/result/error contracts, provider adapters, configuration, response validation | Approved transport/provider strategy and model pin | Keep as the core feature |
+| `002_provider_resilience` | Timeouts, bounded attempt policy, per-provider circuit breakers, fallback eligibility/routing, recovery | `001_llm_gateway` contract | Separate because failure-state behavior has distinct gates and tests |
+| `003_provider_observability` | Structured redacted events for attempts, latency, provider/model, fallback, breaker transitions, usage/cost | Gateway and resilience events | Keep only if it remains a small event schema plus standard-library log sink; merge into `001`/`002` if a separate feature creates unnecessary ceremony |
 
 **Feature-level SDD:** Prepare `spec.md`, `plan.md`, and `tasks.md` only for approved substantial features. The intended SDD directory convention must be confirmed against repository conventions before creating feature directories. Do not create a new `reports/docs/features/...` hierarchy solely on the basis of this draft.
 
@@ -312,7 +312,7 @@ These are engineering starting points, not facts derived from existing repositor
 
 **Approval:** ✅ **Granted — Option B approved 2026-10-11** (minimal approach and proposed event fields).  
 **Decision:** ☑ Option B approved  ☐ Option A  ☐ Revision requested  
-**Consequences (now active):** No OTel/Prometheus rollout in Phase 3; event schema and redaction tests are part of `003-provider-observability` or merged equivalent. Report-level cost acceptance remains provisional until a report-producing consumer exists; Phase 3 must demonstrate auditable per-call usage/cost evidence where supported.
+**Consequences (now active):** No OTel/Prometheus rollout in Phase 3; event schema and redaction tests are part of `003_provider_observability` or merged equivalent. Report-level cost acceptance remains provisional until a report-producing consumer exists; Phase 3 must demonstrate auditable per-call usage/cost evidence where supported.
 
 ---
 
@@ -335,7 +335,7 @@ These are engineering starting points, not facts derived from existing repositor
 
 **Why there are no competing options:** Returning provider-native objects or allowing LLM output to influence deterministic calculations conflicts with accepted ADRs/invariants. Those are not viable design alternatives. The SDD may refine field names and exact exception/result representation without reopening the architectural constraint.
 
-**Approval:** No separate architecture choice is required. Human review of the concrete contract is required as part of approving the `001-llm-gateway` SDD.
+**Approval:** No separate architecture choice is required. Human review of the concrete contract is required as part of approving the `001_llm_gateway` SDD.
 
 ---
 

@@ -140,7 +140,7 @@ Keep the feature count small and organized around independently testable behavio
 | ID | Question | Status | Material? |
 |---|---|---|---|
 | D3-01 | What provider transport/adapter approach minimizes complexity while supporting reliable, testable failover? | ✅ **Approved — Option B** (2026-10-11) | Yes |
-| D3-02 | Which exact HF Inference API model is the fallback? | ✅ **Approved — Option C + R1 route** (hf-inference first; model + final pin pending evidence, 2026-10-11) | Yes |
+| D3-02 | Which exact fallback model/route is pinned? | ✅ **Approved — Option C + Groq-direct** (R1/HF exhausted at $0; Llama 3.1 8B on Groq free tier to verify; pin pending evidence, 2026-10-12; new ADR required at consolidation) | Yes |
 | D3-03 | What timeout, retry, breaker, and fallback policy bounds latency and cost? | ✅ **Approved — Option B with proposed values** (2026-10-11) | Yes |
 | D3-04 | What is the minimum sufficient event/cost logging design for auditability? | ✅ **Approved — Option B** (2026-10-11) | Yes |
 | D3-05 | What gateway contract and failure semantics are allowed across provider boundaries? | Fixed by existing authority, details below | No independent choice on core guarantees |
@@ -223,6 +223,21 @@ ADR-009's "Hugging Face Inference API" is ambiguous across three non-interchange
 - **Finding:** neither candidate is servable through the approved `hf-inference` pin. This triggers the approved pause-condition — no silent route switch.
 
 **Step-3 recommendation (proposal, not approved; new human decision required):** qualify `meta-llama/Llama-3.1-8B-Instruct` on an explicitly pinned third-party provider (novita or deepinfra: live per mapping, listed $0.02–0.06/M in / $0.05–0.06/M out — two orders of magnitude inside the <$0.15/report ceiling; billing stays HF-side under the single-token model, so R1 architecture is unchanged). Open items for that run: gated-repo license acceptance for the operator's account, then valid/malformed/latency/usage legs. `mistralai/Mistral-7B-Instruct-v0.3` cannot proceed on the routed API in its current form — either drop it from the candidate set or replace it by separate decision. Exact model + final provider pin remain unselected until that evidence exists.
+
+**Provider decision (approved 2026-10-11):** qualify `meta-llama/Llama-3.1-8B-Instruct` pinned to `novita` (lowest listed first-token latency, 490.6ms). Mistral-v0.3 fate still open — decided separately before any final pin. Model pin itself remains unselected pending this run's evidence.
+
+**Novita-leg outcome (executed 2026-10-11/12, operator-run, bounded sanitized calls):** first run → HTTP 402 (no HF-side billing); after custom Novita key configured → HTTP 403 uniform; auth confusion resolved via `whoami-v2` (dead token string regenerated; fresh token returns 200) plus Meta gated-repo license acceptance (ACCEPTED) and gated-repo-read token scope. Final error body: `{"code":403,"reason":"NOT_ENOUGH_BALANCE","message":"not enough balance"}` — the Novita key carries no usable credit, so rejection is provider-side balance, not model, license, scope, or credential validity. No completion/usage/latency evidence obtainable on this key. Error-taxonomy notes for D3-05: billing failure surfaces as 402 regardless of payload; provider-balance failure surfaces as 403 with a machine-readable `reason` field — adapter must classify `NOT_ENOUGH_BALANCE` as fallback-eligible provider failure, not auth error. ** pivot (no new architecture decision; operator action):** retry the identical probe with a funded custom key — DeepInfra free trial credit first (Llama-3.1-8B live on deepinfra per mapping); else Novita top-up. Selections unchanged: route R1 approved, novita-first order approved, model pin unselected. If no $0-funded key materializes, escalate to a fallback-funding decision (PRO, top-up, or local-endpoint D-change) rather than weakening qualification.
+
+**Novita card-wall (2026-10-12, operator-confirmed):** the $101 voucher and any top-up require a credit card the operator does not hold — Novita path closed at $0.
+
+**Cerebras/DeepInfra dead-ends (2026-10-12, operator screenshots):** Cerebras signup gates on payment ("Add credits to get started"; pay-or-limited-credits choice); DeepInfra pricing page shows pay-per-use with no claimable free credit — both closed at $0 without a card.
+
+**Groq-direct decision (approved 2026-10-12):** fallback moves to **Groq Cloud direct**, OpenAI-compatible endpoint `https://api.groq.com/openai/v1`, free-tier API key (no card per third-party reports — verify at signup), Llama 3.1 8B family as the candidate. What survives unchanged: approved D3-01 Option B transport (`httpx` + OpenAI-compatible contract — Groq is OpenAI-compatible, so adapter shape, error taxonomy, and test matrix stand). What changes and needs explicit handling:
+- **Route designation:** exits the approved R1/HF-router designation. This conflicts with ADR-009's HF fallback designation as written — a **new ADR superseding the fallback designation is required at Phase 3 consolidation** (§7 step 6); it is recorded here now as a known pending ADR impact, not implemented silently. The R1/HF findings above are retained verbatim for traceability.
+- **Model ID form:** Groq uses its own IDs (e.g. `llama-3.1-8b-instant`). Caution from live Groq docs (fetched 2026-10-12): `llama-3.1-8b-instant` is currently tagged **Enterprise / ContactSales**, with priced production models listed as GPT-OSS and others — free-tier servability of the Llama 3.1 8B ID is **unverified** and MUST be established before any completion legs.
+- **Auth:** `GROQ_API_KEY` from Groq console, same secret discipline as `HF_TOKEN` (session env only, never chat/repo); `HF_TOKEN`/Novita key no longer needed for this leg.
+- **Qualification order:** (0) authenticated `GET /v1/models` — confirm which IDs this free key can actually serve; (1) valid-minimal + malformed legs against the confirmed ID; (2) latency vs D3-03 budgets; (3) usage/cost metadata (free-tier accounting). Stop and request a new decision if the Llama ID is not servable on the free tier.
+- Mistral-v0.3 fate still open; model pin remains unselected until Groq-leg evidence exists.
 
 ---
 
@@ -412,7 +427,7 @@ Please record approval explicitly; silence is not approval.
 | Decision | Approved choice / changes requested | Approver decision | Date |
 |---|---|---|---|
 | D3-01 Transport and adapters | Approved Option B | Approved | 2026-10-11 |
-| D3-02 Fallback-model qualification and final pin | Approve qualification process + R1 route (hf-inference first); final model remains pending evidence | Approved (route + process; pin pending) | 2026-10-11 |
+| D3-02 Fallback-model qualification and final pin | R1/HF exhausted ($0); Groq-direct approved, Llama 3.1 8B free-tier servability to verify; pin pending | Approved (Groq route + process; pin pending; new ADR at consolidation) | 2026-10-12 |
 | D3-03 Resilience policy and proposed initial values | Approved Option B with proposed values as starting points | Approved | 2026-10-11 |
 | D3-04 Structured event and cost logging | Approved Option B | Approved | 2026-10-11 |
 | D3-05 Gateway contract | Review in SDD; architectural constraints fixed | Pending SDD review |  |

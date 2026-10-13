@@ -37,7 +37,7 @@ The following baseline was reported as freshly verified against the repository:
 **In scope**
 
 1. Provider-neutral gateway request/response and error contracts.
-2. Gemini primary and Hugging Face Inference API fallback, with the exact fallback model pinned only after verification and approval.
+2. Gemini primary and Groq-direct fallback, with the fallback model pinned as `openai/gpt-oss-20b` (approved 2026-10-12; new ADR superseding ADR-009's HF designation required at consolidation).
 3. Timeouts, bounded retry policy (if any), per-provider circuit-breaker behavior, fallback routing, and controlled dual-provider failure.
 4. Configuration for provider/model identifiers and resilience limits; secrets supplied outside version-controlled configuration.
 5. Minimal provider event/cost/latency logging sufficient for Phase 3 acceptance and troubleshooting.
@@ -95,7 +95,7 @@ Phase 3 is complete only when evidence demonstrates all of the following:
 | NFR: p50 <2 minutes/report | Use bounded attempts and explicit per-attempt timeouts; Phase 3 records per-call latency, while report-level p50 is validated when the consumer exists |
 | INV-1 / ADR-001 | No LLM output enters deterministic Tier 1–2 calculations |
 | INV-2 / ADR-002; ADR-014 / ADR-032 | The current EvidenceBundle v1 remains the only tier-boundary evidence object; gateway responses are not a side channel into deterministic calculations |
-| ADR-006 / ADR-009 | Custom gateway with circuit breaker; Gemini primary and HF Inference API fallback; exact HF model still requires verification and pinning |
+| ADR-006 / ADR-009 (+ ADR-034 proposed) | Custom gateway with circuit breaker; Gemini primary and Groq-direct fallback pinned as `openai/gpt-oss-20b` (D3-02, 2026-10-12); ADR-009's HF designation to be superseded at consolidation |
 | ADR-003 / INV-3, FR12/FR13 | Phase 3 must not claim to implement Phase 5 calibration/divergence release gates; keep the gateway testable by those future gates |
 | ADR-004/005/008 and INV-4/5/8 | Phase 3 prepares provider infrastructure only; persona diversity must come from domain rubrics, not random sampling, and remains Phase 4 work |
 | Existing harness and standards | Pydantic contracts, deterministic validation, least complexity, evidence-based gates, explicit human approval for material decisions |
@@ -140,7 +140,7 @@ Keep the feature count small and organized around independently testable behavio
 | ID | Question | Status | Material? |
 |---|---|---|---|
 | D3-01 | What provider transport/adapter approach minimizes complexity while supporting reliable, testable failover? | ✅ **Approved — Option B** (2026-10-11) | Yes |
-| D3-02 | Which exact fallback model/route is pinned? | ✅ **Approved — Option C + Groq-direct** (R1/HF exhausted at $0; Llama 3.1 8B on Groq free tier to verify; pin pending evidence, 2026-10-12; new ADR required at consolidation) | Yes |
+| D3-02 | Which exact fallback model/route is pinned? | ✅ **Approved — `openai/gpt-oss-20b` on Groq-direct pinned 2026-10-12** (R1/HF + Llama legs exhausted with documented causes; new ADR required at consolidation) | Yes |
 | D3-03 | What timeout, retry, breaker, and fallback policy bounds latency and cost? | ✅ **Approved — Option B with proposed values** (2026-10-11) | Yes |
 | D3-04 | What is the minimum sufficient event/cost logging design for auditability? | ✅ **Approved — Option B** (2026-10-11) | Yes |
 | D3-05 | What gateway contract and failure semantics are allowed across provider boundaries? | Fixed by existing authority, details below | No independent choice on core guarantees |
@@ -197,8 +197,9 @@ Keep the feature count small and organized around independently testable behavio
 
 **Recommendation:** Option C as the decision process, then approve A or B based on a small qualification record. Verify the exact model ID and endpoint at implementation time; test authentication, successful completion, malformed/empty response behavior, timeout/failure behavior, latency, usage metadata, and cost-estimation feasibility. Record the exact model ID in version-controlled non-secret configuration only after verification. If neither candidate passes, stop and request a new decision rather than silently substituting another model.
 
-**Approval:** ✅ **Granted — Option C (qualification process) approved 2026-10-11.** Final model selection (A or B) remains open until qualification evidence exists; do not mark the model pin approved until that evidence identifies the exact model ID.  
-**Decision:** ☑ Qualification process approved  ☐ Candidate selected after evidence (pending)  ☐ Different candidate set requested  
+**Approval:** ✅ **Granted — Option C process approved 2026-10-11; PIN APPROVED 2026-10-12: `openai/gpt-oss-20b` on Groq-direct (`https://api.groq.com/openai/v1`, free-tier `GROQ_API_KEY`).**  
+**Decision:** ☑ Qualification process approved  ☑ Model pinned: `openai/gpt-oss-20b` on Groq-direct  ☐ Different candidate set requested  
+**Pinned configuration (non-secret, for versioned config at implementation):** provider `groq`; route `https://api.groq.com/openai/v1`; model `openai/gpt-oss-20b`; auth via `GROQ_API_KEY` session env (never committed); free-tier rate limits apply; cost $0 with listed production rates as fallback reference (source: Groq docs + live listing, 2026-10-12).
 **Acceptance evidence:** exact endpoint/model identifier; successful controlled request; normalized response contract; failure-mode test; measured latency; known/unknown usage and cost behavior; source/date of provider verification.
 
 **Route resolution — Step 1 of qualification (recorded 2026-10-11 from live provider documentation; ✅ R1 route approved 2026-10-11, no model selected):**
@@ -238,6 +239,14 @@ ADR-009's "Hugging Face Inference API" is ambiguous across three non-interchange
 - **Auth:** `GROQ_API_KEY` from Groq console, same secret discipline as `HF_TOKEN` (session env only, never chat/repo); `HF_TOKEN`/Novita key no longer needed for this leg.
 - **Qualification order:** (0) authenticated `GET /v1/models` — confirm which IDs this free key can actually serve; (1) valid-minimal + malformed legs against the confirmed ID; (2) latency vs D3-03 budgets; (3) usage/cost metadata (free-tier accounting). Stop and request a new decision if the Llama ID is not servable on the free tier.
 - Mistral-v0.3 fate still open; model pin remains unselected until Groq-leg evidence exists.
+
+**Groq model-listing outcome (2026-10-12, operator-run, authenticated `GET /v1/models` → 200):** servable IDs on this free key: `allam-2-7b`, `canopylabs/orpheus-{arabic-saudi,v1-english}`, `meta-llama/llama-prompt-guard-{2-22m,2-86m}`, `openai/gpt-oss-{120b,20b,safeguard-20b}`, `qwen/qwen3.8-27b`, `whisper-large-{v3,v3-turbo}`. **No Llama chat/instruct model is servable** — consistent with the Enterprise tag on `llama-3.1-8b-instant`. Neither ADR-009 candidate can proceed on Groq-free. Notable: `openai/gpt-oss-20b` advertises tools, `json_mode`, `structured_outputs`, and reasoning support — technically relevant to Phase 4 structured-verdict parsing. Next step requires a new candidate/route decision (see Step-3 update).
+
+**Candidate-set decision (approved 2026-10-12):** qualify **`openai/gpt-oss-20b`** on Groq-direct as the fallback candidate (20B instruction-tuned, live on the operator's free key today, advertises tools/`json_mode`/`structured_outputs`/reasoning — the structured-output support is directly relevant to Phase 4 verdict parsing). This supersedes the Llama/Mistral shortlist for the $0 path; the HF-leg findings stay on record. Mistral-v0.3 is dropped (unservable on every verified $0 route). Model pin itself remains unselected pending this run's evidence.
+
+**gpt-oss-20b outcome (executed 2026-10-12, operator-run, 3 bounded calls, sanitized metadata only) — all pin criteria satisfied:** valid-minimal ×2 → HTTP 200 at 410.3ms / 407.7ms wall (inference ~12ms + queue ~240–310ms; two orders of magnitude inside the 20s fallback budget); usage metadata rich (`prompt_tokens`, `completion_tokens`, `total_tokens`, per-phase times, `queue_time`, `reasoning_tokens`) — cost computable as $0 under free tier with listed production rates as fallback reference; OpenAI response shape plus Groq extras (`service_tier`, `system_fingerprint`, `usage_breakdown`, `x_groq`) — parseable into the gateway contract; `finish_reason: length` is an artifact of the 8-token probe cap, not a model limit; malformed-empty-messages → HTTP 400 in 95.9ms (controlled rejection, no invalid success). Transport note confirmed: browser-style UA required (Cloudflare 1010 otherwise) — already in D3-05.
+
+**Pin (APPROVED 2026-10-12):** **`openai/gpt-oss-20b` on Groq-direct (`https://api.groq.com/openai/v1`, free-tier `GROQ_API_KEY`)** is the Phase 3 fallback. Sole candidate with complete positive evidence on every D3-02 acceptance item (200 ×2 at ~410ms vs 20s budget; rich usage metadata; clean 400 on malformed; OpenAI-parseable shape); all prior candidates failed with documented causes above. Next: SDDs/execution plan.
 
 ---
 
@@ -321,6 +330,8 @@ These are engineering starting points, not facts derived from existing repositor
 - If both providers fail, return/raise one documented gateway-level failure with sanitized causal metadata and an event ID. Never fabricate a successful result or silently use stale output.
 - Keep gateway output distinct from `EvidenceBundle` and `PersonaVerdict` unless a later approved feature explicitly defines the conversion boundary. Phase 3 does not add EvidenceBundle v2 fields.
 - Do not pass LLM output into deterministic PD, rating, simulation, or ratio calculations.
+- Transport fingerprint: the gateway HTTP client MUST present a standard browser-style `User-Agent`. Evidence (2026-10-12): Python `urllib`'s default signature received Cloudflare `error code: 1010` from `api.groq.com` on every path (including `GET /v1/models`) with valid credentials, while identical credentials via curl with a Mozilla UA returned HTTP 200 — the block was client fingerprinting, not auth. Pin the adapter's default headers and cover them with a test asserting their presence.
+- Observed error-code mapping (qualification evidence, 2026-10-11/12 — classify on status **plus** machine-readable reason/body, never status alone): HF router 400 = unmapped model+provider pin or malformed payload; 401 = dead credential (verify via `whoami`-style identity check before concluding anything about the route); 402 = no billing, payload-independent; 403 with `reason: NOT_ENOUGH_BALANCE` = fallback-eligible provider failure, NOT an auth error (do not retry it as one, do not loop it); 403 without such reason after license/scope fixes = configuration error. A uniform status across valid and malformed legs indicates rejection above payload validation (billing/auth/fingerprint), not a schema problem.
 
 **Why there are no competing options:** Returning provider-native objects or allowing LLM output to influence deterministic calculations conflicts with accepted ADRs/invariants. Those are not viable design alternatives. The SDD may refine field names and exact exception/result representation without reopening the architectural constraint.
 
@@ -360,7 +371,7 @@ This section summarizes the recommended go-to design; it is not implementation a
 
 1. **Configuration:** Add a validated gateway section to `params.yaml` for provider identifiers/model IDs and non-secret resilience/cost settings. Resolve credentials through the project's approved secret/environment mechanism. Do not put secrets in YAML.
 2. **Gateway core:** A small provider-neutral service owns attempt limits, timeout policy, fallback routing, breaker consultation, normalized errors, and event emission. Keep business/persona logic out of it.
-3. **Provider adapters:** Thin Gemini and HF Inference API adapters implement the same internal contract using the approved transport strategy. Keep provider-specific URLs, headers, payload shapes, and response parsing inside the adapter boundary.
+3. **Provider adapters:** Thin Gemini and Groq adapters implement the same internal contract using the approved transport strategy. Keep provider-specific URLs, headers, payload shapes, and response parsing inside the adapter boundary.
 4. **Resilience:** Use the accepted `pybreaker` direction, subject to dependency/version verification. Maintain independent breaker state per provider. No unbounded loops and no hidden SDK retry behavior.
 5. **Validation:** Parse provider output into a typed result, validate required fields/shape, and classify malformed output as a controlled provider failure. The future persona schema is Phase 4; do not prematurely change `PersonaVerdict` or EvidenceBundle v1 in Phase 3.
 6. **Events:** Emit redacted structured events through existing logging. Make event creation independently testable; never make successful gateway operation depend on a new telemetry backend.
@@ -374,7 +385,7 @@ The current architecture diagram reportedly includes agents that call Tier 1 and
 
 ## 7. What Happens After Approval
 
-1. Record explicit decisions for D3-01, D3-02 qualification process, D3-03, and D3-04; leave D3-02 model selection open until exact provider evidence exists.
+1. Record explicit decisions for D3-01, D3-02 (qualification process, Groq-direct route, and `openai/gpt-oss-20b` pin — all approved), D3-03, and D3-04. ✅ Done 2026-10-12.
 2. Create `reports/docs/phases/phase_3/implementation_plan.md` only after this draft is reviewed and approved; maintain the repository's established phase-plan format.
 3. Create the Phase 3 `execution_plan.md` from the approved decisions, with staged dependencies and evidence gates. No stage may depend on an unresolved material decision.
 4. Confirm the repository's existing feature-SDD path convention before creating feature directories. Create only the SDDs needed for the approved substantial features.
@@ -427,7 +438,7 @@ Please record approval explicitly; silence is not approval.
 | Decision | Approved choice / changes requested | Approver decision | Date |
 |---|---|---|---|
 | D3-01 Transport and adapters | Approved Option B | Approved | 2026-10-11 |
-| D3-02 Fallback-model qualification and final pin | R1/HF exhausted ($0); Groq-direct approved, Llama 3.1 8B free-tier servability to verify; pin pending | Approved (Groq route + process; pin pending; new ADR at consolidation) | 2026-10-12 |
+| D3-02 Fallback-model qualification and final pin | Pinned: `openai/gpt-oss-20b` on Groq-direct (all acceptance items evidenced) | Approved (pin granted; new ADR at consolidation) | 2026-10-12 |
 | D3-03 Resilience policy and proposed initial values | Approved Option B with proposed values as starting points | Approved | 2026-10-11 |
 | D3-04 Structured event and cost logging | Approved Option B | Approved | 2026-10-11 |
 | D3-05 Gateway contract | Review in SDD; architectural constraints fixed | Pending SDD review |  |

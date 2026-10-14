@@ -1,8 +1,8 @@
 # Tasks — 001 LLM Gateway
-**Status:** Draft; not authorized. Execute one task per isolated agent session; stop after each task and present diff/evidence for human approval.
+**Status:** ✅ Plan approved 2026-10-12; tasks unblocked except implementation authorization. Execute one task per isolated agent session; stop after each task and present diff/evidence for human approval.
 
-- [ ] **GW-T01 Verify baseline/layout:** inspect gateway, dependencies/lockfile, config, secret conventions, logger and test layout; record exact paths. Satisfies GW-FR-02/03/12. Blocked by overall Phase 3 approval.
-- [ ] **GW-T02 Resolve contract questions:** record decisions for Gemini endpoint, message shape, structured output, secret convention and failure representation. Satisfies GW-FR-01/05/06. Blocked by spec review.
+- [ ] **GW-T01 Verify baseline/layout:** inspect gateway, dependencies/lockfile, config, secret conventions, logger and test layout; record exact paths. Satisfies GW-FR-02/03/12. Unblocked (plan approved); awaits implementation authorization.
+- [ ] **GW-T02 Resolve contract questions:** record decisions for Gemini endpoint, message shape, structured output, secret convention and failure representation. Satisfies GW-FR-01/05/06. Answers approved — record them in code/tests; awaits implementation authorization.
 - [ ] **GW-T03 Add typed contracts:** implement approved Pydantic request/result/usage/error/event schemas and tests. Satisfies GW-FR-01/04/06/08/09.
 - [ ] **GW-T04 Add config/secrets:** validate non-secret provider/model/timeouts; resolve credentials without leaking values. Satisfies GW-FR-02/03.
 - [ ] **GW-T05 Implement Gemini adapter vertical slice:** normalized success/errors and mocked tests. Satisfies GW-FR-04/05/06/12.

@@ -1,7 +1,7 @@
 # ACRAS — Phase 3 Implementation Plan & Decisions
 
 **Phase:** 3 — LLM Gateway & Provider Resilience  
-**Document status:** Draft for human review; no decisions in this document are approved by virtue of being written here  
+**Document status:** ✅ Approved 2026-10-12 (all material decisions, both SDDs, and the execution plan; implementation authorization still withheld)  
 **Intended repository location:** `reports/docs/phases/phase_3/implementation_plan.md`  
 **Authority:** Phase-specific actionable design under the PRD, accepted ADRs in `reports/docs/architecture/system_design.md` §6, standing invariants in `README.md`  
 **Baseline verification:** Reported live by the project operator immediately before this draft; this document does not independently re-run the repository checks
@@ -441,8 +441,8 @@ Please record approval explicitly; silence is not approval.
 | D3-02 Fallback-model qualification and final pin | Pinned: `openai/gpt-oss-20b` on Groq-direct (all acceptance items evidenced) | Approved (pin granted; new ADR at consolidation) | 2026-10-12 |
 | D3-03 Resilience policy and proposed initial values | Approved Option B with proposed values as starting points | Approved | 2026-10-11 |
 | D3-04 Structured event and cost logging | Approved Option B | Approved | 2026-10-11 |
-| D3-05 Gateway contract | Review in SDD; architectural constraints fixed | Pending SDD review |  |
-| D3-06 Reliability test matrix | Include in execution plan; exact evidence references later | Pending execution-plan review |  |
+| D3-05 Gateway contract | Reviewed via approved `001_llm_gateway` SDD (contract + UA + taxonomy) | Approved with SDD | 2026-10-12 |
+| D3-06 Reliability test matrix | Covered by approved execution plan Stages 4–7 + acceptance checklist | Approved with execution plan | 2026-10-12 |
 
-**Overall phase-plan approval:** Pending.  
-**Implementation authorization:** Not granted by this draft.
+**Overall phase-plan approval:** ✅ Granted 2026-10-12 (all decisions, SDDs, and execution plan approved).  
+**Implementation authorization:** Not granted — explicit go required (e.g., "begin Stage 0").

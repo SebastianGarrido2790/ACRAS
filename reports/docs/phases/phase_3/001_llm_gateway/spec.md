@@ -1,5 +1,5 @@
 # Feature Specification — 001 LLM Gateway
-**Status:** Draft for human review; clarification gate open. **Implementation authorization:** Not granted.
+**Status:** ✅ Approved 2026-10-12; clarification gate closed. **Implementation authorization:** Not granted (separate gate).
 
 ## Purpose and boundaries
 Provide a provider-neutral typed LLM gateway for future Tier 3 callers. Phase 3 includes Pydantic contracts, thin `httpx` adapters for Gemini primary and Groq-direct fallback, response validation, configuration, and redacted events. It does not implement personas, alter EvidenceBundle v1, or call/mutate deterministic Tier 1–2 calculations.
@@ -31,11 +31,11 @@ Provisional types: `GatewayRequest`, `GatewayResult`, `ProviderUsage`, `GatewayE
 ## Acceptance criteria
 Typed contracts and config validate; provider-specific objects do not escape; malformed responses fail closed; events are complete and redacted; unknown cost stays unknown; User-Agent is tested; full pytest/Ruff/Pyright pass; EvidenceBundle v1 and deterministic tiers remain unchanged.
 
-## Clarification gate — answer before approval
-1. What exact Gemini model ID/endpoint is authoritative, and where configured?
-2. Should request messages be role/content messages or a single user input plus system instructions?
-3. Is structured JSON output in Phase 3 scope, or deferred to Phase 4?
-4. Which existing secret/environment convention and variable names should be used?
-5. Should failure use a typed result/error union or one gateway-level exception?
+## Clarification gate — resolved and approved 2026-10-12
+1. Gemini primary: `gemini-2.0-flash` via Google's OpenAI-compatible endpoint; model ID recorded in versioned non-secret config and verified live at implementation (same qualification discipline as the Groq leg). Env var: `GEMINI_API_KEY`.
+2. Request messages: OpenAI-style role/content messages array (both providers speak it; no provider-specific templating in the gateway).
+3. Structured JSON: envelope validation only in Phase 3; adapter `json_mode` support recorded as a capability flag for Phase 4 verdict parsing.
+4. Secrets: `.env.example` placeholder + session/out-of-band supply (established HF/GROQ practice); variables `GEMINI_API_KEY`, `GROQ_API_KEY`. Never committed, logged, or echoed.
+5. Failure representation: return `GatewayResult` on success; raise a single `GatewayError` (category field) on failure.
 
 **Definition of done:** approved contract implemented and tested, redaction/regression checks pass, and evidence is recorded. This draft does not authorize implementation.

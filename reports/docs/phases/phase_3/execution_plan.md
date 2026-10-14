@@ -1,8 +1,8 @@
 # ACRAS Phase 3 — Staged Execution Plan
 
 **Phase:** 3 — LLM Gateway & Provider Resilience  
-**Status:** Draft for human review; not approved for execution  
-**Implementation authorization:** Not granted  
+**Status:** ✅ Approved 2026-10-12; awaiting implementation authorization  
+**Implementation authorization:** Not granted — explicit go required  
 **Planning baseline:** Phase 2 closed 2026-10-08; Phase 3 repository baseline must be re-verified at Stage 0.
 
 ## Purpose and execution discipline
@@ -18,8 +18,8 @@ Falsification is selective: use a controlled negative test when it proves a gate
 The following must be satisfied before Stage 0 starts:
 
 - [ ] Overall Phase 3 Implementation Plan explicitly approved.
-- [ ] Both feature SDDs (`001-llm-gateway` and `002-provider-resilience`) explicitly approved, including their contracts, failure policy, tasks, and validation criteria.
-- [ ] Clarification decisions are resolved and recorded; no material provider, schema, secret, retry, breaker, or error-handling question remains open.
+- [x] Both feature SDDs (`001_llm_gateway` and `002_provider_resilience`) explicitly approved 2026-10-12, including their contracts, failure policy, tasks, and validation criteria.
+- [x] Clarification decisions are resolved and recorded 2026-10-12; no material provider, schema, secret, retry, breaker, or error-handling question remains open.
 - [ ] ADR-034 is accepted and consolidated in `reports/docs/architecture/system_design.md` §6; ADR-009 is not silently rewritten.
 - [ ] Implementation authorization explicitly granted after plan approval.
 - [ ] Repository SDD, source-module, test, and configuration paths confirmed from the live repository; all provisional paths in drafts reconciled.
@@ -59,7 +59,7 @@ Establish the actual repository state, verify all execution approvals, and resol
 4. Inspect `src/gateway/`, existing configuration loading, `params.yaml`, environment-secret conventions, and standard-library rotating logger setup.
 5. Confirm test directory conventions and the actual SDD path convention; replace provisional file paths in the approved tasks before coding.
 6. Verify Phase 2 exit/PIR references and current `EvidenceBundle` v1 validators; capture baseline tests or representative deterministic outputs for later comparison.
-7. Verify the exact Gemini primary model, endpoint, request/response format, authentication source, and environment-variable convention from authoritative configuration. Confirm Groq route/model/header/auth requirements against the accepted qualification record.
+7. Verify the Gemini primary live (model `gemini-2.0-flash`, endpoint, request/response format, `GEMINI_API_KEY` auth) with the same qualification discipline as the Groq leg — minimal completion + malformed legs, sanitized evidence — because no authoritative configuration exists to verify against. Do not build the Stage 2 adapter on documentation alone. Confirm Groq route/model/header/auth requirements against the accepted qualification record.
 8. Record any mismatch as a blocker. Do not modify production code to make the baseline match this plan.
 
 **ADR Implements**  
@@ -80,7 +80,7 @@ Define the stable provider-neutral boundary and validated operational configurat
 
 **Actions**
 
-1. Implement the approved Pydantic request and result contracts from `001-llm-gateway/spec.md`; use the exact approved message/input shape and correlation/request identifier convention.
+1. Implement the approved Pydantic request and result contracts from `001_llm_gateway/spec.md`; use the exact approved message/input shape and correlation/request identifier convention.
 2. Implement the approved typed usage, provider-error, and provider-event contracts, separating provider details from the gateway's public outcome.
 3. Define explicit error categories sufficient to distinguish caller/input validation, local configuration/authentication faults, timeout/connection faults, retryable provider failures, malformed provider responses, and controlled dual-provider failure.
 4. Add the approved gateway configuration section to the repository's confirmed configuration source. Keep provider/model identifiers and bounded resilience settings non-secret; resolve credentials from the approved environment/secret convention.
@@ -291,7 +291,7 @@ Close the loop between approved decisions, implementation, validation evidence, 
 **Actions**
 
 1. Reconcile the final implementation and dependency diff against the approved Phase 3 Implementation Plan, both SDDs, accepted ADRs, invariants, and execution-stage gates.
-2. Consolidate accepted ADR-034 into `reports/docs/architecture/system_design.md` §6 if not already present in the authoritative repository record. Preserve its scope: Groq-direct fallback pin only; do not silently rewrite ADR-009's custom gateway, `pybreaker`, or Gemini-primary decisions.
+2. Verify accepted ADR-034 is present in `reports/docs/architecture/system_design.md` §6 (already consolidated 2026-10-12; verify-only). Preserve its scope: Groq-direct fallback pin only; do not silently rewrite ADR-009's custom gateway, `pybreaker`, or Gemini-primary decisions.
 3. Verify that ADR cross-references accurately describe the fallback designation supersession and that no stale HF-fallback references remain in active Phase 3 planning artifacts. Preserve historical records when appropriate; correct active normative references only through the approved documentation workflow.
 4. Update architecture/status records to mark Phase 3 complete only after all exit criteria pass.
 5. Complete every Post-Implementation Review row in the Phase 3 Implementation Plan with actual test results, measured behavior, provider qualification evidence, deviations, and exact references. No `_pending_` row may remain unless a formally approved exception explains why.
@@ -342,10 +342,10 @@ All stages 0–8 have passed; all exit criteria are backed by evidence; the PIR 
 
 | Artifact / control | Status |
 |---|---|
-| Overall Phase 3 Implementation Plan | Pending explicit approval |
-| `001-llm-gateway` SDD | Draft; clarification and contract approval required |
-| `002-provider-resilience` SDD | Draft; failure policy and breaker semantics approval required |
-| Execution Plan | Draft; approval pending |
-| Implementation authorization | Not granted |
+| Overall Phase 3 Implementation Plan | ✅ Approved 2026-10-12 (all clarifications, SDDs, and this plan) |
+| `001_llm_gateway` SDD | ✅ Approved 2026-10-12 |
+| `002_provider_resilience` SDD | ✅ Approved 2026-10-12 |
+| Execution Plan | ✅ Approved 2026-10-12 (with Gemini-live-verification requirement) |
+| Implementation authorization | Not granted — explicit go required |
 | Stage 0 | Not started |
 | Stages 1–9 | Blocked pending Stage 0 and preceding gates |

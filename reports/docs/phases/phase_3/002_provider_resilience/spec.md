@@ -1,5 +1,5 @@
 # Feature Specification — 002 Provider Resilience
-**Status:** Draft for human review; clarification gate open. **Implementation authorization:** Not granted.
+**Status:** ✅ Approved 2026-10-12; clarification gate closed. **Implementation authorization:** Not granted (separate gate).
 
 ## Purpose
 Bounded failover from Gemini primary to Groq-direct fallback, with independent circuit breakers and controlled typed failure when both providers fail.
@@ -26,11 +26,11 @@ Primary 15 s; fallback 20 s; retries 0; breaker threshold 3; open/reset 30 s; on
 ## Acceptance criteria
 Primary success skips fallback; eligible failure/timeout invokes fallback once; open breaker routes to fallback; dual failure is controlled; breaker transitions/recovery match pinned-library semantics; invalid local errors do not trigger inappropriate retries; malformed output cannot succeed; max attempts/timeouts hold; events are auditable/redacted; baseline checks pass.
 
-## Clarification gate — answer before approval
-1. Should HTTP 429 trigger immediate fallback? Recommendation: yes, no same-provider retry.
-2. If primary auth fails, should fallback still be attempted once while raising a high-severity event? Recommendation: yes, with explicit configuration-fault classification.
-3. Should malformed successful HTTP responses trigger fallback once? Recommendation: yes.
-4. Is half-open probe scope one probe per provider per process, or must it coordinate across instances?
-5. Confirm breaker state is process-local for Phase 3. Recommendation: yes, unless deployment evidence requires shared state.
+## Clarification gate — resolved and approved 2026-10-12
+1. HTTP 429 triggers immediate fallback; no same-provider retry. ✅ Approved.
+2. Primary auth failure still attempts fallback once with a high-severity configuration-fault event. ✅ Approved.
+3. Malformed successful HTTP responses trigger fallback once. ✅ Approved.
+4. Half-open probe scope: one probe per provider per process; no cross-instance coordination. ✅ Approved.
+5. Breaker state is process-local for Phase 3 (single-instance demo; revisit only on deployment evidence). ✅ Approved.
 
 **Definition of done:** approved policy is implemented and deterministic routing/fault/recovery tests pass. This draft does not authorize implementation.

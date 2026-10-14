@@ -449,4 +449,4 @@ Please record approval explicitly; silence is not approval.
 | D3-06 Reliability test matrix | Covered by approved execution plan Stages 4–7 + acceptance checklist | Approved with execution plan | 2026-10-12 |
 
 **Overall phase-plan approval:** ✅ Granted 2026-10-12 (all decisions, SDDs, and execution plan approved).  
-**Implementation authorization:** Not granted — explicit go required (e.g., "begin Stage 0").
+**Implementation authorization:** ✅ Granted 2026-10-12 (operator authorized: "begin Stage 0").

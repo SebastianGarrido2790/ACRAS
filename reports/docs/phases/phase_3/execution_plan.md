@@ -33,7 +33,7 @@ If any precondition is unmet, execution does not begin.
 
 | Stage | Name | Primary deliverable | ADR Implements | Falsification | Hard gate |
 |---|---|---|---|---|---|
-| 0 | Repository Baseline & Preconditions | Verified baseline and path/config map | None new | Reconcile reported assumptions against repository evidence | Preconditions and baseline checks all pass; no production code changed |
+| 0 | Repository Baseline & Preconditions | Verified baseline and path/config map | None new | Reconcile reported assumptions against repository evidence | ✅ **PASSED** — Preconditions and baseline checks all pass; starting commit 166ec738; no production code changed |
 | 1 | Gateway Contracts & Configuration | Approved typed contracts and validated non-secret config | None new | Invalid bounds, unknown fields, and missing required config are rejected | Contract/config tests pass; secret resolution is isolated; v1 schema unchanged |
 | 2 | Gemini Primary Adapter | Thin primary-provider adapter behind shared transport | None new | Mock success, timeout, non-2xx, and malformed responses | Normalized success/error behavior and bounded timeout proven |
 | 3 | Groq Fallback Adapter | Pinned Groq adapter and qualification record | None new | Missing auth, HTTP errors, malformed response, and missing usage fields | Correct route/model/header/auth convention and normalized responses proven |
@@ -46,7 +46,7 @@ If any precondition is unmet, execution does not begin.
 
 ## 3. Detailed stages
 
-### Stage 0 — Repository Baseline & Preconditions
+### Stage 0 — Repository Baseline & Preconditions ✅ **PASSED**
 
 **Goal**  
 Establish the actual repository state, verify all execution approvals, and resolve any mismatch between this plan, the feature SDDs, and the codebase before implementation begins.
@@ -346,6 +346,7 @@ All stages 0–8 have passed; all exit criteria are backed by evidence; the PIR 
 | `001_llm_gateway` SDD | ✅ Approved 2026-10-12 |
 | `002_provider_resilience` SDD | ✅ Approved 2026-10-12 |
 | Execution Plan | ✅ Approved 2026-10-12 (with Gemini-live-verification requirement) |
-| Implementation authorization | Not granted — explicit go required |
-| Stage 0 | Not started |
-| Stages 1–9 | Blocked pending Stage 0 and preceding gates |
+| Implementation authorization | ✅ Granted 2026-10-12 (operator authorized: "begin Stage 0") |
+| Stage 0 | ✅ PASSED 2026-10-12 (baseline accepted, starting commit 166ec738) |
+| Stage 1 | Ready to begin |
+| Stages 2–9 | Blocked pending Stage 1 and preceding gates |

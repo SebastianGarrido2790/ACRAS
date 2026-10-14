@@ -16,7 +16,7 @@ One provider-neutral gateway facade over shared `httpx` transport; thin Gemini a
 - Promote `httpx` to runtime dependency only in the approved implementation; pin via existing `uv` workflow.
 - Inject transport for deterministic tests; explicit timeouts; no hidden retries.
 - Groq base URL/model/auth are `https://api.groq.com/openai/v1`, `openai/gpt-oss-20b`, `GROQ_API_KEY`.
-- Gemini base URL/model/auth are Google's OpenAI-compatible endpoint, `gemini-2.0-flash`, `GEMINI_API_KEY` (verify live at implementation).
+- Gemini base URL/model/auth are Google's OpenAI-compatible endpoint, `gemini-2.5-flash`, `GEMINI_API_KEY` (verify live at implementation).
 - Send/test browser-style User-Agent on all adapters (generalized per approved clarification; Cloudflare-fingerprint evidence).
 - Do not add `huggingface_hub`, provider SDKs, LangChain, LiteLLM, OTel, or Prometheus.
 - Validate response structure before success. Unknown usage/cost is `None`; pricing requires versioned source/date.

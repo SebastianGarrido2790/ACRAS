@@ -32,7 +32,7 @@ Provisional types: `GatewayRequest`, `GatewayResult`, `ProviderUsage`, `GatewayE
 Typed contracts and config validate; provider-specific objects do not escape; malformed responses fail closed; events are complete and redacted; unknown cost stays unknown; User-Agent is tested; full pytest/Ruff/Pyright pass; EvidenceBundle v1 and deterministic tiers remain unchanged.
 
 ## Clarification gate — resolved and approved 2026-10-12
-1. Gemini primary: `gemini-2.0-flash` via Google's OpenAI-compatible endpoint; model ID recorded in versioned non-secret config and verified live at implementation (same qualification discipline as the Groq leg). Env var: `GEMINI_API_KEY`.
+1. Gemini primary: `gemini-2.5-flash` via Google's OpenAI-compatible endpoint (substituted 2026-10-12 after `gemini-2.0-flash` proven retired; floating aliases rejected); model ID recorded in versioned non-secret config and verified live at implementation (same qualification discipline as the Groq leg). Env var: `GEMINI_API_KEY`.
 2. Request messages: OpenAI-style role/content messages array (both providers speak it; no provider-specific templating in the gateway).
 3. Structured JSON: envelope validation only in Phase 3; adapter `json_mode` support recorded as a capability flag for Phase 4 verdict parsing.
 4. Secrets: `.env.example` placeholder + session/out-of-band supply (established HF/GROQ practice); variables `GEMINI_API_KEY`, `GROQ_API_KEY`. Never committed, logged, or echoed.

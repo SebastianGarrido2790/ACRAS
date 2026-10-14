@@ -17,15 +17,15 @@ Falsification is selective: use a controlled negative test when it proves a gate
 
 The following must be satisfied before Stage 0 starts:
 
-- [ ] Overall Phase 3 Implementation Plan explicitly approved.
+- [x] Overall Phase 3 Implementation Plan explicitly approved 2026-10-12 (verified in plan §10).
 - [x] Both feature SDDs (`001_llm_gateway` and `002_provider_resilience`) explicitly approved 2026-10-12, including their contracts, failure policy, tasks, and validation criteria.
 - [x] Clarification decisions are resolved and recorded 2026-10-12; no material provider, schema, secret, retry, breaker, or error-handling question remains open.
-- [ ] ADR-034 is accepted and consolidated in `reports/docs/architecture/system_design.md` §6; ADR-009 is not silently rewritten.
-- [ ] Implementation authorization explicitly granted after plan approval.
-- [ ] Repository SDD, source-module, test, and configuration paths confirmed from the live repository; all provisional paths in drafts reconciled.
-- [ ] Gemini primary model ID, documented endpoint/request shape, authentication convention, and environment-variable names verified from authoritative project configuration and provider documentation.
-- [ ] Groq fallback pin is confirmed as `openai/gpt-oss-20b` at `https://api.groq.com/openai/v1`, using `GROQ_API_KEY`; the required browser-style `User-Agent` header is covered by qualification evidence.
-- [ ] Required provider credentials are supplied out-of-band; no secret values are put in source, YAML, chat, test fixtures, logs, or artifacts.
+- [x] ADR-034 is accepted and consolidated in `reports/docs/architecture/system_design.md` §6 (verified 2026-10-12); ADR-009 body intact, supersession noted on its status line only.
+- [x] Implementation authorization explicitly granted after plan approval.
+- [x] Repository SDD, source-module, test, and configuration paths confirmed from the live repository 2026-10-12 (SDDs, `src/gateway/` scaffold, `params.yaml`, `tests/{unit,benchmarks}` all present).
+- [x] Gemini primary confirmed as `gemini-2.5-flash` (200 ×2 at ~1.3–2.2s vs 15s budget, usage metadata, clean 400 on malformed) — full evidence in D3-02.
+- [x] Groq fallback pin confirmed as `openai/gpt-oss-20b` at `https://api.groq.com/openai/v1` via `GROQ_API_KEY` (200 ×2 at ~410ms, usage metadata, clean 400 on malformed; browser-style `User-Agent` required) — full evidence in D3-02.
+- [x] Credential hygiene verified 2026-10-12 (repo-wide secret-pattern scan clean; operator holds keys out-of-band). Standing rule for all stages.
 
 If any precondition is unmet, execution does not begin.
 
@@ -59,7 +59,7 @@ Establish the actual repository state, verify all execution approvals, and resol
 4. Inspect `src/gateway/`, existing configuration loading, `params.yaml`, environment-secret conventions, and standard-library rotating logger setup.
 5. Confirm test directory conventions and the actual SDD path convention; replace provisional file paths in the approved tasks before coding.
 6. Verify Phase 2 exit/PIR references and current `EvidenceBundle` v1 validators; capture baseline tests or representative deterministic outputs for later comparison.
-7. Verify the Gemini primary live (model `gemini-2.0-flash`, endpoint, request/response format, `GEMINI_API_KEY` auth) with the same qualification discipline as the Groq leg — minimal completion + malformed legs, sanitized evidence — because no authoritative configuration exists to verify against. Do not build the Stage 2 adapter on documentation alone. Confirm Groq route/model/header/auth requirements against the accepted qualification record.
+7. Verify the Gemini primary live (model `gemini-2.5-flash`, endpoint, request/response format, `GEMINI_API_KEY` auth) with the same qualification discipline as the Groq leg — minimal completion + malformed legs, sanitized evidence — because no authoritative configuration exists to verify against. Do not build the Stage 2 adapter on documentation alone. Confirm Groq route/model/header/auth requirements against the accepted qualification record.
 8. Record any mismatch as a blocker. Do not modify production code to make the baseline match this plan.
 
 **ADR Implements**  

@@ -6,6 +6,6 @@
 - [x] **GW-T03 Add typed contracts:** implement approved Pydantic request/result/usage/error/event schemas and tests. Satisfies GW-FR-01/04/06/08/09. ✅ Done in Stage 1 (`src/gateway/contracts.py`).
 - [x] **GW-T04 Add config/secrets:** validate non-secret provider/model/timeouts; resolve credentials without leaking values. Satisfies GW-FR-02/03. ✅ Done in Stage 1 (`src/gateway/config.py`, `params.yaml`, `src/config/loader.py`).
 - [ ] **GW-T05 Implement Gemini adapter vertical slice:** normalized success/errors and mocked tests. Satisfies GW-FR-04/05/06/12.
-- [ ] **GW-T06 Implement Groq adapter vertical slice:** pinned endpoint/model/env key, injected transport and tested User-Agent. Satisfies GW-FR-02/03/04/11/12. Unblocked by GW-T03/T04.
+- [ ] **GW-T06 Implement Groq adapter vertical slice:** pinned endpoint/model/env key, injected transport and tested User-Agent. Satisfies GW-FR-02/03/04/11/12. Prerequisites satisfied (GW-T03/T04 complete Stage 1); executes in Stage 3 after GW-T05.
 - [ ] **GW-T07 Add events/cost state:** structured redacted events; unknown usage/cost remains unknown. Satisfies GW-FR-07–10.
-- [ ] **GW-T08 Run acceptance/regression:** adapter/gateway tests, full pytest, Ruff, Pyright; confirm EvidenceBundle v1 and deterministic outputs unchanged. Satisfies GW-FR-12/13. Blocked by GW-T03–T07.
+- [ ] **GW-T08 Run acceptance/regression:** adapter/gateway tests, full pytest, Ruff, Pyright; confirm EvidenceBundle v1 and deterministic outputs unchanged. Satisfies GW-FR-12/13. Blocked by GW-T05–T07 (GW-T03/T04 complete).

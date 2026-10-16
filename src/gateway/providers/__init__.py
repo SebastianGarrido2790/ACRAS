@@ -10,10 +10,14 @@ from src.gateway.providers.base import (
     normalize_error,
     post_chat_completion,
 )
+from src.gateway.providers.gemini import invoke_gemini
+from src.gateway.providers.groq import invoke_groq
 
 __all__ = [
     "AdapterContext",
     "build_headers",
+    "invoke_gemini",
+    "invoke_groq",
     "normalize_error",
     "post_chat_completion",
 ]

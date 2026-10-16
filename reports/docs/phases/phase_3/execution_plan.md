@@ -36,7 +36,7 @@ If any precondition is unmet, execution does not begin.
 | 0 | Repository Baseline & Preconditions | Verified baseline and path/config map | None new | Reconcile reported assumptions against repository evidence | ✅ **PASSED** — Preconditions and baseline checks all pass; starting commit 166ec738; no production code changed |
 | 1 | Gateway Contracts & Configuration | Approved typed contracts and validated non-secret config | None new | Invalid bounds, unknown fields, and missing required config are rejected | ✅ **PASSED** — Contract/config tests pass (13/13); secret resolution is isolated; v1 schema unchanged |
 | 2 | Gemini Primary Adapter | Thin primary-provider adapter behind shared transport | None new | Mock success, timeout, non-2xx, and malformed responses | ✅ **PASSED** — 13 mock-transport tests pass; timeout enforced with zero retries; UA asserted; no secrets leak |
-| 3 | Groq Fallback Adapter | Pinned Groq adapter and qualification record | None new | Missing auth, HTTP errors, malformed response, and missing usage fields | Correct route/model/header/auth convention and normalized responses proven |
+| 3 | Groq Fallback Adapter | Pinned Groq adapter and qualification record | None new | Missing auth, HTTP errors, malformed response, and missing usage fields | ✅ **PASSED** — 13 mock-transport tests pass; missing auth fails pre-network; balance→unavailable taxonomy proven |
 | 4 | Structured Provider Events & Redaction | Versioned event model and standard-library logging integration | None new | Inject prompt/response/secret-like values and inspect emitted logs | Required fields are present; sensitive content is absent; unknown usage/cost remains unknown |
 | 5 | Circuit Breakers & Failure Classification | Independent provider breakers and explicit eligible-failure policy | None new | Force threshold crossing, open state, and recovery probe | State transitions and failure classes match approved policy and pinned `pybreaker` semantics |
 | 6 | Gateway Routing & Bounded Outcomes | End-to-end primary → fallback orchestration | None new | Force primary outage and dual-provider failure | One primary + at most one fallback attempt; typed controlled outcome; no unhandled provider exception |
@@ -125,7 +125,7 @@ Mocked success and failure tests pass; configured timeout is enforced; retries r
 
 ---
 
-### Stage 3 — Groq Fallback Adapter & Qualification
+### Stage 3 — Groq Fallback Adapter & Qualification ✅ **PASSED**
 
 **Goal**  
 Implement the approved Groq-direct fallback with a fixed model pin and verify its transport contract, authentication, and operational assumptions.
@@ -350,5 +350,6 @@ All stages 0–8 have passed; all exit criteria are backed by evidence; the PIR 
 | Stage 0 | ✅ PASSED 2026-10-12 (baseline accepted, starting commit 166ec738) |
 | Stage 1 | ✅ PASSED 2026-10-12 (contracts, config, and 13 unit/falsification tests pass) |
 | Stage 2 | ✅ PASSED 2026-10-12 (adapter + 13 falsification tests + full regression green) |
-| Stage 3 | Ready to begin |
-| Stages 4–9 | Blocked pending Stage 3 and preceding gates |
+| Stage 3 | ✅ PASSED 2026-10-12 (adapter + 13 falsification tests + full regression green) |
+| Stage 4 | Ready to begin |
+| Stages 5–9 | Blocked pending Stage 4 and preceding gates |

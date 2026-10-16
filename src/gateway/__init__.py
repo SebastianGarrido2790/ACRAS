@@ -21,9 +21,20 @@ from src.gateway.contracts import (
     ProviderEvent,
     ProviderUsage,
 )
+from src.gateway.events import (
+    EVENT_SCHEMA_VERSION,
+    build_attempt_event,
+    build_breaker_event,
+    build_error_event,
+    build_result_event,
+    emit_event,
+    redact_value,
+    serialize_event,
+)
 
 __all__ = [
     "CostRateConfig",
+    "EVENT_SCHEMA_VERSION",
     "GatewayConfig",
     "GatewayError",
     "GatewayErrorCategory",
@@ -34,6 +45,13 @@ __all__ = [
     "ProviderEvent",
     "ProviderSettings",
     "ProviderUsage",
+    "build_attempt_event",
+    "build_breaker_event",
+    "build_error_event",
+    "build_result_event",
     "calculate_cost_usd",
+    "emit_event",
+    "redact_value",
     "resolve_api_key",
+    "serialize_event",
 ]

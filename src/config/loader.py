@@ -12,6 +12,8 @@ from typing import Any
 import yaml
 from pydantic import BaseModel, ConfigDict, Field
 
+from src.gateway.config import GatewayConfig
+
 
 class SplitConfig(BaseModel):
     """Dataset splitting parameters."""
@@ -97,6 +99,7 @@ class AppConfig(BaseModel):
     promotion_gate: PromotionGateConfig
     simulation: SimulationConfig
     rating_thresholds: list[RatingThreshold]
+    gateway: GatewayConfig | None = None
 
 
 ProjectParams = AppConfig

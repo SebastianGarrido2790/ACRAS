@@ -34,7 +34,7 @@ If any precondition is unmet, execution does not begin.
 | Stage | Name | Primary deliverable | ADR Implements | Falsification | Hard gate |
 |---|---|---|---|---|---|
 | 0 | Repository Baseline & Preconditions | Verified baseline and path/config map | None new | Reconcile reported assumptions against repository evidence | ✅ **PASSED** — Preconditions and baseline checks all pass; starting commit 166ec738; no production code changed |
-| 1 | Gateway Contracts & Configuration | Approved typed contracts and validated non-secret config | None new | Invalid bounds, unknown fields, and missing required config are rejected | Contract/config tests pass; secret resolution is isolated; v1 schema unchanged |
+| 1 | Gateway Contracts & Configuration | Approved typed contracts and validated non-secret config | None new | Invalid bounds, unknown fields, and missing required config are rejected | ✅ **PASSED** — Contract/config tests pass (13/13); secret resolution is isolated; v1 schema unchanged |
 | 2 | Gemini Primary Adapter | Thin primary-provider adapter behind shared transport | None new | Mock success, timeout, non-2xx, and malformed responses | Normalized success/error behavior and bounded timeout proven |
 | 3 | Groq Fallback Adapter | Pinned Groq adapter and qualification record | None new | Missing auth, HTTP errors, malformed response, and missing usage fields | Correct route/model/header/auth convention and normalized responses proven |
 | 4 | Structured Provider Events & Redaction | Versioned event model and standard-library logging integration | None new | Inject prompt/response/secret-like values and inspect emitted logs | Required fields are present; sensitive content is absent; unknown usage/cost remains unknown |
@@ -73,7 +73,7 @@ All preconditions and approvals are evidenced; test/static-check results and sta
 
 ---
 
-### Stage 1 — Gateway Contracts & Configuration
+### Stage 1 — Gateway Contracts & Configuration ✅ **PASSED**
 
 **Goal**  
 Define the stable provider-neutral boundary and validated operational configuration before implementing provider-specific HTTP behavior.
@@ -348,5 +348,6 @@ All stages 0–8 have passed; all exit criteria are backed by evidence; the PIR 
 | Execution Plan | ✅ Approved 2026-10-12 (with Gemini-live-verification requirement) |
 | Implementation authorization | ✅ Granted 2026-10-12 (operator authorized: "begin Stage 0") |
 | Stage 0 | ✅ PASSED 2026-10-12 (baseline accepted, starting commit 166ec738) |
-| Stage 1 | Ready to begin |
-| Stages 2–9 | Blocked pending Stage 1 and preceding gates |
+| Stage 1 | ✅ PASSED 2026-10-12 (contracts, config, and 13 unit/falsification tests pass) |
+| Stage 2 | Ready to begin |
+| Stages 3–9 | Blocked pending Stage 2 and preceding gates |

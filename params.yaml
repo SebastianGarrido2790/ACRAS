@@ -99,3 +99,33 @@ rating_thresholds:
     max_pd: 0.150     # 5.0% <= PD < 15.0%
   - rating: "CCC/C"
     max_pd: 1.000     # PD >= 15.0%
+
+# LLM Gateway Configuration (ADR-006 / ADR-009 / ADR-034 / D3-01 to D3-04)
+gateway:
+  primary:
+    provider: "gemini"
+    model: "gemini-2.5-flash"
+    base_url: "https://generativelanguage.googleapis.com/v1beta/openai"
+    timeout_s: 15.0
+  fallback:
+    provider: "groq"
+    model: "openai/gpt-oss-20b"
+    base_url: "https://api.groq.com/openai/v1"
+    timeout_s: 20.0
+  max_attempts: 2
+  retries_per_provider: 0
+  breaker_failure_threshold: 3
+  breaker_recovery_timeout_s: 30.0
+  breaker_half_open_probes: 1
+  default_user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) ACRAS/1.0"
+  cost_rates:
+    gemini-2.5-flash:
+      input_per_m: 0.075
+      output_per_m: 0.30
+      rate_date: "2026-10-12"
+      rate_source: "Google AI Studio Pricing"
+    openai/gpt-oss-20b:
+      input_per_m: 0.075
+      output_per_m: 0.30
+      rate_date: "2026-10-12"
+      rate_source: "Groq Published Production Rates (free-tier reference)"

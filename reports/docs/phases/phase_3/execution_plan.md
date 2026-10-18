@@ -38,7 +38,7 @@ If any precondition is unmet, execution does not begin.
 | 2 | Gemini Primary Adapter | Thin primary-provider adapter behind shared transport | None new | Mock success, timeout, non-2xx, and malformed responses | ✅ **PASSED** — 13 mock-transport tests pass; timeout enforced with zero retries; UA asserted; no secrets leak |
 | 3 | Groq Fallback Adapter | Pinned Groq adapter and qualification record | None new | Missing auth, HTTP errors, malformed response, and missing usage fields | ✅ **PASSED** — 13 mock-transport tests pass; missing auth fails pre-network; balance→unavailable taxonomy proven |
 | 4 | Structured Provider Events & Redaction | Versioned event model and standard-library logging integration | None new | Inject prompt/response/secret-like values and inspect emitted logs | ✅ **PASSED** — 10 captured-log tests pass; fixed-category messages only; unknown stays null |
-| 5 | Circuit Breakers & Failure Classification | Independent provider breakers and explicit eligible-failure policy | None new | Force threshold crossing, open state, and recovery probe | State transitions and failure classes match approved policy and pinned `pybreaker` semantics |
+| 5 | Circuit Breakers & Failure Classification | Independent provider breakers and explicit eligible-failure policy | None new | Force threshold crossing, open state, and recovery probe | ✅ **PASSED** — 25 policy/transition tests pass; pinned `pybreaker==1.4.1`; probe serialization and provider independence proven |
 | 6 | Gateway Routing & Bounded Outcomes | End-to-end primary → fallback orchestration | None new | Force primary outage and dual-provider failure | One primary + at most one fallback attempt; typed controlled outcome; no unhandled provider exception |
 | 7 | Resilience & Integration Acceptance | Permanent outage, recovery, routing, and redaction tests | None new | Break a key routing/event assertion in a controlled test variant to prove test sensitivity | Required fault scenarios pass deterministically without live provider calls in routine CI |
 | 8 | Full Regression, Security & Quality Gate | Complete validation evidence and non-interference proof | None new | Verify regression suite fails on a controlled boundary violation where practical | Full tests, Ruff, Pyright, security checks, and deterministic-tier comparisons pass |
@@ -177,7 +177,7 @@ All required event fields are emitted for the covered outcomes; correlation and 
 
 ---
 
-### Stage 5 — Circuit Breakers & Failure Classification
+### Stage 5 — Circuit Breakers & Failure Classification ✅ **PASSED**
 
 **Goal**  
 Implement independent provider breaker behavior and explicit classification of failures eligible for fallback, with semantics verified against the selected `pybreaker` version.
@@ -352,5 +352,6 @@ All stages 0–8 have passed; all exit criteria are backed by evidence; the PIR 
 | Stage 2 | ✅ PASSED 2026-10-12 (adapter + 13 falsification tests + full regression green) |
 | Stage 3 | ✅ PASSED 2026-10-12 (adapter + 13 falsification tests + full regression green) |
 | Stage 4 | ✅ PASSED 2026-10-12 (event schema + redaction + 10 tests + full regression green) |
-| Stage 5 | Ready to begin |
-| Stages 6–9 | Blocked pending Stage 5 and preceding gates |
+| Stage 5 | ✅ PASSED 2026-10-12 (pybreaker 1.4.1 pinned; eligibility matrix + 25 tests + full regression green) |
+| Stage 6 | Ready to begin |
+| Stages 7–9 | Blocked pending Stage 6 and preceding gates |

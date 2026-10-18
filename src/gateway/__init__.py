@@ -31,10 +31,18 @@ from src.gateway.events import (
     redact_value,
     serialize_event,
 )
+from src.gateway.resilience import (
+    FALLBACK_ELIGIBLE_CATEGORIES,
+    GatewayBreakers,
+    is_breaker_failure,
+    is_fallback_eligible,
+)
 
 __all__ = [
     "CostRateConfig",
     "EVENT_SCHEMA_VERSION",
+    "FALLBACK_ELIGIBLE_CATEGORIES",
+    "GatewayBreakers",
     "GatewayConfig",
     "GatewayError",
     "GatewayErrorCategory",
@@ -51,6 +59,8 @@ __all__ = [
     "build_result_event",
     "calculate_cost_usd",
     "emit_event",
+    "is_breaker_failure",
+    "is_fallback_eligible",
     "redact_value",
     "resolve_api_key",
     "serialize_event",

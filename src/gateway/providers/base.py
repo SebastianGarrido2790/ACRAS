@@ -69,11 +69,14 @@ def classify_http_error(status_code: int, reason: str | None = None) -> GatewayE
         reason: Optional provider-supplied machine-readable reason string.
 
     Returns:
-        The matching GatewayErrorCategory. Balance/billing rejections are
-        provider-side availability faults, never authentication errors.
+        The matching GatewayErrorCategory. Billing/balance rejections (402, or
+        403 with a machine-readable balance reason) are provider-side
+        availability faults, never authentication errors.
     """
     if status_code == 429:
         return GatewayErrorCategory.RATE_LIMIT_ERROR
+    if status_code == 402:
+        return GatewayErrorCategory.PROVIDER_UNAVAILABLE
     if status_code in (401, 403):
         normalized_reason = (reason or "").upper()
         if "BALANCE" in normalized_reason or "BILLING" in normalized_reason:

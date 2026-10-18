@@ -39,7 +39,7 @@ If any precondition is unmet, execution does not begin.
 | 3 | Groq Fallback Adapter | Pinned Groq adapter and qualification record | None new | Missing auth, HTTP errors, malformed response, and missing usage fields | ✅ **PASSED** — 13 mock-transport tests pass; missing auth fails pre-network; balance→unavailable taxonomy proven |
 | 4 | Structured Provider Events & Redaction | Versioned event model and standard-library logging integration | None new | Inject prompt/response/secret-like values and inspect emitted logs | ✅ **PASSED** — 10 captured-log tests pass; fixed-category messages only; unknown stays null |
 | 5 | Circuit Breakers & Failure Classification | Independent provider breakers and explicit eligible-failure policy | None new | Force threshold crossing, open state, and recovery probe | ✅ **PASSED** — 25 policy/transition tests pass; pinned `pybreaker==1.4.1`; probe serialization and provider independence proven |
-| 6 | Gateway Routing & Bounded Outcomes | End-to-end primary → fallback orchestration | None new | Force primary outage and dual-provider failure | One primary + at most one fallback attempt; typed controlled outcome; no unhandled provider exception |
+| 6 | Gateway Routing & Bounded Outcomes | End-to-end primary → fallback orchestration | None new | Force primary outage and dual-provider failure | ✅ **PASSED** — 14 mock-transport tests pass; primary success bypasses fallback (zero fallback calls); dual failure typed with sanitized cause; breaker-open routing proven; full regression 169 passed/3 skipped |
 | 7 | Resilience & Integration Acceptance | Permanent outage, recovery, routing, and redaction tests | None new | Break a key routing/event assertion in a controlled test variant to prove test sensitivity | Required fault scenarios pass deterministically without live provider calls in routine CI |
 | 8 | Full Regression, Security & Quality Gate | Complete validation evidence and non-interference proof | None new | Verify regression suite fails on a controlled boundary violation where practical | Full tests, Ruff, Pyright, security checks, and deterministic-tier comparisons pass |
 | 9 | ADR Consolidation, PIR & Phase Sign-off | Closed implementation record and next-phase boundary | None new — consolidate existing decisions only | Audit recorded claims against test output, diffs, and qualification evidence | Every exit criterion has evidence; PIR complete; human Phase 3 sign-off recorded |
@@ -203,7 +203,7 @@ Pinned `pybreaker` behavior is verified; both provider breakers transition as ap
 
 ---
 
-### Stage 6 — Gateway Routing & Bounded Outcomes
+### Stage 6 — Gateway Routing & Bounded Outcomes ✅ **PASSED**
 
 **Goal**  
 Integrate the contracts, provider adapters, events, and breakers into one gateway call path with bounded attempts and a controlled typed result for dual failure.
@@ -353,5 +353,6 @@ All stages 0–8 have passed; all exit criteria are backed by evidence; the PIR 
 | Stage 3 | ✅ PASSED 2026-10-12 (adapter + 13 falsification tests + full regression green) |
 | Stage 4 | ✅ PASSED 2026-10-12 (event schema + redaction + 10 tests + full regression green) |
 | Stage 5 | ✅ PASSED 2026-10-12 (pybreaker 1.4.1 pinned; eligibility matrix + 25 tests + full regression green) |
-| Stage 6 | Ready to begin |
-| Stages 7–9 | Blocked pending Stage 6 and preceding gates |
+| Stage 6 | ✅ PASSED 2026-10-12 (`GatewayService` bounded orchestration; 14 mock-transport tests; breaker-transition events; full regression 169 passed/3 skipped) |
+| Stage 7 | Ready to begin |
+| Stages 8–9 | Blocked pending Stage 7 and preceding gates |

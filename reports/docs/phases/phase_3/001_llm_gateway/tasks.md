@@ -8,4 +8,4 @@
 - [x] **GW-T05 Implement Gemini adapter vertical slice:** normalized success/errors and mocked tests. Satisfies GW-FR-04/05/06/12. ✅ Done in Stage 2 (`src/gateway/providers/base.py`, `gemini.py`; 13 mock-transport tests).
 - [x] **GW-T06 Implement Groq adapter vertical slice:** pinned endpoint/model/env key, injected transport and tested User-Agent. Satisfies GW-FR-02/03/04/11/12. ✅ Done in Stage 3 (`src/gateway/providers/groq.py`; 13 mock-transport tests incl. balance-rejection taxonomy).
 - [x] **GW-T07 Add events/cost state:** structured redacted events; unknown usage/cost remains unknown. Satisfies GW-FR-07–10. ✅ Done in Stage 4 (`src/gateway/events.py`; 10 captured-log/redaction tests).
-- [ ] **GW-T08 Run acceptance/regression:** adapter/gateway tests, full pytest, Ruff, Pyright; confirm EvidenceBundle v1 and deterministic outputs unchanged. Satisfies GW-FR-12/13. Blocked by GW-T05–T07 (GW-T03/T04 complete).
+- [ ] **GW-T08 Run acceptance/regression:** adapter/gateway tests, full pytest, Ruff, Pyright; confirm EvidenceBundle v1 and deterministic outputs unchanged. Satisfies GW-FR-12/13. Unblocked (GW-T05–T07 complete); executed in Stages 7–8.

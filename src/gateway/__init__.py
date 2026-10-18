@@ -37,8 +37,10 @@ from src.gateway.resilience import (
     is_breaker_failure,
     is_fallback_eligible,
 )
+from src.gateway.service import BreakerTransitionListener, GatewayService
 
 __all__ = [
+    "BreakerTransitionListener",
     "CostRateConfig",
     "EVENT_SCHEMA_VERSION",
     "FALLBACK_ELIGIBLE_CATEGORIES",
@@ -50,6 +52,7 @@ __all__ = [
     "GatewayMessageRole",
     "GatewayRequest",
     "GatewayResult",
+    "GatewayService",
     "ProviderEvent",
     "ProviderSettings",
     "ProviderUsage",

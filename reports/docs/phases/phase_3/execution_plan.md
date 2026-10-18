@@ -41,7 +41,7 @@ If any precondition is unmet, execution does not begin.
 | 5 | Circuit Breakers & Failure Classification | Independent provider breakers and explicit eligible-failure policy | None new | Force threshold crossing, open state, and recovery probe | ✅ **PASSED** — 25 policy/transition tests pass; pinned `pybreaker==1.4.1`; probe serialization and provider independence proven |
 | 6 | Gateway Routing & Bounded Outcomes | End-to-end primary → fallback orchestration | None new | Force primary outage and dual-provider failure | ✅ **PASSED** — 14 mock-transport tests pass; primary success bypasses fallback (zero fallback calls); dual failure typed with sanitized cause; breaker-open routing proven; full regression 169 passed/3 skipped |
 | 7 | Resilience & Integration Acceptance | Permanent outage, recovery, routing, and redaction tests | None new | Break a key routing/event assertion in a controlled test variant to prove test sensitivity | ✅ **PASSED** — 22 deterministic mock-transport acceptance tests (+ 1 opt-in live smoke skipped); inverted-assertion falsification confirmed; full regression 191 passed/4 skipped; Ruff + Pyright clean |
-| 8 | Full Regression, Security & Quality Gate | Complete validation evidence and non-interference proof | None new | Verify regression suite fails on a controlled boundary violation where practical | Full tests, Ruff, Pyright, security checks, and deterministic-tier comparisons pass |
+| 8 | Full Regression, Security & Quality Gate | Complete validation evidence and non-interference proof | None new | Verify regression suite fails on a controlled boundary violation where practical | ✅ **PASSED** — full pytest 191 passed/4 skipped (82.02s); Ruff + Pyright zero errors; deterministic Tier 1–2 and EvidenceBundle v1 source unchanged vs baseline; boundary falsification blocked all illegal LLM→deterministic routes; deps = approved `httpx` runtime + `pybreaker==1.4.1` only; secret scan clean |
 | 9 | ADR Consolidation, PIR & Phase Sign-off | Closed implementation record and next-phase boundary | None new — consolidate existing decisions only | Audit recorded claims against test output, diffs, and qualification evidence | Every exit criterion has evidence; PIR complete; human Phase 3 sign-off recorded |
 
 ## 3. Detailed stages
@@ -256,7 +256,7 @@ All required failure/recovery scenarios pass deterministically; test coverage pr
 
 ---
 
-### Stage 8 — Full Regression, Security & Quality Gate
+### Stage 8 — Full Regression, Security & Quality Gate ✅ **PASSED**
 
 **Goal**  
 Demonstrate that the completed gateway satisfies Phase 3 requirements without regressing existing deterministic Tier 1–2 behavior, the EvidenceBundle v1 contract, or project quality controls.
@@ -322,19 +322,19 @@ All stages 0–8 have passed; all exit criteria are backed by evidence; the PIR 
 
 ## 5. Phase 3 acceptance evidence checklist
 
-- [ ] Primary success returns a normalized result and does not call fallback.
-- [ ] Forced eligible primary failure/timeout invokes Groq fallback.
-- [ ] Both-provider failure produces a controlled typed outcome, not a raw provider exception.
-- [ ] Attempt count is bounded to one primary plus at most one fallback; same-provider retries are zero.
-- [ ] Independent breaker closed/open/half-open/recovery behavior is proven against the pinned library version.
-- [ ] Required event fields are present for success, failure, fallback, and breaker transitions.
-- [ ] Logs contain no prompt, response, credential, raw provider body, or sensitive borrower data.
-- [ ] Usage and cost are captured only when trustworthy; unavailable values remain unknown.
-- [ ] Groq route/model/auth/header are verified; qualification evidence does not include secrets.
-- [ ] Gemini model/endpoint/auth configuration is verified and recorded.
-- [ ] Full tests, Ruff, and Pyright pass; any skips are explained.
-- [ ] `EvidenceBundle` v1 and deterministic Tier 1–2 behavior are unchanged.
-- [ ] Dependency changes are minimal and approved; no unapproved provider framework/SDK is introduced.
+- [x] Primary success returns a normalized result and does not call fallback.
+- [x] Forced eligible primary failure/timeout invokes Groq fallback.
+- [x] Both-provider failure produces a controlled typed outcome, not a raw provider exception.
+- [x] Attempt count is bounded to one primary plus at most one fallback; same-provider retries are zero.
+- [x] Independent breaker closed/open/half-open/recovery behavior is proven against the pinned library version.
+- [x] Required event fields are present for success, failure, fallback, and breaker transitions.
+- [x] Logs contain no prompt, response, credential, raw provider body, or sensitive borrower data.
+- [x] Usage and cost are captured only when trustworthy; unavailable values remain unknown.
+- [x] Groq route/model/auth/header are verified; qualification evidence does not include secrets.
+- [x] Gemini model/endpoint/auth configuration is verified and recorded.
+- [x] Full tests, Ruff, and Pyright pass; any skips are explained.
+- [x] `EvidenceBundle` v1 and deterministic Tier 1–2 behavior are unchanged.
+- [x] Dependency changes are minimal and approved; no unapproved provider framework/SDK is introduced.
 - [ ] ADR-034 and cross-references are consolidated accurately; ADR-009 is not silently rewritten.
 - [ ] Phase 3 PIR is complete and human sign-off is recorded.
 
@@ -355,5 +355,5 @@ All stages 0–8 have passed; all exit criteria are backed by evidence; the PIR 
 | Stage 5 | ✅ PASSED 2026-10-12 (pybreaker 1.4.1 pinned; eligibility matrix + 25 tests + full regression green) |
 | Stage 6 | ✅ PASSED 2026-10-12 (`GatewayService` bounded orchestration; 14 mock-transport tests; breaker-transition events; full regression 169 passed/3 skipped) |
 | Stage 7 | ✅ PASSED 2026-10-18 (`tests/integration/test_gateway_resilience.py`; 22 mock-transport acceptance tests covering the full routing/fault/breaker/event/redaction matrix + 1 opt-in live smoke skipped; inverted-assertion falsification confirmed then discarded; full regression 191 passed/4 skipped; Ruff + Pyright clean) |
-| Stage 8 | Ready to begin |
-| Stage 9 | Blocked pending Stage 8 |
+| Stage 8 | ✅ PASSED 2026-10-18 (`uv run pytest` 191 passed/4 skipped in 82.02s; skips = 3 pre-existing Docker-daemon container tests + 1 opt-in live smoke; Ruff + Pyright zero errors; deterministic Tier 1–2 + EvidenceBundle v1 source unchanged vs baseline 166ec738; boundary falsification fixture blocked all LLM→deterministic routes (5/5) then removed; deps `httpx` runtime + `pybreaker==1.4.1`; credential/secret scan clean; `.env`/`logs/` untracked/gitignored) |
+| Stage 9 | Ready to begin (final ADR/PIR consolidation + human Phase 3 sign-off) |

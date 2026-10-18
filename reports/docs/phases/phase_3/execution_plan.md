@@ -40,7 +40,7 @@ If any precondition is unmet, execution does not begin.
 | 4 | Structured Provider Events & Redaction | Versioned event model and standard-library logging integration | None new | Inject prompt/response/secret-like values and inspect emitted logs | ✅ **PASSED** — 10 captured-log tests pass; fixed-category messages only; unknown stays null |
 | 5 | Circuit Breakers & Failure Classification | Independent provider breakers and explicit eligible-failure policy | None new | Force threshold crossing, open state, and recovery probe | ✅ **PASSED** — 25 policy/transition tests pass; pinned `pybreaker==1.4.1`; probe serialization and provider independence proven |
 | 6 | Gateway Routing & Bounded Outcomes | End-to-end primary → fallback orchestration | None new | Force primary outage and dual-provider failure | ✅ **PASSED** — 14 mock-transport tests pass; primary success bypasses fallback (zero fallback calls); dual failure typed with sanitized cause; breaker-open routing proven; full regression 169 passed/3 skipped |
-| 7 | Resilience & Integration Acceptance | Permanent outage, recovery, routing, and redaction tests | None new | Break a key routing/event assertion in a controlled test variant to prove test sensitivity | Required fault scenarios pass deterministically without live provider calls in routine CI |
+| 7 | Resilience & Integration Acceptance | Permanent outage, recovery, routing, and redaction tests | None new | Break a key routing/event assertion in a controlled test variant to prove test sensitivity | ✅ **PASSED** — 22 deterministic mock-transport acceptance tests (+ 1 opt-in live smoke skipped); inverted-assertion falsification confirmed; full regression 191 passed/4 skipped; Ruff + Pyright clean |
 | 8 | Full Regression, Security & Quality Gate | Complete validation evidence and non-interference proof | None new | Verify regression suite fails on a controlled boundary violation where practical | Full tests, Ruff, Pyright, security checks, and deterministic-tier comparisons pass |
 | 9 | ADR Consolidation, PIR & Phase Sign-off | Closed implementation record and next-phase boundary | None new — consolidate existing decisions only | Audit recorded claims against test output, diffs, and qualification evidence | Every exit criterion has evidence; PIR complete; human Phase 3 sign-off recorded |
 
@@ -230,7 +230,7 @@ Primary success bypasses fallback; eligible primary failure routes to fallback; 
 
 ---
 
-### Stage 7 — Resilience & Integration Acceptance Tests
+### Stage 7 — Resilience & Integration Acceptance Tests ✅ **PASSED**
 
 **Goal**  
 Turn the approved failure policy into a permanent, deterministic acceptance suite that proves outage handling, recovery, event accuracy, and the provider boundary.
@@ -354,5 +354,6 @@ All stages 0–8 have passed; all exit criteria are backed by evidence; the PIR 
 | Stage 4 | ✅ PASSED 2026-10-12 (event schema + redaction + 10 tests + full regression green) |
 | Stage 5 | ✅ PASSED 2026-10-12 (pybreaker 1.4.1 pinned; eligibility matrix + 25 tests + full regression green) |
 | Stage 6 | ✅ PASSED 2026-10-12 (`GatewayService` bounded orchestration; 14 mock-transport tests; breaker-transition events; full regression 169 passed/3 skipped) |
-| Stage 7 | Ready to begin |
-| Stages 8–9 | Blocked pending Stage 7 and preceding gates |
+| Stage 7 | ✅ PASSED 2026-10-18 (`tests/integration/test_gateway_resilience.py`; 22 mock-transport acceptance tests covering the full routing/fault/breaker/event/redaction matrix + 1 opt-in live smoke skipped; inverted-assertion falsification confirmed then discarded; full regression 191 passed/4 skipped; Ruff + Pyright clean) |
+| Stage 8 | Ready to begin |
+| Stage 9 | Blocked pending Stage 8 |

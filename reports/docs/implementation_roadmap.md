@@ -68,7 +68,7 @@ It answers: *what major capabilities do we expect to build, in what dependency o
 
 ---
 
-## Phase 3 — LLM Gateway & Provider Resilience
+## Phase 3 — LLM Gateway & Provider Resilience ✅ **Complete** (closed 2026-10-19)
 
 **Goal:** Build the resilience infrastructure Tier 3 will depend on *before* Tier 3 exists.
 
@@ -79,6 +79,8 @@ It answers: *what major capabilities do we expect to build, in what dependency o
 
 **Exit criteria:**
 - forced primary-provider failure results in automatic fallback with no unhandled exception, logged and observable.
+
+**Exit evidence:** 110 deterministic mock-transport tests plus a green 191-test suite, Ruff and Pyright clean. Primary `gemini-2.5-flash` (15 s) with Groq-direct `openai/gpt-oss-20b` fallback (20 s) over one injectable `httpx` transport; bounded routing (one primary + at most one fallback, zero same-provider retries); typed dual-provider failure; independent per-provider `pybreaker` breakers (3 failures / 30 s / 1 probe); versioned redacted provider events with usage/cost-known semantics. Deterministic Tier 1–2 and EvidenceBundle v1 unchanged; ADR-034 (fallback designation) consolidated in `system_design.md` §6. Evidence: `reports/docs/phases/phase_3/` (execution plan stages 0–9, PIR, exit-criteria audit). Human Phase 3 sign-off recorded 2026-10-19.
 
 **Dependencies:** none technically; sequenced here because Phase 4 needs it in place.
 

@@ -1,9 +1,9 @@
 # ACRAS Phase 3 — Staged Execution Plan
 
 **Phase:** 3 — LLM Gateway & Provider Resilience  
-**Status:** ✅ Approved 2026-10-12; awaiting implementation authorization  
-**Implementation authorization:** Not granted — explicit go required  
-**Planning baseline:** Phase 2 closed 2026-10-08; Phase 3 repository baseline must be re-verified at Stage 0.
+**Status:** ✅ Implemented and validated 2026-10-19 (stages 0–8 passed; Stage 9 closure audit recorded in `implementation_plan.md` §11)  
+**Implementation authorization:** ✅ Granted 2026-10-12 (operator authorized: "begin Stage 0")  
+**Planning baseline:** Phase 2 closed 2026-10-08; Phase 3 repository baseline re-verified at Stage 0 (starting commit 166ec738).
 
 ## Purpose and execution discipline
 
@@ -356,4 +356,4 @@ All stages 0–8 have passed; all exit criteria are backed by evidence; the PIR 
 | Stage 6 | ✅ PASSED 2026-10-12 (`GatewayService` bounded orchestration; 14 mock-transport tests; breaker-transition events; full regression 169 passed/3 skipped) |
 | Stage 7 | ✅ PASSED 2026-10-18 (`tests/integration/test_gateway_resilience.py`; 22 mock-transport acceptance tests covering the full routing/fault/breaker/event/redaction matrix + 1 opt-in live smoke skipped; inverted-assertion falsification confirmed then discarded; full regression 191 passed/4 skipped; Ruff + Pyright clean) |
 | Stage 8 | ✅ PASSED 2026-10-18 (`uv run pytest` 191 passed/4 skipped in 82.02s; skips = 3 pre-existing Docker-daemon container tests + 1 opt-in live smoke; Ruff + Pyright zero errors; deterministic Tier 1–2 + EvidenceBundle v1 source unchanged vs baseline 166ec738; boundary falsification fixture blocked all LLM→deterministic routes (5/5) then removed; deps `httpx` runtime + `pybreaker==1.4.1`; credential/secret scan clean; `.env`/`logs/` untracked/gitignored) |
-| Stage 9 | Ready to begin (final ADR/PIR consolidation + human Phase 3 sign-off) |
+| Stage 9 | ✅ PASSED 2026-10-19 — ADR-034 consolidation verified, ADR-009 body preserved, stale HF-fallback references corrected in active records, PIR completed (no `_pending_`), exit criteria evidenced (`implementation_plan.md` §11), residual risks classified with owners, human Phase 3 sign-off recorded |

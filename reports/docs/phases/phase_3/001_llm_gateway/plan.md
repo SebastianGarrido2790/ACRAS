@@ -1,5 +1,5 @@
 # Feature Plan — 001 LLM Gateway
-**Status:** ✅ Approved 2026-10-12 (clarifications resolved; contract review checkpoint at GW-T03). No implementation authorization.
+**Status:** ✅ Approved 2026-10-12 (clarifications resolved; contract review checkpoint at GW-T03). Implemented 2026-10-12 through execution-plan Stages 1–4 and 7–8.
 
 ## Design
 One provider-neutral gateway facade over shared `httpx` transport; thin Gemini and Groq adapters own URL/payload/header/response mapping. Gateway owns typed validation and attempt events; resilience feature owns fallback and breaker policy.

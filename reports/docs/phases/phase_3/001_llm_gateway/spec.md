@@ -1,5 +1,5 @@
 # Feature Specification — 001 LLM Gateway
-**Status:** ✅ Approved 2026-10-12; clarification gate closed. **Implementation authorization:** Not granted (separate gate).
+**Status:** ✅ Approved 2026-10-12; clarification gate closed. **Implementation:** authorized 2026-10-12 and completed through execution-plan Stages 1–4 and 7–8 (see `../execution_plan.md`); requirements GW-FR-01…GW-FR-13 verified in `../implementation_plan.md` §11.
 
 ## Purpose and boundaries
 Provide a provider-neutral typed LLM gateway for future Tier 3 callers. Phase 3 includes Pydantic contracts, thin `httpx` adapters for Gemini primary and Groq-direct fallback, response validation, configuration, and redacted events. It does not implement personas, alter EvidenceBundle v1, or call/mutate deterministic Tier 1–2 calculations.

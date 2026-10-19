@@ -1,7 +1,7 @@
 # ACRAS — Phase 3 Implementation Plan & Decisions
 
 **Phase:** 3 — LLM Gateway & Provider Resilience  
-**Document status:** ✅ Approved 2026-10-12 (all material decisions, both SDDs, and the execution plan; implementation authorization still withheld)  
+**Document status:** ✅ Approved 2026-10-12 (all material decisions, both SDDs, and the execution plan). Implemented 2026-10-12 through execution-plan Stages 0–8; Post-Implementation Review completed and exit criteria audited 2026-10-19 (Stage 9) — see §8, §9 and §11.  
 **Intended repository location:** `reports/docs/phases/phase_3/implementation_plan.md`  
 **Authority:** Phase-specific actionable design under the PRD, accepted ADRs in `reports/docs/architecture/system_design.md` §6, standing invariants in `README.md`  
 **Baseline verification:** Reported live by the project operator immediately before this draft; this document does not independently re-run the repository checks
@@ -37,7 +37,7 @@ The following baseline was reported as freshly verified against the repository:
 **In scope**
 
 1. Provider-neutral gateway request/response and error contracts.
-2. Gemini primary and Groq-direct fallback, with the fallback model pinned as `openai/gpt-oss-20b` (approved 2026-10-12; new ADR superseding ADR-009's HF designation required at consolidation).
+2. Gemini primary and Groq-direct fallback, with the fallback model pinned as `openai/gpt-oss-20b` (approved 2026-10-12; the superseding ADR was filed and consolidated as ADR-034 in `reports/docs/architecture/system_design.md` §6 on 2026-10-12).
 3. Timeouts, bounded retry policy (if any), per-provider circuit-breaker behavior, fallback routing, and controlled dual-provider failure.
 4. Configuration for provider/model identifiers and resilience limits; secrets supplied outside version-controlled configuration.
 5. Minimal provider event/cost/latency logging sufficient for Phase 3 acceptance and troubleshooting.
@@ -95,7 +95,7 @@ Phase 3 is complete only when evidence demonstrates all of the following:
 | NFR: p50 <2 minutes/report | Use bounded attempts and explicit per-attempt timeouts; Phase 3 records per-call latency, while report-level p50 is validated when the consumer exists |
 | INV-1 / ADR-001 | No LLM output enters deterministic Tier 1–2 calculations |
 | INV-2 / ADR-002; ADR-014 / ADR-032 | The current EvidenceBundle v1 remains the only tier-boundary evidence object; gateway responses are not a side channel into deterministic calculations |
-| ADR-006 / ADR-009 (+ ADR-034 proposed) | Custom gateway with circuit breaker; Gemini primary and Groq-direct fallback pinned as `openai/gpt-oss-20b` (D3-02, 2026-10-12); ADR-009's HF designation to be superseded at consolidation |
+| ADR-006 / ADR-009 / ADR-034 (accepted 2026-10-12) | Custom gateway with circuit breaker; Gemini primary and Groq-direct fallback pinned as `openai/gpt-oss-20b` (D3-02, 2026-10-12); ADR-034 supersedes ADR-009's HF fallback designation and leaves its custom-gateway, `pybreaker`, and Gemini-primary decisions intact |
 | ADR-003 / INV-3, FR12/FR13 | Phase 3 must not claim to implement Phase 5 calibration/divergence release gates; keep the gateway testable by those future gates |
 | ADR-004/005/008 and INV-4/5/8 | Phase 3 prepares provider infrastructure only; persona diversity must come from domain rubrics, not random sampling, and remains Phase 4 work |
 | Existing harness and standards | Pydantic contracts, deterministic validation, least complexity, evidence-based gates, explicit human approval for material decisions |
@@ -140,7 +140,7 @@ Keep the feature count small and organized around independently testable behavio
 | ID | Question | Status | Material? |
 |---|---|---|---|
 | D3-01 | What provider transport/adapter approach minimizes complexity while supporting reliable, testable failover? | ✅ **Approved — Option B** (2026-10-11) | Yes |
-| D3-02 | Which exact fallback model/route is pinned? | ✅ **Approved — `openai/gpt-oss-20b` on Groq-direct pinned 2026-10-12** (R1/HF + Llama legs exhausted with documented causes; new ADR required at consolidation) | Yes |
+| D3-02 | Which exact fallback model/route is pinned? | ✅ **Approved — `openai/gpt-oss-20b` on Groq-direct pinned 2026-10-12** (R1/HF + Llama legs exhausted with documented causes; superseding ADR-034 accepted and consolidated 2026-10-12) | Yes |
 | D3-03 | What timeout, retry, breaker, and fallback policy bounds latency and cost? | ✅ **Approved — Option B with proposed values** (2026-10-11) | Yes |
 | D3-04 | What is the minimum sufficient event/cost logging design for auditability? | ✅ **Approved — Option B** (2026-10-11) | Yes |
 | D3-05 | What gateway contract and failure semantics are allowed across provider boundaries? | Fixed by existing authority, details below | No independent choice on core guarantees |
@@ -168,16 +168,16 @@ Keep the feature count small and organized around independently testable behavio
 
 **Recommendation:** Option B. Promote `httpx` to a runtime dependency only if the approved implementation uses it; keep vendor-specific HTTP and parsing logic isolated in adapters behind one gateway contract. Do not add LangChain, LiteLLM, or a multi-provider orchestration framework for this phase.
 
-**Approval:** ✅ **Granted — Option B approved 2026-10-11.**  
+**Approval:** ✅ **Granted — Option B approved 2026-10-11.** (The provider set implied by this option is the one pinned in D3-02/ADR-034: Gemini primary, Groq-direct fallback; the option text's HF reference is superseded by ADR-034 and retained here only as decision history.)  
 **Decision:** ☑ Option B approved  ☐ Option A  ☐ Revision requested  
 **Consequences (now active):** Define a transport interface and provider adapters; disable hidden adapter retries; use mock transport for deterministic tests.  
 **Parent / nested decisions:** D3-02 (fallback model pin) depends on this decision but is independently material because provider availability and response behavior must be verified.
 
 ---
 
-### D3-02 — Exact Hugging Face fallback model pin
+### D3-02 — Exact fallback model pin (originally HF; pinned to Groq-direct `openai/gpt-oss-20b`)
 
-**Question:** Which exact model identifier should be pinned for the HF Inference API fallback?
+**Question (as framed on 2026-10-11):** Which exact model identifier should be pinned for the fallback provider? The candidate set at that time was the HF Inference API routes.
 
 **Context:** ADR-009 names `Llama-3.1-8B-Instruct` and `Mistral-7B-Instruct-v0.3` as candidates but explicitly leaves the exact model unpinned. Current availability, endpoint support, response schema, access requirements, latency, and cost have not been established by the supplied baseline. A model name alone is not sufficient evidence of endpoint availability or a stable deployment target.
 
@@ -238,7 +238,7 @@ ADR-009's "Hugging Face Inference API" is ambiguous across three non-interchange
 **Cerebras/DeepInfra dead-ends (2026-10-12, operator screenshots):** Cerebras signup gates on payment ("Add credits to get started"; pay-or-limited-credits choice); DeepInfra pricing page shows pay-per-use with no claimable free credit — both closed at $0 without a card.
 
 **Groq-direct decision (approved 2026-10-12):** fallback moves to **Groq Cloud direct**, OpenAI-compatible endpoint `https://api.groq.com/openai/v1`, free-tier API key (no card per third-party reports — verify at signup), Llama 3.1 8B family as the candidate. What survives unchanged: approved D3-01 Option B transport (`httpx` + OpenAI-compatible contract — Groq is OpenAI-compatible, so adapter shape, error taxonomy, and test matrix stand). What changes and needs explicit handling:
-- **Route designation:** exits the approved R1/HF-router designation. This conflicts with ADR-009's HF fallback designation as written — a **new ADR superseding the fallback designation is required at Phase 3 consolidation** (§7 step 6); it is recorded here now as a known pending ADR impact, not implemented silently. The R1/HF findings above are retained verbatim for traceability.
+- **Route designation:** exits the approved R1/HF-router designation. This conflicted with ADR-009's HF fallback designation as written — a **new ADR superseding the fallback designation was required at Phase 3 consolidation** (§7 step 6); it was recorded here as a known pending ADR impact, not implemented silently. **Resolved 2026-10-12:** ADR-034 (Groq Cloud Direct as fallback) was accepted and consolidated in `reports/docs/architecture/system_design.md` §6; ADR-009's custom-gateway, `pybreaker`, and Gemini-primary decisions remain unmodified, and its body is preserved as decision history. The R1/HF findings above are retained verbatim for traceability.
 - **Model ID form:** Groq uses its own IDs (e.g. `llama-3.1-8b-instant`). Caution from live Groq docs (fetched 2026-10-12): `llama-3.1-8b-instant` is currently tagged **Enterprise / ContactSales**, with priced production models listed as GPT-OSS and others — free-tier servability of the Llama 3.1 8B ID is **unverified** and MUST be established before any completion legs.
 - **Auth:** `GROQ_API_KEY` from Groq console, same secret discipline as `HF_TOKEN` (session env only, never chat/repo); `HF_TOKEN`/Novita key no longer needed for this leg.
 - **Qualification order:** (0) authenticated `GET /v1/models` — confirm which IDs this free key can actually serve; (1) valid-minimal + malformed legs against the confirmed ID; (2) latency vs D3-03 budgets; (3) usage/cost metadata (free-tier accounting). Stop and request a new decision if the Llama ID is not servable on the free tier.
@@ -398,20 +398,20 @@ The current architecture diagram reportedly includes agents that call Tier 1 and
 
 ---
 
-## 8. Post-Implementation Review & Remediation (leave open until Phase 3 is executed)
+## 8. Post-Implementation Review & Remediation (completed 2026-10-19, Stage 9)
 
-| Review question | Evidence to record | Status |
+| Review question | Evidence recorded | Status |
 |---|---|---|
-| Did primary success and automatic fallback meet the approved policy? | Test names/results and controlled qualification evidence | `_pending_` |
-| Were latency and max-attempt bounds respected under forced faults? | Test results and measured per-attempt latency | `_pending_` |
-| Was breaker behavior consistent with the pinned `pybreaker` version? | Version pin and transition tests | `_pending_` |
-| Were provider events useful, complete, and redacted? | Captured event assertions and redaction tests | `_pending_` |
-| Was usage/cost measured accurately where possible and marked unknown otherwise? | Provider usage evidence, rate-source/date, cost tests | `_pending_` |
-| Did the phase preserve EvidenceBundle v1 and deterministic Tier 1–2 outputs? | Regression suite and schema diff | `_pending_` |
-| What diverged from the approved plan, and why? | Actual-vs-planned analysis; accepted deviations and owner | `_pending_` |
-| What remediation remains, with priority and phase ownership? | Explicit issue/ADR/PIR references | `_pending_` |
+| Did primary success and automatic fallback meet the approved policy? | `tests/integration/test_gateway_resilience.py::test_primary_success_skips_fallback` (fallback transport receives zero calls), `::test_primary_timeout_falls_back_once`, `::test_primary_connection_failure_falls_back_once`, `::test_primary_eligible_server_error_falls_back_once`, `::test_primary_429_falls_back_once_without_same_provider_retry`, `::test_primary_provider_auth_rejection_falls_back_once`, `::test_malformed_primary_success_falls_back_once`; unit coverage in `tests/unit/test_gateway_service.py`. Qualification evidence (2026-10-12, operator-run, sanitized): Gemini `gemini-2.5-flash` HTTP 200 ×2 at 2176.2/1326.1 ms; Groq `openai/gpt-oss-20b` HTTP 200 ×2 at ~410 ms. | ✅ Satisfied |
+| Were latency and max-attempt bounds respected under forced faults? | `::test_timeout_bounds_propagate_to_shared_transport` (15 s primary / 20 s fallback reach the shared transport), `::test_repeated_dual_failures_never_exceed_two_attempts_per_call` (exactly one primary + one fallback per call, no third attempt), `::test_primary_429_falls_back_once_without_same_provider_retry` (zero same-provider retries). `GatewayService.__init__` rejects any `max_attempts != 2` or `retries_per_provider != 0` (`tests/unit/test_gateway_service.py::test_service_rejects_non_policy_attempt_settings`). | ✅ Satisfied |
+| Was breaker behavior consistent with the pinned `pybreaker` version? | `pybreaker==1.4.1` pinned (`pyproject.toml` `>=1.4.1,<2`; `uv.lock` 1.4.1) and its transition semantics verified against the installed source. 25 policy/transition tests in `tests/unit/test_provider_resilience.py` (closed→open at 3 eligible failures, open skip without provider call, half-open probe success closes, failed probe reopens, provider independence, deterministic clock, single-probe serialization) plus `::test_consecutive_eligible_failures_open_primary_breaker`, `::test_recovered_primary_is_used_after_open_interval`, `::test_failed_half_open_probe_reopens_breaker`, `::test_provider_breaker_state_is_independent`, `::test_half_open_probe_is_serialized_to_one_in_flight`. | ✅ Satisfied |
+| Were provider events useful, complete, and redacted? | 10 captured-log tests in `tests/unit/test_gateway_events.py` (schema `v1`, fixed per-category messages, allowlist redaction, unknown usage/cost serialized null) plus `::test_event_sequence_and_metadata_on_fallback_success` (ordering, correlation ID, provider/model, attempt numbers, required field set), `::test_redaction_prevents_prompt_response_secret_borrower_leakage` (prompt/response/secret/borrower sentinels absent from all emitted records), `::test_unknown_usage_keeps_cost_unknown`. | ✅ Satisfied |
+| Was usage/cost measured accurately where possible and marked unknown otherwise? | Provider-reported usage observed live on both legs (2026-10-12). Rates are versioned configuration with source and date in `params.yaml` (`rate_date: 2026-10-12`; sources: Google AI Studio Pricing, Groq published production rates). Cost is computed only from trustworthy usage **and** a known rate — `calculate_cost_usd` returns `None` (never `0.0`) otherwise (`::test_unknown_usage_keeps_cost_unknown`, `tests/unit/test_gateway_events.py::test_build_result_event_unknown_cost_without_rates`). Free-tier access is not represented as a permanent price. | ✅ Satisfied (cost is per-call; report-level cost not yet measurable — see §11.4 R5) |
+| Did the phase preserve EvidenceBundle v1 and deterministic Tier 1–2 outputs? | `git diff 166ec738..HEAD -- src/schemas src/tier1_ml src/tier2_simulation src/pipelines` is **empty** (no source change to schemas or deterministic tiers). Full suite `uv run pytest` → 191 passed / 4 skipped; Ruff clean; Pyright 0 errors. Representative deterministic smoke produced a valid v1 bundle (PD 0.966667, rating `CCC/C`, P10/P50/P90 0.937583 / 0.976863 / 0.993034). Stage 8 boundary fixture confirmed LLM content/objects are rejected by the deterministic paths and removed afterwards. | ✅ Satisfied |
+| What diverged from the approved plan, and why? | (1) **Fallback provider changed from HF to Groq-direct** — approved during D3-02 qualification with documented causes, recorded as ADR-034 (supersedes ADR-009's fallback designation only). (2) **`httpx` promoted from dev to runtime dependencies** and **`pybreaker` added** — the two approved runtime changes (D3-01, RES-T01); no other dependency added. (3) **HTTP 402 classified as `PROVIDER_UNAVAILABLE`, not an auth error** — corrective refinement from Stage 5 qualification, inside D3-05's "status plus machine-readable reason" rule. (4) **Feature `003_provider_observability` was not created as a separate SDD** — merged into `001`/`002` as §4 explicitly permitted. No divergence in EvidenceBundle v1, deterministic tiers, attempt/retry policy, or event schema. | ✅ Deviations accepted (owner: project operator; rationale recorded above) |
+| What remediation remains, with priority and phase ownership? | No blocking item. Eight residual risks with explicit classification and ownership are recorded in §11.4 (R1 process-local breaker state, R2 opt-in live smoke, R3 free-tier provider limits, R4 cost-rate reference staleness, R5 no Tier 3 consumer yet, R6 pre-existing `dvc[s3]` extra, R7 fallback-model availability drift, R8 no cross-provider semantic-equivalence claim). None blocks closure. | ✅ Accepted risks — no blocking remediation |
 
-Do not replace `_pending_` markers with success labels until evidence is available. Any unresolved issue must be classified as blocking, accepted risk with rationale/owner, or deferred to a named later phase.
+All eight rows were completed with evidence; no `_pending_` marker remains. Any issue raised after closure must be classified as blocking, accepted risk with rationale/owner, or deferred to a named later phase.
 
 ---
 
@@ -419,18 +419,18 @@ Do not replace `_pending_` markers with success labels until evidence is availab
 
 Phase 3 can be closed only after:
 
-- [ ] Human-approved material decisions are reflected in the execution plan and applicable SDDs.
-- [ ] The exact fallback model is verified and pinned, or the phase is explicitly blocked pending an approved alternative.
-- [ ] Primary success, automatic fallback, breaker behavior, recovery, malformed output, and dual-provider failure are covered by deterministic tests.
-- [ ] Events demonstrate route selection, failure/fallback, latency, breaker behavior, and usage/cost-known status without leaking secrets or sensitive content.
-- [ ] Existing 81-pass / 3-skip baseline is reconciled against post-change test results; Ruff and Pyright remain clean, with any change explained.
-- [ ] EvidenceBundle v1 and Tier 1–2 deterministic behavior remain unchanged.
-- [ ] ADR updates are consolidated in `reports/docs/architecture/system_design.md` §6; no competing ADR source is created.
-- [ ] PIR rows are completed with evidence; no `_pending_` remains unless a formally accepted exception is recorded.
-- [ ] The Phase 3 exit criteria are explicitly marked satisfied or not satisfied with reasons.
+- [x] Human-approved material decisions are reflected in the execution plan and applicable SDDs. (D3-01…D3-06 in §5; SDDs `001`/`002` approved 2026-10-12; execution plan approved 2026-10-12.)
+- [x] The exact fallback model is verified and pinned, or the phase is explicitly blocked pending an approved alternative. (`openai/gpt-oss-20b` on Groq-direct; qualification evidence 2026-10-12; ADR-034.)
+- [x] Primary success, automatic fallback, breaker behavior, recovery, malformed output, and dual-provider failure are covered by deterministic tests. (110 mock-transport tests; see §8 and §11.1.)
+- [x] Events demonstrate route selection, failure/fallback, latency, breaker behavior, and usage/cost-known status without leaking secrets or sensitive content. (Stage 4 + Stage 7/8 redaction and event-completeness tests.)
+- [x] Existing 81-pass / 3-skip baseline is reconciled against post-change test results; Ruff and Pyright remain clean, with any change explained. (81/3 → 169/3 at Stage 6 → **191 passed / 4 skipped** at Stage 8; the 4th skip is the opt-in live smoke; Ruff clean; Pyright 0 errors.)
+- [x] EvidenceBundle v1 and Tier 1–2 deterministic behavior remain unchanged. (Empty source diff vs baseline 166ec738; Stage 8 comparison and boundary falsification.)
+- [x] ADR updates are consolidated in `reports/docs/architecture/system_design.md` §6; no competing ADR source is created. (ADR-034 present in §6; ADR-009 body preserved with a status-line supersession note; no other ADR source created.)
+- [x] PIR rows are completed with evidence; no `_pending_` remains unless a formally accepted exception is recorded. (All eight rows completed in §8; no `_pending_` remains.)
+- [x] The Phase 3 exit criteria are explicitly marked satisfied or not satisfied with reasons. (§11.1 traceability table.)
 
-**Closure status:** Not started.  
-**Human sign-off:** Pending.  
+**Closure status:** ✅ **Phase 3 closed 2026-10-19** — all exit criteria satisfied and evidenced; human sign-off recorded (§11.5).  
+**Human sign-off:** ✅ **Granted 2026-10-19 by the project operator** (Sebastián Garrido Arévalo), in response to the Stage 9 closure request.  
 **Next phase:** Phase 4 may begin only after Phase 3 exit criteria are satisfied and the Phase 4 schema/persona design is separately planned and approved.
 
 ---
@@ -450,3 +450,94 @@ Please record approval explicitly; silence is not approval.
 
 **Overall phase-plan approval:** ✅ Granted 2026-10-12 (all decisions, SDDs, and execution plan approved).  
 **Implementation authorization:** ✅ Granted 2026-10-12 (operator authorized: "begin Stage 0").
+
+---
+
+## 11. Stage 9 — Phase Closure Evidence (2026-10-19)
+
+### 11.1 Exit criteria (§1.5) — documentation-to-reality audit
+
+| # | Exit criterion | Verdict | Evidence |
+|---|---|---|---|
+| 1 | A healthy primary provider succeeds through the provider-neutral gateway contract | ✅ Satisfied | `tests/integration/test_gateway_resilience.py::test_primary_success_skips_fallback` — typed `GatewayResult` (provider `gemini`, model `gemini-2.5-flash`), fallback transport receives **zero** calls |
+| 2 | A forced primary failure or timeout automatically invokes the fallback without an unhandled exception | ✅ Satisfied | Timeout, connection failure, eligible 5xx, 429, provider 401, and malformed-200 tests each route to Groq; no raw provider/transport exception crosses the boundary |
+| 3 | Both-provider failure returns a controlled, typed outcome | ✅ Satisfied | `::test_fallback_failure_yields_typed_dual_failure` (`DUAL_PROVIDER_FAILURE`, sanitized cause, terminal event), `::test_both_breakers_open_yields_dual_failure_without_provider_calls` |
+| 4 | Circuit-breaker transitions and fallback behavior are bounded, deterministic, and covered by tests | ✅ Satisfied | 25 policy/transition unit tests + 5 Stage 7 breaker tests; deterministic clock; `pybreaker==1.4.1` semantics verified against installed source |
+| 5 | Events record provider/model, outcome, latency, fallback/breaker transitions, and usage/cost when trustworthy, excluding sensitive content and credentials | ✅ Satisfied | `::test_event_sequence_and_metadata_on_fallback_success`, `::test_redaction_prevents_prompt_response_secret_borrower_leakage`, `::test_unknown_usage_keeps_cost_unknown`, 10 Stage 4 captured-log tests |
+| 6 | The fallback model is pinned and its endpoint, access, response shape, and availability are verified at implementation time | ✅ Satisfied | `openai/gpt-oss-20b` @ `https://api.groq.com/openai/v1` via `GROQ_API_KEY`; qualification 2026-10-12 (HTTP 200 ×2 at ~410 ms, usage metadata present, clean 400 on malformed); re-verified in the Stage 0 baseline and locked by `tests/unit/test_groq_adapter.py` |
+| 7 | Deterministic Tier 1–2 behavior and EvidenceBundle v1 remain unchanged; baseline suite and static checks pass | ✅ Satisfied | Empty diff for `src/schemas src/tier1_ml src/tier2_simulation src/pipelines` vs baseline 166ec738; 191 passed / 4 skipped; Ruff clean; Pyright 0 errors; Stage 8 boundary falsification |
+| 8 | PIR completed, accepted ADRs consolidated in `system_design.md` §6, and all exit criteria carry evidence | ✅ Satisfied | §8 PIR complete; ADR-034 present in §6; this table |
+
+### 11.2 Requirement coverage — SDD requirement → implementation → verification
+
+| Requirement | Implementation | Verification |
+|---|---|---|
+| GW-FR-01 typed request, correlation ID, provider-neutral messages | `src/gateway/contracts.py::GatewayRequest` | `tests/unit/test_gateway_contracts.py` |
+| GW-FR-02 provider/model from validated config; caller cannot set base URL | `src/gateway/config.py::GatewayConfig/ProviderSettings`; request contract exposes no URL field | `tests/unit/test_gateway_contracts.py` (bounds, unknown fields, missing config) |
+| GW-FR-03 secrets from environment; never committed or logged | `src/gateway/config.py::resolve_api_key`; `.env` untracked + gitignored | Stage 8 credential scan (clean) |
+| GW-FR-04 normalized typed result; raw HTTP never escapes | `src/gateway/providers/base.py::parse_chat_response` | `tests/unit/test_gemini_adapter.py`, `test_groq_adapter.py`, `test_gateway_service.py` |
+| GW-FR-05 missing/malformed required fields are failures | fail-closed `parse_chat_response` | `::test_malformed_primary_success_falls_back_once`; adapter tests |
+| GW-FR-06 bounded typed error taxonomy | `src/gateway/contracts.py::GatewayErrorCategory` (10 members) | `tests/unit/test_provider_resilience.py`; adapter taxonomy tests |
+| GW-FR-07 structured events for every attempt and outcome | `src/gateway/events.py` | `tests/unit/test_gateway_events.py`; `::test_event_sequence_and_metadata_on_fallback_success` |
+| GW-FR-08 event field completeness | `src/gateway/contracts.py::ProviderEvent`; schema `v1` | `::test_serialize_event_schema_version_and_keys`; integration event test |
+| GW-FR-09 unknown usage/cost stays unknown; versioned rates with source/date | `src/gateway/config.py::calculate_cost_usd`; `params.yaml` `cost_rates` (`rate_date`, `rate_source`) | `::test_build_result_event_unknown_cost_without_rates`; `::test_unknown_usage_keeps_cost_unknown` |
+| GW-FR-10 no prompts/completions/secrets/headers logged | `src/gateway/events.py::redact_value` allowlist + fixed per-category messages | `::test_falsification_sentinel_values_redacted`; `::test_redaction_prevents_prompt_response_secret_borrower_leakage` |
+| GW-FR-11 browser-style `User-Agent` on Groq requests | `src/gateway/providers/base.py::build_headers`; `GatewayConfig.default_user_agent` | `tests/unit/test_groq_adapter.py` (UA assertion) |
+| GW-FR-12 injectable/mockable transport; no live credentials in CI | all tests use `httpx.MockTransport`; live smoke opt-in | full suite; `::test_live_gateway_smoke_opt_in` skipped by default |
+| GW-FR-13 preserve EvidenceBundle v1 and deterministic tiers | no change to `src/schemas`, `src/tier1_ml`, `src/tier2_simulation`, `src/pipelines` | Stage 8 diff + boundary falsification |
+| RES-FR-01 one primary + one fallback attempt maximum | `src/gateway/service.py::GatewayService.complete` | `::test_repeated_dual_failures_never_exceed_two_attempts_per_call` |
+| RES-FR-02 15 s primary / 20 s fallback timeouts | `ProviderSettings.timeout_s`; per-attempt timeout passed to the adapter | `::test_timeout_bounds_propagate_to_shared_transport` |
+| RES-FR-03 zero same-provider retries | `retries_per_provider=0`; constructor guard rejects any other value | `::test_service_rejects_non_policy_attempt_settings`; 429 test |
+| RES-FR-04 independent breaker per provider | `src/gateway/resilience.py::GatewayBreakers` (rejects identical provider legs) | `::test_provider_breaker_state_is_independent` |
+| RES-FR-05 opens after 3 consecutive eligible failures | `breaker_failure_threshold=3` + `exclude` eligibility policy | `::test_consecutive_eligible_failures_open_primary_breaker`; unit threshold test |
+| RES-FR-06 30 s interval, one half-open probe | `pybreaker` `reset_timeout` / `success_threshold=1` | recovery, reopen, and probe-serialization tests |
+| RES-FR-07 eligible failures and breaker-open trigger fallback | `src/gateway/resilience.py::is_fallback_eligible` | eligibility matrix tests; Stage 7 routing matrix |
+| RES-FR-08 invalid input/config/missing credentials are not retried | `is_fallback_eligible` / `is_breaker_failure` | `::test_primary_local_credential_fault_fails_fast`; `::test_deterministic_primary_4xx_rejection_fails_fast` |
+| RES-FR-09 classify on status + machine-readable reason | `src/gateway/providers/base.py::classify_http_error(status, reason)` (402 and 403-balance handled) | `test_billing_402_is_provider_unavailable_and_eligible` |
+| RES-FR-10 malformed/empty responses are never success | fail-closed parsing in the adapters | malformed-200 integration test; adapter malformed tests |
+| RES-FR-11 dual failure = one sanitized gateway-level failure | `GatewayError(DUAL_PROVIDER_FAILURE)` with sanitized cause and correlation ID | `::test_fallback_failure_yields_typed_dual_failure` |
+| RES-FR-12 routing and breaker transitions emit events | `build_attempt_event` / `build_error_event` / `build_breaker_event` | `test_breaker_transitions_emit_single_redacted_event`; Stage 7 transition tests |
+| RES-FR-13 deterministic mocked tests, no live credentials | 110 mock-transport tests | full suite; live smoke opt-in and skipped |
+| RES-FR-14 no EvidenceBundle v1 / deterministic Tier 1–2 change | no change to those modules | Stage 8 diff + boundary falsification |
+
+### 11.3 ADR, cross-reference, and invariant audit
+
+**ADRs**
+
+- **ADR-034** is present in `reports/docs/architecture/system_design.md` §6 with its acceptance record (verified 2026-10-19; no edit required).
+- **ADR-009** was **not** rewritten: its decision body is preserved verbatim, and only its status line records the supersession ("fallback designation superseded by ADR-034; gateway architecture, `pybreaker` direction, and Gemini-primary decisions stand unmodified").
+- **No new ADR was created** in Phase 3: implementation required no new architectural decision, and this plan was not used as a second ADR source of truth (§7 step 6).
+- **Stale HF-fallback references** were corrected in active normative records only: removed from the `system_design.md` §7 open-notes list (resolved item, per §8 protocol item 3), the `.env.example` secret placeholder, the Phase 3 package README status, and the SDD/plan/tasks authorization lines. Historical records are preserved in ADR-009's body, ADR-034's context, and the D3-02 qualification narrative.
+- **Status records updated** to reflect actual implementation: `system_design.md` §2 phase table and §4 component statuses, §3/§5 annotations, `reports/docs/implementation_roadmap.md` Phase 3 entry, the project `README.md` milestone table, and the Phase 3 package README.
+
+**Invariants**
+
+| Invariant | Compliance in Phase 3 | Evidence |
+|---|---|---|
+| INV-1 — the deterministic core must never accept LLM-generated output | The gateway is a Tier 3 infrastructure boundary; it never reads or writes Tier 1–2 state | No gateway module imports `src/tier1_ml` / `src/tier2_simulation`; only `src/config/loader.py` references the gateway, and only as an optional config field; Stage 8 boundary falsification confirmed LLM text/objects are rejected by the deterministic paths |
+| INV-2 — all cross-tier/inter-agent exchange flows through the versioned EvidenceBundle | The gateway exposes its own typed contract and does not write EvidenceBundle state; Phase 3 added no v2 field | `src/gateway/contracts.py` is a separate contract; `src/schemas/evidence_bundle.py` unchanged |
+| INV-6 — every LLM call routes through the gateway's circuit breaker | The only production caller of the provider adapters is `GatewayService`, which invokes them through `GatewayBreakers.call`; no direct provider SDK or raw HTTP client call exists elsewhere | `src/gateway/service.py` is the sole production importer of `invoke_gemini` / `invoke_groq`; no `httpx.Client` is constructed outside `src/gateway/` and tests; no provider SDK dependency added (D3-01) |
+| INV-3 / INV-4 / INV-5 / INV-7 / INV-8 / INV-9 / INV-10 | Not engaged by Phase 3 — no model promotion, no persona, no divergence scoring, no data-contract change, no auto-approval path | No change to `src/tier1_ml`, `src/tier2_simulation`, `src/schemas`, `src/pipelines`, or `gx/` |
+
+### 11.4 Residual risks and ownership
+
+| ID | Risk | Classification | Owner | Mitigation / trigger for revisit |
+|---|---|---|---|---|
+| R1 | Breaker state is process-local (`pybreaker` in-memory storage); no cross-process coordination | Accepted risk (D3-02 clarification 5) | Project operator | Revisit on deployment evidence (multi-worker deployment) |
+| R2 | The live-provider smoke test is opt-in, so provider API drift or credential expiry surfaces only on a human-triggered run | Accepted risk | Project operator | Run `ACRAS_LIVE_GATEWAY_SMOKE=1` before any gateway-dependent release; re-qualify pins if a live call fails |
+| R3 | Both providers are free-tier; rate limits and availability are outside project control | Accepted risk | Project operator | A funded tier would require a new explicit decision before production use |
+| R4 | Cost rates are versioned reference values dated 2026-10-12 and may drift from provider billing | Accepted risk (non-blocking) | Project operator | Refresh `rate_date`/`rate_source` on pricing change; unknown cost stays unknown by design |
+| R5 | No Tier 3 consumer exists yet, so report-level p50 (<2 min) and per-report cost (<$0.15) are not measurable; Phase 3 evidences per-call latency/cost only | Deferred to Phase 4/5 (by design) | Phase 4/5 planning | Validate at the first report-producing consumer |
+| R6 | `dvc[s3]` extra retained despite the local-remote decision (gap G5) | Pre-existing, explicitly out of scope, non-blocking | Project operator | Separate issue; no Phase 3 change |
+| R7 | The pinned fallback model is a free-tier property and could be withdrawn by the provider | Accepted risk | Project operator | ADR-034 requires a new decision if the pin stops qualifying; the gateway handles a withdrawn model as an ordinary provider failure |
+| R8 | No semantic-equivalence claim between Gemini and Groq is made | By design (plan §2 risk note) | Phase 5 evaluation | Assess cross-provider persona quality and grounding in Phase 5 |
+
+No residual risk is blocking. None is relabelled from blocking without approval.
+
+### 11.5 Human sign-off record
+
+| Item | Record |
+|---|---|
+| Gate 9 conditions | All satisfied: stages 0–8 passed; every exit criterion backed by evidence (§11.1); PIR complete (§8); accepted ADRs and active cross-references consistent (§11.3); architecture/status records reflect actual implementation; no material unresolved finding remains (§11.4) |
+| Human sign-off | ✅ **Granted 2026-10-19 by the project operator (Sebastián Garrido Arévalo)**, explicitly, in response to the Stage 9 closure request. All Gate 9 conditions were satisfied at the time of approval. Silence was not treated as approval — the approval was recorded explicitly. |
+| Phase 4 | Not authorized by this closure. Phase 4 requires its own planning, schema/persona design, and approval |

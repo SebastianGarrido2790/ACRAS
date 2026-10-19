@@ -1,5 +1,5 @@
 # Tasks — 001 LLM Gateway
-**Status:** ✅ Plan approved 2026-10-12; tasks unblocked except implementation authorization. Execute one task per isolated agent session; stop after each task and present diff/evidence for human approval.
+**Status:** ✅ All tasks complete (2026-10-12, execution-plan Stages 0–4 and 7–8). Per-task evidence is recorded inline below.
 
 - [x] **GW-T01 Verify baseline/layout:** inspect gateway, dependencies/lockfile, config, secret conventions, logger and test layout; record exact paths. Satisfies GW-FR-02/03/12. ✅ Done in Stage 0.
 - [x] **GW-T02 Resolve contract questions:** record decisions for Gemini endpoint, message shape, structured output, secret convention and failure representation. Satisfies GW-FR-01/05/06. ✅ Done in Stage 0/1.

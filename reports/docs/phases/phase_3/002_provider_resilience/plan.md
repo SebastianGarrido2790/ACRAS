@@ -1,5 +1,5 @@
 # Feature Plan — 002 Provider Resilience
-**Status:** ✅ Approved 2026-10-12 (policy answers recorded; breaker-semantics checkpoint at RES-T01/RES-T05). No implementation authorization.
+**Status:** ✅ Approved 2026-10-12 (policy answers recorded; breaker-semantics checkpoint at RES-T01/RES-T05). Implemented 2026-10-12 through execution-plan Stages 5–8.
 
 ## Design
 Resilience orchestration stays in the gateway layer, separate from provider adapters. One primary attempt, then at most one fallback attempt. Adapters perform zero retries; no implicit routing or unbounded loops.

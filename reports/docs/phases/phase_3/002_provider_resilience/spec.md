@@ -1,5 +1,5 @@
 # Feature Specification — 002 Provider Resilience
-**Status:** ✅ Approved 2026-10-12; clarification gate closed. **Implementation authorization:** Not granted (separate gate).
+**Status:** ✅ Approved 2026-10-12; clarification gate closed. **Implementation:** authorized 2026-10-12 and completed through execution-plan Stages 5–8 (see `../execution_plan.md`); requirements RES-FR-01…RES-FR-14 verified in `../implementation_plan.md` §11.
 
 ## Purpose
 Bounded failover from Gemini primary to Groq-direct fallback, with independent circuit breakers and controlled typed failure when both providers fail.

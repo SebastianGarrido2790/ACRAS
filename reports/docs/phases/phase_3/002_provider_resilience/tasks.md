@@ -1,5 +1,5 @@
 # Tasks — 002 Provider Resilience
-**Status:** ✅ Plan approved 2026-10-12; tasks unblocked except implementation authorization. Execute one task per isolated agent session; stop after each task and present diff/evidence for human approval.
+**Status:** ✅ All tasks complete (2026-10-12, execution-plan Stages 0 and 5–8). Per-task evidence is recorded inline below.
 
 - [x] **RES-T01 Verify breaker dependency/semantics:** inspect available `pybreaker` versions and prove open/reset/half-open behavior. Satisfies RES-FR-04–06. ✅ Done in Stage 5 — `pybreaker==1.4.1` pinned (`pyproject.toml` `>=1.4.1,<2`; uv.lock 1.4.1); transition semantics verified against installed source and locked by tests.
 - [x] **RES-T02 Resolve policy questions:** approve 429, primary auth, malformed response, half-open scope and process-local state. Satisfies RES-FR-07–10. ✅ Answers approved 2026-10-12; encoded in `src/gateway/resilience.py` policy + tests (Stage 5).

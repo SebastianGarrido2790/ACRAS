@@ -135,16 +135,20 @@ ACRAS follows the **Deterministic Core / Probabilistic Shell** architectural axi
 
 ## 🛡 Key Features & Non-Negotiable Invariants
 
-| ID | Invariant & Rule | Architectural Rationale |
+These are standing, enforced rules, not historical notes. A change to any invariant requires a new ADR entry that explicitly supersedes the old one; it is never a silent edit.
+
+| ID | Invariant & Rule | Architectural Rationale (Governing Authority) |
 | :--- | :--- | :--- |
-| **INV-1** | **Deterministic Isolation** | Tiers 1 & 2 never accept LLM-generated text as an input to mathematical calculations. |
-| **INV-2** | **Typed Evidence Bundles** | All inter-tier and inter-agent communication flows exclusively through strict Pydantic schemas. |
-| **INV-3** | **Dual Model Promotion Gate** | Candidate models must pass **both** discrimination (AUC/KS) and calibration (Brier Score / reliability curve) checks. |
-| **INV-4** | **Deterministic Divergence** | Persona disagreement is measured via deterministic mathematical functions over structured verdict fields—never an LLM judge. |
-| **INV-5** | **Uniform Low Temperature** | Divergence is engineered through role-specific rubrics and derived metrics, never by increasing LLM temperature. |
-| **INV-6** | **Circuit Breaker Gateway** | Every external LLM call routes through an isolated gateway with timeout and automatic secondary-provider failover. |
-| **INV-7** | **Data Contract Enforcement** | Great Expectations checks gate the DVC pipeline; schema drift or invalid data halts execution before training. |
-| **INV-10** | **Human Authority** | The system produces decision-support recommendations; it never executes automatic credit approvals. |
+| **INV-1** | **Deterministic Isolation** — The deterministic core (Tier 1 model, Tier 2 Monte Carlo engine) must never accept LLM-generated output as an input to a calculation. No exception is "helpful enough" to justify this. | Keeps calculations auditable and reproducible; an LLM cannot be allowed to steer a number. (ADR-001) |
+| **INV-2** | **Typed Evidence Bundles** — All inter-tier and inter-agent data exchange flows through the single, versioned Pydantic evidence-bundle schema. No tier or agent may inject ad hoc context outside that contract. | One versioned contract makes every hand-off inspectable, testable, and evolvable. (ADR-002) |
+| **INV-3** | **Dual Model Promotion Gate** — No model version may be promoted to serving unless it passes both a discrimination check (AUC/KS) and a calibration check (Brier score / reliability curve). Strong AUC alone is never sufficient grounds for promotion. | A discriminative but miscalibrated model misprices risk; both halves of the gate are mandatory. (ADR-003) |
+| **INV-4** | **Deterministic Divergence** — Cross-persona divergence is measured by a deterministic function over structured `PersonaVerdict` fields (`recommendation`, `lean`, `confidence`) — never by an LLM judge scoring narrative similarity. | LLM-judged disagreement is non-reproducible; a fixed function over typed fields is auditable. (ADR-004) |
+| **INV-5** | **Uniform Low Temperature** — All persona nodes run at the same low, uniform temperature. Temperature is never used as a mechanism to manufacture divergence; divergence is engineered exclusively through role-conditioned rubrics and role-specific derived fields. | Honest disagreement must come from role framing, not sampling noise — otherwise it is synthetic variance, not committee tension. (ADR-005) |
+| **INV-6** | **Circuit Breaker Gateway** — Every LLM call routes through the LLM gateway's circuit breaker. Direct, ungated calls to a provider SDK anywhere in the codebase are prohibited. | Centralizes timeout, failover, and redacted-event provenance so no call escapes observability or resilience controls. (ADR-006) |
+| **INV-7** | **Data Contract Enforcement** — No model training run may proceed if the Great Expectations data-contract check fails. This gate must not be bypassed, silenced, or soft-disabled for development convenience. | Garbage in, calibrated garbage out; the gate halts schema drift or invalid data before training. (ADR-007) |
+| **INV-8** | **Domain-Native Persona Roles** — Persona roles remain the domain-native CRO / Growth / Capital framing. They are never renamed, relabeled, or genericized to match another portfolio project. | The framing encodes genuine credit-committee tension; generic labels compromise the divergence design. (ADR-008) |
+| **INV-9** | **Mandatory HITL Routing** — Any file whose divergence score exceeds the documented threshold, or whose Tier 1 confidence falls below the documented threshold, is routed to human-in-the-loop review. The system never auto-resolves such a case silently. | High disagreement or low confidence is precisely where machine output is least trustworthy. (PRD FR8) |
+| **INV-10** | **Human Authority** — The system must never auto-approve a loan. Its output is always a recommendation for a human decision-maker, regardless of confidence score. | Credit authority stays with accountable humans; the system is decision-support only. (Scoping Doc §4, §9) |
 
 ---
 

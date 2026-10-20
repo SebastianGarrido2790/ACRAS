@@ -1,10 +1,10 @@
 # Pre-Phase-4 Remediation Plan — ACRAS
 
-*Prepared for Sebastián Garrido Arévalo · 2026-10-19 · Draft v0.2 · Recommendations only; nothing below is authorized until recorded as a human decision.*
+*Prepared for Sebastián Garrido Arévalo · 2026-10-20 · Draft v0.3 · Recommendations only; nothing below is authorized until recorded as a human decision.*
 
 ## 1. Purpose, scope and limits
 
-This draft consolidates findings from the reviewed requirements, architecture and phase documents, source code, configuration, tests, EDA outputs, and the checked-in raw dataset into a prioritized sequence for consideration before Phase 4 planning. It is a recommendation only: all product, architecture, scope, and threshold decisions remain with the project owner, and Phase 4 planning remains a separate approval.
+This draft answers: **before writing Phase 4 code, what must be decided, and why?** It converts verified findings into bounded decision questions, recommended go-tos, and evidence tests where the best option is not yet established. It is a recommendation only: all product, architecture, scope, and threshold decisions remain with the project owner, and Phase 4 planning remains a separate approval.
 
 **Evidence reviewed.** `data/raw/data.csv` has 6,819 rows, one target plus 95 features, 220 positive labels, and no blank fields. The 94-feature canonical Tier 1 schema, training/selection code, promotion gate, Tier 2 ratio extraction and simulation, EvidenceBundle v1, gateway, ADR-027, project invariants, Tier 3 architecture, PRD, roadmap, capability-profile gates, and Phase 3 closure evidence were inspected. The full automated suite reports 191 passed and 4 skipped; the skips are three Docker-daemon-dependent integration cases and one opt-in live-provider smoke test. A source-level local run confirmed that passing a dataset row to the current Tier 2 ratio extractor yields seven zero ratios. Claims below distinguish verified repository facts from proposals and external facts that remain to be checked. No external pricing or provider-lifecycle lookup was performed.
 
@@ -16,27 +16,36 @@ This draft consolidates findings from the reviewed requirements, architecture an
 - **P1:** weakens the deterministic core that Tier 3 consumes; may force a Tier 1 retrain.
 - **P2:** hygiene that is cheaper to fix before Tier 3 code exists.
 - **Sizing:** effort is TBD (to be determined) until the owner selects scope and approach; this draft does not make schedule commitments.
+- **Decision status:** "Owner decision" means approval is required; "Record-only" means project constraints already determine the go-to; "Evidence first" means run the bounded qualification test before asking the owner to choose.
+- **ADR threshold:** offer an ADR only when all three tests pass: (1) the choice is hard to reverse at meaningful cost; (2) a future reader would find it surprising without recorded rationale; and (3) materially viable alternatives existed and one was selected for specific trade-offs. If any test fails, record the choice in the relevant specification, implementation plan, evaluation, or existing decision record instead. An ADR is never implied merely because a change is architectural or consequential.
 
-## 3. Register
+## 3. Decisions before code
 
-| ID | Pri | Item | Size | Human decision |
+| ID | Question that must be answered | Recommended go-to | Why / trade-off | Status |
 | --- | --- | --- | --- | --- |
-| R-01 | P0 | Input contract and derived-field provenance | TBD | Yes |
-| R-02 | P0 | Reconcile planned analyst-node responsibilities | TBD | Yes |
-| R-03 | P0 | Divergence and escalation specification | TBD | Yes |
-| R-04 | P0 | Seed golden set and falsifiable Phase 4 exit | TBD | Yes |
-| R-05 | P0 | Orchestration contract and failure semantics | TBD | Yes |
-| R-06 | P1 | Tier 1 gate-strength and selection-leakage audit | TBD | Yes |
-| R-07 | P1 | Feature data-quality audit | TBD | Yes |
-| R-08 | P1 | Add reproducible DVC lineage for Tier 1 | TBD | Yes |
-| R-09 | P1 | Tier 2 semantics and sensitivity | TBD | Yes |
-| R-10 | P1 | Gateway pricing and usage verification | TBD | Yes, if a change is proposed |
-| R-11 | P2 | Tooling and dependency preparation | TBD | Yes, before changes |
-| R-12 | P2 | Documentation drift sweep | TBD | Yes, before scope changes |
-| R-13 | P2 | Phase 3 residual operational checks | TBD | Yes, for live checks/config changes |
-| R-14 | P2 | Reviewer reproducibility | TBD | Yes, before changing remote/setup |
+| D-01 / R-01 | What inputs may Tier 2 and Tier 3 treat as observed, derived, or synthetic evidence? | Keep benchmark model features distinct from financial-statement/deal inputs; reject unsupported calculations rather than substitute zero. Mark every synthetic value and define derivation provenance. | The checked-in rows do not provide the accounting amounts and deal facts expected by the ratio/persona contracts. A mapping is only valid if it is deterministic and semantically justified; direct reuse is simpler but currently produces invalid zero ratios. | Owner decision on product/demo input contract; rejection of missing required inputs is record-only. |
+| D-02 / R-02 | Do analyst nodes have a unique responsibility beyond the existing Tier 1/Tier 2 outputs? | Remove duplicate rating/ratio computation; retain a deterministic node only if it has a named, non-duplicated assembly or validation contract. | Removing duplicate work is simpler and avoids implying LLM authority over deterministic calculations. A distinct assembly node may help graph clarity but needs an explicit interface and measurable purpose. | Owner decision. |
+| D-03 / R-03 | What structured verdict fields and rubric determine divergence and escalation? | Use canonical `approve` / `conditional` / `reject` values; calculate divergence deterministically from structured recommendation and anchored lean fields. Do not substitute persona-reported confidence for Tier 1 confidence. | Determinism is required by INV-4, and canonical vocabulary avoids schema drift. Confidence weighting and thresholds lack a validated basis; assigning them now risks arbitrary escalation. | Owner decision on formula and threshold; Tier 1 confidence proxy remains evidence-first. |
+| D-04 / R-04 | What minimum case set and evidence make Phase 4 exit falsifiable? | Start with the existing 3–5-case smoke-set proposal; treat it as a development check, not a statistical claim. Pair divergence detection with false-escalation/convergence reporting. | The 12-case alternative is not yet supported by a stated coverage need. A smoke set keeps cost small; it cannot establish population performance. | Owner decision on scope/exit criteria. |
+| D-05 / R-05 | Which orchestration and output-validation path meets the contract within bounded cost/latency? | Prefer gateway-direct LangGraph calls with Pydantic validation if a short gateway-level qualification confirms structured-output support; otherwise leave unresolved until adapter evidence is compared. | Direct calls minimize dependencies; a gateway-backed Pydantic AI adapter may simplify typed model integration but adds an adapter boundary. Provider capability must be tested through the configured gateway, not inferred from provider documentation alone. | Evidence first, then owner decision if both paths remain viable. |
+| D-06 / R-05 | How should report grounding and partial/fallback failures affect the final result? | Deterministically validate all report numbers against the evidence bundle; on missing persona output or invalid verdict after one bounded repair, return an incomplete result for human review. Qualitative grounding remains an evidence-test question. | Numeric checks are reproducible and inexpensive. An LLM judge could assess qualitative claims but adds cost and false-positive/negative risk; it must never calculate divergence. Whether fallback near a threshold forces HITL needs an explicit policy. | Record-only for incomplete results; evidence first for qualitative grounding; owner decision on fallback-triggered HITL. |
+| D-07 / R-06 | Is the frozen Tier 1 artifact retained with its disclosed evaluation limitation, or retrained using an independent final test? | Quantify the selection effect first; do not retrain or change the promotion gate until evidence and owner approval. | The current held-out set was used to rank candidates, so its winning metrics are not an independent final estimate. Retraining may improve validity but costs time and may change serving behavior. | Evidence first, then owner decision. |
+| D-08 / R-07 | Does new feature evidence justify changing the handling already governed by ADR-026? | Preserve the accepted no-removal/no-winsorization policy unless authoritative provenance and measured evidence justify requesting a superseding decision. | Extreme magnitude alone does not establish corruption. Changing feature handling can invalidate model behavior and requires impact assessment; retaining the current policy avoids unsupported changes. | Record-only under current constraints; any exception requires owner decision. |
+| D-09 / R-08 | How much reproducible Tier 1 lineage is required before Phase 4? | Propose an end-to-end DVC stage design and clean-environment evidence; keep the accepted local remote unchanged unless the owner separately approves a remote/setup change. | The current DVC pipeline does not reproduce training/promotion. Extending lineage improves auditability; clean-clone retrieval may require a remote decision beyond Phase 4 code. | Evidence first; owner decision on any scope/remote change. |
+| D-10 / R-09 | What do Tier 2 percentiles mean, and should configured shock parameters affect them? | Label current outputs as simulated PD percentiles, not losses or model-confidence intervals. Measure parameter usage and sensitivity before changing the engine. | Output relabeling corrects interpretation without changing behavior; activating unused parameters changes model semantics and needs evidence plus approval. | Output naming is record-only; parameter behavior is evidence-first then owner decision. |
+| D-11 / R-10–R-14 | Which operational or hygiene items are necessary for this phase rather than merely desirable? | Verify pricing/model lifecycle and identify reproducibility gaps; defer tooling, broad documentation cleanup, and remote changes unless the approved Phase 4 scope depends on them. | This limits work to Phase 4 prerequisites and avoids expanding scope based on hypothetical risks. | Evidence first for factual claims; owner approval for scope or behavior changes. |
 
-## 4. P0 items
+### Decisions that do not need owner input under current constraints
+
+- Missing or semantically unsupported source fields must not silently become numeric zero. Require explicit validation/failure; this is the only safe interpretation of the current typed-contract and deterministic-core constraints.
+- Tier 2 P10/P50/P90 outputs must not be described as loss estimates or model-estimation confidence intervals unless the underlying calculations and inputs are changed and approved.
+- All persona calls continue through the gateway circuit breaker; no direct provider-SDK path is an option.
+- Persona failure cannot be represented as a complete three-persona result. The system must surface incomplete analysis for human review rather than silently average the remaining opinions.
+- Preserve deterministic divergence over structured fields and low, uniform persona temperature; these are already binding invariants, not open design branches.
+
+## 4. Detailed evidence and options
+
+### P0 items
 
 ### R-01 · Input contract and derived-field provenance
 
@@ -51,7 +60,7 @@ This draft consolidates findings from the reviewed requirements, architecture an
 
 **Done when.** The input contract and field table have human approval; tests prove required source inputs, reject unsupported/missing data, and establish deterministic-only lineage for calculation fields (INV-1). Any decision to change an existing interface or model input contract follows change management.
 
-**Record.** ADR-016 (fills the reserved Tier 3 schema-fields slot) plus a `derived_fields` block in params.yaml.
+**Record.** Capture the approved field contract in its schema/specification and configuration where applicable. Offer ADR-016 only if the selected contract passes all three ADR-threshold tests in §2; do not create a configuration block for fields whose definitions remain undecided.
 
 ### R-02 · Reconcile planned analyst-node responsibilities
 
@@ -61,7 +70,7 @@ This draft consolidates findings from the reviewed requirements, architecture an
 
 **Done when.** The human-approved component boundary is consistent in the Tier 3 architecture and system data flow; a graph/contract test confirms that only the three persona nodes make LLM calls and that all calculations remain deterministic.
 
-**Record.** Record a new ADR only if the owner makes a material architecture decision; no agent retirement is authorized by this draft.
+**Record.** Update the affected architecture/data-flow documents after approval. Offer an ADR only if the selected boundary passes all three ADR-threshold tests in §2; this draft does not authorize removing or adding a node.
 
 ### R-03 · Divergence and escalation specification
 
@@ -76,7 +85,7 @@ This draft consolidates findings from the reviewed requirements, architecture an
 
 **Done when.** Pure functions have unit and property tests (invariant under persona permutation; monotonic in lean spread); every truth-table row is tested.
 
-**Record.** ADR for divergence and escalation; PRD FR7/FR8 clarified through change-management.
+**Record.** Record approved formula, thresholds, and escalation behavior in the relevant contract/specification; clarify PRD FR7/FR8 through change-management. Offer an ADR only if the approved design passes all three ADR-threshold tests in §2.
 
 ### R-04 · Seed golden set and falsifiable Phase 4 exit
 
@@ -86,7 +95,7 @@ This draft consolidates findings from the reviewed requirements, architecture an
 
 1. Decide whether to adopt the existing 3–5-case Phase 4 seed-set proposal, or the larger 12-case proposal in this draft; neither is approved. Keep either seed set as a development smoke test, not a statistical claim.
 2. Report divergence recall and false-escalation rate on converge cases, with per-case verdicts and the exact escalation rule.
-3. Freeze about 30% of cases as hold-out before rubrics are tuned.
+3. Identify and freeze hold-out cases before rubrics are tuned; set the proportion after the case count and coverage rationale are approved.
 4. Consider a bounded repeatability protocol (for example, repeated calls on a subset per provider); report recommendation flip rate and divergence-score variation. This would supplement—not silently replace—the ADR-005 fixed-settings regression.
 5. Run every case on the primary and on forced fallback.
 6. Use verified model rows only for the features they contain; explicitly label synthetic deal terms and qualitative fields (R-01).
@@ -94,7 +103,7 @@ This draft consolidates findings from the reviewed requirements, architecture an
 
 **Done when.** The seed set is versioned with labelled expectation and rationale per case; the harness runs offline from recorded responses and live; baseline numbers are recorded with no threshold claimed until Phase 5.
 
-**Record.** Phase 4 precondition; ADR clarifying the ADR-005 test; scoping §9 divergence target stays provisional.
+**Record.** Record the smoke set and its limits in the evaluation specification; keep the scoping document's §9 divergence target provisional until supported by evidence and approved. Offer an ADR only if the chosen evaluation protocol passes all three ADR-threshold tests in §2; adding a test alone does not qualify.
 
 ### R-05 · Orchestration contract and failure semantics
 
@@ -109,9 +118,9 @@ This draft consolidates findings from the reviewed requirements, architecture an
 
 **Done when.** Provider capability evidence and an approved failure/grounding contract are recorded; failure rows are tested with mock transport, and the selected grounding check has falsification tests.
 
-**Record.** ADR for the Tier 3 orchestration contract.
+**Record.** Record the selected contract and failure table in the Phase 4 specification/plan. Offer an ADR only if the selected orchestration choice passes all three ADR-threshold tests in §2.
 
-## 5. P1 items
+### P1 items
 
 ### R-06 · Tier 1 gate-strength and selection-leakage audit
 
@@ -132,7 +141,7 @@ This draft consolidates findings from the reviewed requirements, architecture an
 
 **Done when.** The selection leakage is disclosed in an evaluation report and the owner records a freeze/retrain decision. Any replacement model has a valid final evaluation, promotion evidence, and the required successor record; no new threshold is adopted without approval.
 
-**Record.** ADR amending `promotion_gate` (new params.yaml keys); an ADR-027 successor if retrained.
+**Record.** File the evaluation evidence and the owner's freeze/retrain decision. If retraining is approved, record the resulting artifact and valid evaluation in the existing model-governance records. Offer an ADR or ADR-027 successor only if the specific selected approach passes all three ADR-threshold tests in §2; do not pre-commit to new gate keys or thresholds.
 
 ### R-07 · Feature data-quality audit
 
@@ -155,7 +164,7 @@ This draft consolidates findings from the reviewed requirements, architecture an
 
 **Done when.** Audit report filed and feature-policy decisions recorded. Any feature change requires an approved contract/version impact assessment and, if it changes model inputs, an authorized retrain and successor record.
 
-**Record.** ADR (extends ADR-024; may supersede ADR-026).
+**Record.** File the audit and approved feature policy with the model/evaluation evidence. Preserve ADR-026 unless the owner explicitly approves a change; any proposed superseding decision must be assessed against all three ADR-threshold tests in §2 before offering an ADR.
 
 ### R-08 · Reproducible DVC lineage for Tier 1
 
@@ -165,7 +174,7 @@ This draft consolidates findings from the reviewed requirements, architecture an
 
 **Done when.** An approved pipeline reproduces the documented training and promotion evidence from a clean environment, or the owner explicitly accepts a documented exception. Test that invalid data stops before training and a gate-failing candidate cannot be promoted.
 
-**Record.** Phase 1 corrective note; ADR only if pipeline topology changes.
+**Record.** File the Phase 1 corrective note and approved reproducibility exception or implementation scope. A pipeline-topology choice gets an ADR offer only if it passes all three ADR-threshold tests in §2.
 
 ### R-09 · Tier 2 semantics and sensitivity
 
@@ -181,7 +190,7 @@ This draft consolidates findings from the reviewed requirements, architecture an
 
 **Done when.** Sensitivity report filed; schema docs and rubric text updated.
 
-**Record.** ADR amendment for Tier 2 semantics.
+**Record.** Correct output labels and document measured parameter semantics in the relevant contract/evaluation. Offer an ADR only if an approved behavior change passes all three ADR-threshold tests in §2.
 
 ### R-10 · Gateway pricing and usage verification
 
@@ -193,7 +202,7 @@ This draft consolidates findings from the reviewed requirements, architecture an
 
 **Done when.** Verified source and calculation evidence are recorded; any config/test change is approved and validated.
 
-## 6. P2 items
+### P2 items
 
 ### R-11 · Tooling and dependency preparation
 
@@ -228,7 +237,7 @@ This draft consolidates findings from the reviewed requirements, architecture an
 
 **Done when.** A clean-environment walkthrough retrieves/verifies the pinned dataset and reaches a served PD, or the owner records the intended limitation. Do not inspect or expose local `.env` contents.
 
-## 7. Execution sequence
+## 5. Execution sequence
 
 **Wave A · Establish evidence (no decisions).** R-01 input-to-ratio trace, R-06 model-selection impact, R-07 feature profile, R-08 DVC lineage design, R-09 simulation parameter usage, R-10 provider pricing/usage verification, and R-13 lifecycle inventory. Output: evidence reports and clearly bounded options; no model freeze/retrain, feature change, or provider-config change is authorized by measurement alone.
 
@@ -238,7 +247,7 @@ This draft consolidates findings from the reviewed requirements, architecture an
 
 **Proposed critical path:** R-01 and R-06 evidence → human decisions about contract and Tier 1 validity → R-03/R-05 contracts → R-04 cases → approved Phase 4 plan. Effort estimates are intentionally omitted until scope and decisions are settled; earlier 7–10-day estimates were not supported by task-level sizing.
 
-## 8. Proposed Gate R: owner decision before Phase 4 planning
+## 6. Proposed Gate R: owner decision before Phase 4 planning
 
 - [ ] Dataset-to-Tier-2 derived-ratio behavior has an approved correction/contract; unsupported fields cannot silently become zero.
 - [ ] Tier 1 selection-on-test-set limitation is disclosed and the owner records whether to retain or retrain.
@@ -248,21 +257,26 @@ This draft consolidates findings from the reviewed requirements, architecture an
 - [ ] Any DVC/reproducibility exception and provider operational assumptions are explicitly recorded.
 - [ ] Required decisions are recorded; the owner separately approves whether Phase 4 planning may begin.
 
-## 9. Decisions requested
+## 7. Owner approvals requested
 
-| ID | Decision | Recommended |
-| --- | --- | --- |
-| D-R.0 | Treat this as a pre-Phase-4 readiness review, not a new roadmap phase | Yes; consistent with the existing phase sequence |
-| D-R.1 | Analyst-node role: remove redundant steps or retain deterministic nodes with distinct responsibility | Lean toward removing duplicate computations; approve an exact role boundary |
-| D-R.2 | Phase 4 seed set: 3–5 smoke cases or 12 development cases | 3–5 is the existing capability-profile proposal; 12 is an unvalidated alternative |
-| D-R.3 | Tier 1 confidence proxy, or defer confidence-based escalation pending definition | No proxy recommended before evidence |
-| D-R.4 | Tier 3 orchestration: gateway-direct LangGraph calls or a gateway-backed Pydantic AI adapter | Gateway-direct is simpler; verify structured-output support first |
-| D-R.5 | Tier 2 simulation configuration: resolve unused shock parameters and label PD percentile semantics | Measure/clarify before choosing implementation change |
-| D-R.6 | Feature handling for constant/extreme values | Decide only after R-07 evidence; preserve ADR-026 unless explicitly superseded |
-| D-R.7 | Tier 1 freeze or retrain and any promotion-gate amendment | Decide after R-06; thresholds from valid evaluation, not invented |
-| D-R.8 | Grounding validator policy and whether any live provider failover drill is necessary | Compare deterministic checks and LLM-as-judge; no live drill presumed |
-| D-R.9 | DVC lineage and clean-clone data retrieval scope | Decide how much reproducibility must precede Phase 4 |
+Items marked **evidence first** should return with a short test result and options before approval is requested; no implementation is authorized by this list.
 
-## 10. Open inputs that would sharpen this plan
+| ID | Owner choice | Recommended go-to | Why this decision matters |
+| --- | --- | --- | --- |
+| D-01 | Select the Phase 4 input/demo contract: benchmark-feature path, structured financial/deal profile, or a justified deterministic mapping. | Keep benchmark features and profile/deal facts distinct; mark synthetic values and validate all required calculation inputs. | Prevents the Tier 2 zero-ratio path and unsupported evidence from reaching personas. |
+| D-02 | Confirm whether any analyst node has a distinct non-duplicative responsibility. | Remove redundant calculation steps; retain only a named deterministic assembly/validation responsibility. | Determines the Tier 3 graph boundary without moving deterministic authority to an LLM. |
+| D-03 | Approve structured verdict fields, divergence calculation, escalation threshold, and whether persona confidence contributes. | Use canonical recommendation labels and deterministic rubric-based divergence; hold thresholds/confidence weighting until cases support them. | Implements required escalation consistently and avoids arbitrary confidence semantics. |
+| D-04 | Approve the Phase 4 seed-set size and falsifiable exit evidence. | 3–5 smoke cases; pair divergence detection with false-escalation reporting and do not claim statistical performance. | Makes the qualitative exit criterion testable without overclaiming a tiny set. |
+| D-05 | After provider qualification, choose gateway-direct LangGraph or a gateway-backed Pydantic AI adapter if both remain viable. | Gateway-direct unless the configured gateway fails the structured-output test or the adapter demonstrates a material benefit. | Fixes the integration boundary and dependency/cost footprint. |
+| D-06 | Decide whether a fallback-served verdict near the escalation threshold forces HITL; decide any qualitative-grounding control only after its evidence test. | Deterministic numeric grounding; incomplete/invalid persona results are surfaced for human review. | Defines safe report behavior without letting an LLM judge compute divergence. |
+| D-07 | After evaluation, retain the frozen Tier 1 artifact with caveat or authorize retraining under independent final evaluation. | No retraining or gate change before selection-effect evidence and explicit approval. | The current reported test result is not an independent estimate after candidate selection. |
+| D-08 | Consider any exception to ADR-026 only after feature-provenance and impact evidence. | Preserve current no-removal/no-winsorization policy. | Protects current accepted feature behavior from unsupported changes. |
+| D-09 | Set the required DVC/clean-environment reproducibility scope; separately approve any remote/setup change. | Demonstrate an end-to-end lineage design; do not silently replace the accepted local remote. | Establishes whether reproducibility work blocks Phase 4 and avoids infrastructure scope creep. |
+| D-10 | After parameter sensitivity evidence, decide whether unused Tier 2 shock settings should alter engine behavior. | Correctly label existing PD percentiles now; do not activate parameters without evidence and approval. | Changing shock semantics can change deterministic outputs and their interpretation. |
+| D-11 | Approve operational/tooling work only where pricing, model lifecycle, reproducibility, or test evidence shows a Phase 4 dependency. | Defer broad hygiene; verify external facts before changing configuration. | Keeps remediation proportional to Phase 4 needs and avoids speculative work. |
 
-Remaining inputs are owner decisions in §9 and primary-source verification of provider pricing, usage-token billing, and model lifecycle. The raw data, ADR-027, source code, DVC configuration, invariants, Tier 3 architecture, capability-profile gates, PRD, and Phase 3 evidence have been reviewed.
+**Record-only outcomes (no owner selection needed):** do not silently substitute zero for missing required inputs; do not call PD percentiles losses or confidence intervals; keep all LLM calls behind the gateway; preserve deterministic divergence and uniform low temperature; surface incomplete persona analysis for human review; preserve ADR-026 unless a change is explicitly approved.
+
+## 8. Open inputs that would sharpen this plan
+
+Remaining inputs are owner decisions in §7 and primary-source verification of provider pricing, usage-token billing, and model lifecycle. The raw data, ADR-027, source code, DVC configuration, invariants, Tier 3 architecture, capability-profile gates, PRD, and Phase 3 evidence have been reviewed.

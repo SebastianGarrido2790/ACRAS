@@ -1,0 +1,72 @@
+# ACRAS — PROPOSED DVC lineage graph (Wave A · W-A8 · R-08).
+#
+# STATUS: DRAFT ONLY — NOT INSTALLED. The live `dvc.yaml` is unchanged and still
+# contains only `validate` + `stub_train`. Installing this graph is a scope change
+# that requires owner approval (D-09: keep the accepted local remote unchanged).
+#
+# Topology (elaborated from the W-A8 shorthand `validate -> train -> evaluate_gate`):
+#   validate       INV-7 data contract; writes the gate signal only on full pass.
+#   train          Stage 2 feature split + Stage 3 training/calibration; consumes
+#                  the gate signal, so it cannot run if validation failed.
+#   evaluate_gate   Stage 5 INV-3 promotion gate; writes the frozen bundle only
+#                  after the gate passes, otherwise exits non-zero.
+#
+# `train` chains the two existing entrypoints because the feature-split stage and
+# the training stage are separate CLIs today. A thin orchestration module is the
+# cleaner Phase-4 alternative (documented in wave_a_w8_dvc_lineage.md §5).
+
+stages:
+  validate:
+    cmd: uv run python -m src.pipelines.validate_gate data/raw/data.csv --gate-signal outputs/gate_signal.txt
+    deps:
+      - data/raw/data.csv
+      - src/pipelines/validate_gate.py
+      - src/pipelines/data_contracts.py
+      - gx/expectations/bankruptcy_data_suite.json
+    outs:
+      - outputs/gate_signal.txt
+
+  train:
+    cmd: >
+      uv run python -m src.pipelines.feature.split
+      --raw-data data/raw/data.csv --output-dir data/processed --artifact-dir artifacts
+      && uv run python -m src.pipelines.training.train
+      --processed-dir data/processed --output-csv reports/model_leaderboard.csv
+    deps:
+      - data/raw/data.csv
+      - params.yaml
+      - outputs/gate_signal.txt
+      - src/pipelines/feature/split.py
+      - src/pipelines/feature/transform.py
+      - src/pipelines/training/train.py
+      - src/schemas/features.py
+      - src/config/loader.py
+    outs:
+      - data/processed/X_train.parquet
+      - data/processed/X_test.parquet
+      - data/processed/y_train.parquet
+      - data/processed/y_test.parquet
+      - artifacts/preprocessor.joblib
+    metrics:
+      - reports/model_leaderboard.csv:
+          cache: false
+
+  evaluate_gate:
+    cmd: >
+      uv run python -m src.pipelines.training.promote
+      --processed-dir data/processed
+      --transformer-path artifacts/preprocessor.joblib
+      --output-bundle artifacts/promoted_model_bundle.joblib
+    deps:
+      - params.yaml
+      - outputs/gate_signal.txt
+      - data/processed/X_train.parquet
+      - data/processed/X_test.parquet
+      - data/processed/y_train.parquet
+      - data/processed/y_test.parquet
+      - artifacts/preprocessor.joblib
+      - src/pipelines/training/promote.py
+      - src/pipelines/training/promotion_gate.py
+      - src/pipelines/training/train.py
+    outs:
+      - artifacts/promoted_model_bundle.joblib

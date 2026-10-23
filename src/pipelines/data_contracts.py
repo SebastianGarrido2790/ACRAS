@@ -144,19 +144,27 @@ UNIQUENESS_SUBSET: tuple[str, ...] = (
 
 def build_bankruptcy_suite(
     context: AbstractDataContext | None = None,
+    *,
+    save: bool = False,
 ) -> gx.ExpectationSuite:
     """Build and return the formal Great Expectations suite for raw bankruptcy data.
 
-    If a data context is provided, the suite is registered/persisted into the context.
+    Builds against an ephemeral in-memory context by default. Persistence into a
+    data context is opt-in: pass ``context`` together with ``save=True`` (used by
+    the ``--build-only`` CLI path). This keeps test runs from rewriting the
+    tracked ``gx/expectations/bankruptcy_data_suite.json`` with fresh UUIDs.
 
     Args:
-        context: Optional Great Expectations DataContext instance.
+        context: Optional Great Expectations DataContext instance. When omitted,
+            an ephemeral (non-persistent) context is used.
+        save: When True and ``context`` is provided, register/persist the suite
+            into the context. Defaults to False (ephemeral, non-mutating).
 
     Returns:
         Configured ExpectationSuite instance.
     """
     if context is None:
-        context = gx.get_context(mode="file")
+        context = gx.get_context(mode="ephemeral")
     assert context is not None
 
     suite = gx.ExpectationSuite(name=SUITE_NAME)
@@ -221,7 +229,7 @@ def build_bankruptcy_suite(
         gxe.ExpectCompoundColumnsToBeUnique(column_list=list(UNIQUENESS_SUBSET))
     )
 
-    if context is not None:
+    if context is not None and save:
         suite = context.suites.add_or_update(suite)
 
     return suite
@@ -254,7 +262,7 @@ def validate_dataset(
         try:
             suite = context.suites.get(SUITE_NAME)
         except Exception:
-            suite = build_bankruptcy_suite(context=context)
+            suite = build_bankruptcy_suite()
 
     df = pd.read_csv(path)
 
@@ -326,7 +334,7 @@ def main() -> None:
     context = gx.get_context(mode="file")
 
     if args.build_only:
-        suite = build_bankruptcy_suite(context=context)
+        suite = build_bankruptcy_suite(context=context, save=True)
         print(
             f"[data_contracts] Successfully compiled and saved suite '{suite.name}' with "
             f"{len(suite.expectations)} expectations."

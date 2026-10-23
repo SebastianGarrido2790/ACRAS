@@ -139,6 +139,8 @@ def build_chat_payload(request: GatewayRequest, model: str) -> dict:
         payload["max_tokens"] = request.max_tokens
     if request.temperature != 0.0:
         payload["temperature"] = request.temperature
+    if request.json_mode:
+        payload["response_format"] = {"type": "json_object"}
     return payload
 
 

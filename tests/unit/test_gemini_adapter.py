@@ -22,6 +22,7 @@ from src.gateway.contracts import (
     GatewayMessageRole,
     GatewayRequest,
 )
+from src.gateway.providers.base import build_chat_payload
 from src.gateway.providers.gemini import invoke_gemini
 
 GEMINI_SETTINGS = ProviderSettings(
@@ -241,3 +242,25 @@ def test_gemini_adapter_no_secret_in_errors(monkeypatch: pytest.MonkeyPatch) -> 
         client.close()
     assert sentinel not in str(exc_info.value)
     assert sentinel not in str(exc_info.value.to_dict())
+
+
+def test_build_chat_payload_json_mode_forwards_response_format() -> None:
+    """json_mode=True emits response_format json_object on the wire."""
+    request = GatewayRequest(
+        correlation_id="corr-json-001",
+        messages=[GatewayMessage(role=GatewayMessageRole.USER, content="Return JSON.")],
+        max_tokens=64,
+        json_mode=True,
+    )
+    payload = build_chat_payload(request, "gemini-2.5-flash")
+    assert payload["response_format"] == {"type": "json_object"}
+
+
+def test_build_chat_payload_json_mode_off_omits_response_format() -> None:
+    """json_mode defaults to False, so no response_format is added."""
+    request = GatewayRequest(
+        correlation_id="corr-json-002",
+        messages=[GatewayMessage(role=GatewayMessageRole.USER, content="Return JSON.")],
+    )
+    payload = build_chat_payload(request, "gemini-2.5-flash")
+    assert "response_format" not in payload

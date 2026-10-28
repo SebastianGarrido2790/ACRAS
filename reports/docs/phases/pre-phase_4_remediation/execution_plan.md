@@ -7,6 +7,8 @@
 
 Hard time-box: **6.0 hours total / 1 working day (caps, not forecasts)**. Execute `W-A1` through `W-A8` in priority order below. Output: reproducible evidence tables/artifacts, the R-15 non-mutating test fix, and bounded options; no model freeze/retrain, feature change, or provider-config change is authorized by measurement alone.
 
+**Return (2026-10-23):** [`wave_a_return.md`](wave_a_return.md) — `W-A1`–`W-A8` complete; decisions A-01–A-07 requested. Four conditions fully met; condition 4 (Gemini lifecycle) partially met.
+
 ### 1.1 Wave A execution rules (owner conditions, 2026-10-20)
 
 - **Measure-only.** No Tier 1 retrain, feature-handling change, promotion-gate change, or provider-model swap inside Wave A.

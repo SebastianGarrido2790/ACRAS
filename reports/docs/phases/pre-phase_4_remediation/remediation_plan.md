@@ -280,6 +280,8 @@ Execution workflow moved to [`execution_plan.md`](execution_plan.md) (Wave A–C
 
 **Status 2026-10-20:** D-01–D-11 are approved (§7, §9); Wave A is approved with five conditions (§9.1); the FR3/`p90_pd` direction is approved but its contract table and PRD change note are still W-A2 deliverables (§9.2). All gate items below remain unchecked. Because Tier 3's input contract under INV-2 is `EvidenceBundle`, authoring the 3–5 seed cases as validated `EvidenceBundle` fixtures decouples Phase 4 Tier 3 implementation from upstream Tier 1 retraining and raw-CSV ratio extraction. The gate items are therefore grouped into **Gate R-A (hard prerequisites before Phase 4 Tier 3 planning/code)** and **Gate R-B (prerequisites before end-to-end raw-row demo & Phase 5 promotion)**.
 
+**Status 2026-10-23:** Wave A returned ([`wave_a_return.md`](wave_a_return.md)); A-01–A-07 approved (§9.3). Gate items stay unchecked because approval is not execution: A-06 edits, the A-01/A-05 schema + guard, the A-02 DVC install/remote, the Wave C fixtures/harness, and A-07 lifecycle verification are outstanding.
+
 ### Gate R-A · Hard prerequisites before Phase 4 Tier 3 planning
 - [ ] PRD FR3's loss-band wording is reconciled with the implemented PD-percentile output; **all loss-denominated fields (`tail_loss_estimate`, `capital_consumption_estimate`) are excluded or explicitly tagged `synthetic` with assumptions**, and CRO's quantitative field is `p90_pd` **bound to `pd_band.p90`** and labeled scenario-conditional PD under assumed parameters (R-09).
 - [ ] The Tier 3 input (`EvidenceBundle` v2 with provenance markers), verdict, divergence, escalation, grounding, and failure contracts are resolved or explicitly deferred with bounded implications, and D-02's removal of duplicate analyst nodes is reflected in the architecture docs.
@@ -358,3 +360,19 @@ Remaining inputs are the evidence-first returns under §4, the W-A2 contract tab
 - **Amendment 2 — bind, don't copy, and label.** `p90_pd` references `pd_band.p90` (no duplicate value); `pd_tail_spread` is added only if a rubric consumes it; schema and rubric label it a **scenario-conditional PD under assumed parameters (R-09)**, not estimation uncertainty. PRD's "weighted toward P90 tail loss" rubric line changes accordingly. The FR3 clarification stays minimal: Tier 2 emits P10/P50/P90 default-probability bands; loss bands are deferred until LGD/EAD are in scope. It proceeds through change-management.
 
 **Flagged for change-management (not edited by this approval):** `system_design.md` §6 ADR-026 body ("P90 loss distribution / tail-loss interpretation") must be restated with the R-07 "no removal without provenance" rationale; `tier3_persona_architecture.md` §3–§4; README "loss/default bands" references (lines 37/67/96). The minimal FR3 scope is approved; the wider loss-language sweep remains in R-12.
+
+### 9.3 Wave A return approval (2026-10-23)
+
+**Approver:** Sebastián Garrido Arévalo · **Date:** 2026-10-23 · **Decision:** approve A-01 through A-07 as recommended in [`wave_a_return.md`](wave_a_return.md) §1.1 and §7.
+
+| ID | Approved outcome |
+| --- | --- |
+| A-01 | Input contract = **A + C** (required-input guard + structured `accounting_profile`); dataset→ratio mapping (B) not adopted. |
+| A-02 | Install the proposed DVC graph; provision `../acras_dvc_remote`; fallback = documented re-acquire + ADR-011 checksum exception; no cloud remote. |
+| A-03 | Gemini rates **$0.30/$2.50**, `output_billable = total − prompt`, `usage.details` passthrough (Wave B). |
+| A-04 | **Retain** the frozen Tier 1 model; no retrain; disclose CV Brier 0.022884. |
+| A-05 | Lock the `EvidenceBundle` v2 seed-case contract, including `accounting_profile` and SC-01–SC-04. |
+| A-06 | Apply the FR3 / `p90_pd` change note through change-management (not yet executed). |
+| A-07 | Bounded follow-up: verify Gemini 2.5 Flash lifecycle from a primary source; a near-term date triggers the ADR-034 decision. |
+
+**Effect.** Fixes each recommended option. Records the decisions only: it does not itself execute A-06 or implement Wave B/C, and Phase 4 planning still requires separate approval. Alternatives, rejected options, and trade-off text remain unedited for traceability.

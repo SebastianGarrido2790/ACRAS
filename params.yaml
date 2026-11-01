@@ -118,14 +118,18 @@ gateway:
   breaker_recovery_timeout_s: 30.0
   breaker_half_open_probes: 1
   default_user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) ACRAS/1.0"
+  # Cost accounting (A-03 / Wave B approved 2026-10-23)
+  # Formula: output_billable = total_output_tokens - prompt_tokens (per-request)
+  # Usage meta: usage.details passthrough required (reasoning tokens counted once,
+  # not double-counted as both input and output; per W-A1 verification).
   cost_rates:
     gemini-2.5-flash:
-      input_per_m: 0.075
-      output_per_m: 0.30
-      rate_date: "2026-10-12"
-      rate_source: "Google AI Studio Pricing"
+      input_per_m: 0.30
+      output_per_m: 2.50
+      rate_date: "2026-10-23"
+      rate_source: "Vertex AI Pricing (ACRAS-approved; confirmed via W-A1 live call)"
     openai/gpt-oss-20b:
       input_per_m: 0.075
       output_per_m: 0.30
       rate_date: "2026-10-12"
-      rate_source: "Groq Published Production Rates (free-tier reference)"
+      rate_source: "Groq Published Production Rates"

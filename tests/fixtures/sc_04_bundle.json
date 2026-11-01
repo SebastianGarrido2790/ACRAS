@@ -1,0 +1,72 @@
+{
+  "_fixture": "SC-04: incomplete / low confidence (one persona missing, synthetic fields None, HITL)",
+  "_version": "v2",
+  "company_id": "SC-04-INCOMPLETE",
+  "raw_features": {
+    "leverage": 1.2
+  },
+  "schema_version": "v2",
+  "accounting_profile": {
+    "current_assets": 150000.0,
+    "current_liabilities": 120000.0,
+    "quick_assets": 90000.0,
+    "total_debt": 300000.0,
+    "total_equity": 180000.0,
+    "net_income": 15000.0,
+    "total_revenue": 600000.0,
+    "operating_profit": 45000.0,
+    "ebit": 18000.0,
+    "interest_expense": 9000.0,
+    "total_assets": 480000.0
+  },
+  "provenance": {
+    "financial_ratios": "derived",
+    "p90_pd": "derived",
+    "covenant_flags": "synthetic",
+    "revenue_growth_rate": "derived",
+    "pipeline_value_estimate": "derived",
+    "concentration_flag": "derived"
+  },
+  "synthetic_assumptions": {
+    "covenant_flags": "profile-supplied; incomplete information \u00e2\u20ac\u201d missing covenant history"
+  },
+  "pd": 0.065,
+  "credit_rating": "B",
+  "pd_band": {
+    "p10": 0.045,
+    "p50": 0.065,
+    "p90": 0.1
+  },
+  "financial_ratios": {
+    "current_ratio": 1.25,
+    "quick_ratio": 0.75,
+    "debt_to_equity": 1.6666666666666667,
+    "net_profit_margin": 0.025,
+    "ebitda_margin": 0.075,
+    "interest_coverage": 2.0,
+    "asset_turnover": 1.25
+  },
+  "persona_verdicts": {
+    "cro": {
+      "persona": "cro",
+      "recommendation": "conditional",
+      "lean": -0.3,
+      "confidence": 0.45,
+      "rationale": "PD elevated (B); P90 wide; covenant flags incomplete; recommend HITL for covenant review."
+    },
+    "growth": {
+      "persona": "growth",
+      "recommendation": "conditional",
+      "lean": 0.1,
+      "confidence": 0.35,
+      "rationale": "Revenue growth rate missing (None); pipeline incomplete; not sufficient for approve."
+    },
+    "capital": {
+      "persona": "capital",
+      "recommendation": "conditional",
+      "lean": -0.5,
+      "confidence": 0.4,
+      "rationale": "Concentration flag unavailable (None); cost-of-capital assessment incomplete; HITL required."
+    }
+  }
+}

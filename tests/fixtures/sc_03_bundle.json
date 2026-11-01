@@ -1,0 +1,74 @@
+{
+  "_fixture": "SC-03: divergence Capital vs Risk (Capital reject, CRO approve, Growth conditional)",
+  "_version": "v2",
+  "company_id": "SC-03-DIVERGE-CAP",
+  "raw_features": {
+    "leverage": 0.25
+  },
+  "schema_version": "v2",
+  "accounting_profile": {
+    "current_assets": 380000.0,
+    "current_liabilities": 200000.0,
+    "quick_assets": 285000.0,
+    "total_debt": 210000.0,
+    "total_equity": 350000.0,
+    "net_income": 80000.0,
+    "total_revenue": 1000000.0,
+    "operating_profit": 150000.0,
+    "ebit": 180000.0,
+    "interest_expense": 30000.0,
+    "total_assets": 560000.0
+  },
+  "provenance": {
+    "financial_ratios": "derived",
+    "p90_pd": "derived",
+    "covenant_flags": "synthetic",
+    "revenue_growth_rate": "derived",
+    "pipeline_value_estimate": "synthetic",
+    "concentration_flag": "synthetic"
+  },
+  "synthetic_assumptions": {
+    "covenant_flags": "profile-supplied; no covenant breach",
+    "pipeline_value_estimate": "moderate deal pipeline",
+    "concentration_flag": "profile-supplied; top customer 60% of revenue (high concentration)"
+  },
+  "pd": 0.025,
+  "credit_rating": "BBB",
+  "pd_band": {
+    "p10": 0.015,
+    "p50": 0.025,
+    "p90": 0.045
+  },
+  "financial_ratios": {
+    "current_ratio": 1.9,
+    "quick_ratio": 1.425,
+    "debt_to_equity": 0.6,
+    "net_profit_margin": 0.08,
+    "ebitda_margin": 0.15,
+    "interest_coverage": 6.0,
+    "asset_turnover": 1.7857142857142858
+  },
+  "persona_verdicts": {
+    "cro": {
+      "persona": "cro",
+      "recommendation": "approve",
+      "lean": 0.55,
+      "confidence": 0.8,
+      "rationale": "Strong liquidity; no covenant flags; P90 moderate; low leverage."
+    },
+    "growth": {
+      "persona": "growth",
+      "recommendation": "conditional",
+      "lean": 0.2,
+      "confidence": 0.65,
+      "rationale": "Moderate pipeline; growth trajectory stable but not exceptional."
+    },
+    "capital": {
+      "persona": "capital",
+      "recommendation": "reject",
+      "lean": -0.65,
+      "confidence": 0.75,
+      "rationale": "Concentration flag true (top customer 60%); cost-of-capital proxy via p90_pd/reference indicates elevated exposure despite acceptable ratios."
+    }
+  }
+}

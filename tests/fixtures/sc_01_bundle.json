@@ -1,0 +1,73 @@
+{
+  "_fixture": "SC-01: clear converge (investment-grade, narrow band)",
+  "_version": "v2",
+  "company_id": "SC-01-CONVERGE",
+  "raw_features": {
+    "leverage": 0.35
+  },
+  "schema_version": "v2",
+  "accounting_profile": {
+    "current_assets": 500000.0,
+    "current_liabilities": 227000.0,
+    "quick_assets": 300000.0,
+    "total_debt": 400000.0,
+    "total_equity": 600000.0,
+    "net_income": 80000.0,
+    "total_revenue": 1000000.0,
+    "operating_profit": 150000.0,
+    "ebit": 150000.0,
+    "interest_expense": 30000.0,
+    "total_assets": 1200000.0
+  },
+  "provenance": {
+    "financial_ratios": "derived",
+    "p90_pd": "derived",
+    "covenant_flags": "synthetic",
+    "revenue_growth_rate": "derived",
+    "pipeline_value_estimate": "synthetic",
+    "concentration_flag": "derived"
+  },
+  "synthetic_assumptions": {
+    "covenant_flags": "profile-supplied; no covenant breach",
+    "pipeline_value_estimate": "deal-level synthetic; moderate pipeline"
+  },
+  "pd": 0.015,
+  "credit_rating": "AAA",
+  "pd_band": {
+    "p10": 0.01,
+    "p50": 0.015,
+    "p90": 0.025
+  },
+  "financial_ratios": {
+    "current_ratio": 2.202643171806167,
+    "quick_ratio": 1.3215859030837005,
+    "debt_to_equity": 0.6666666666666666,
+    "net_profit_margin": 0.08,
+    "ebitda_margin": 0.15,
+    "interest_coverage": 5.0,
+    "asset_turnover": 0.8333333333333334
+  },
+  "persona_verdicts": {
+    "cro": {
+      "persona": "cro",
+      "recommendation": "approve",
+      "lean": 0.65,
+      "confidence": 0.85,
+      "rationale": "Low P90 tail risk; covenant flags clean; strong liquidity."
+    },
+    "growth": {
+      "persona": "growth",
+      "recommendation": "approve",
+      "lean": 0.55,
+      "confidence": 0.78,
+      "rationale": "Revenue trajectory positive; pipeline moderate; no concentration."
+    },
+    "capital": {
+      "persona": "capital",
+      "recommendation": "approve",
+      "lean": 0.45,
+      "confidence": 0.72,
+      "rationale": "Concentration absent; cost-of-capital proxy via p90_pd/reference rating supports approval."
+    }
+  }
+}

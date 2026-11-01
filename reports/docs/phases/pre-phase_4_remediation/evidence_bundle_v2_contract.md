@@ -67,8 +67,8 @@ A `v2` fixture is rejected when any of the following hold:
 
 | Target | Current | Proposed |
 | --- | --- | --- |
-| `reports/docs/groundedness/prd.md` line 56 (FR3) | "producing P10/P50/P90 default/loss bands" | "producing P10/P50/P90 default-probability bands; loss bands are deferred until LGD/EAD are in scope." |
-| `reports/docs/groundedness/prd.md` line 125 (rubric) | "CRO weighted toward P90 tail loss and covenant history" | "CRO weighted toward `p90_pd` (scenario-conditional PD) and covenant history." |
+| `reports/docs/grounding/prd.md` line 56 (FR3) | "producing P10/P50/P90 default/loss bands" | "producing P10/P50/P90 default-probability bands; loss bands are deferred until LGD/EAD are in scope." |
+| `reports/docs/grounding/prd.md` line 125 (rubric) | "CRO weighted toward P90 tail loss and covenant history" | "CRO weighted toward `p90_pd` (scenario-conditional PD) and covenant history." |
 | `reports/docs/architecture/tier3_persona_architecture.md` §3 (Capital row) | "Capital-consumption estimate, concentration flag" | "concentration flag and `p90_pd`/rating evidence (PD-based cost-of-capital proxy)." |
 | `reports/docs/architecture/tier3_persona_architecture.md` §3 (CRO row) | "P90 loss band, covenant/qualitative risk flags" | "`p90_pd` (scenario-conditional PD), covenant/qualitative risk flags." |
 | `reports/docs/architecture/tier3_persona_architecture.md` §4 (field list) | `tail_loss_estimate` and `capital_consumption_estimate` listed | Remove both; add `p90_pd` (reference to `pd_band.p90`). |

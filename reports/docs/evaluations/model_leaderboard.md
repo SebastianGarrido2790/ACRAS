@@ -1,7 +1,7 @@
 # Stage 3 Model Training & Cross-Validated Calibration Leaderboard
 
 **Project:** ACRAS (Agentic Credit Risk & Analysis System)  
-**Deliverable Scope:** Phase 1 — Tier 1 ML Core (Groundedness Pillar 3: Evaluations)  
+**Deliverable Scope:** Phase 1 — Tier 1 ML Core (Grounding Pillar 3: Evaluations)  
 **Date:** 2026-09-29  
 **Status:** Complete & Reproducible (Governed by INV-1, INV-3, ADR-017, ADR-018, ADR-019, ADR-020)  
 

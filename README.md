@@ -199,7 +199,7 @@ ACRAS/
 │   ├── docs/
 │   │   ├── implementation_roadmap.md  # Non-authoritative phase sequencing & exit criteria
 │   │   ├── architecture/      # system_design.md (Living ADR ledger: ADR-001 through ADR-033)
-│   │   ├── groundedness/      # scoping_doc.md, prd.md, user_story.md
+│   │   ├── grounding/      # scoping_doc.md, prd.md, user_story.md
 │   │   ├── evaluations/       # model_leaderboard.md, capability_profile_gates.md
 │   │   ├── phases/            # Per-phase implementation plans, execution plans & PIRs
 │   │   │   ├── phase_0/ · phase_1/ · phase_2/  # execution_plan.md + implementation_plan.md each
@@ -222,14 +222,14 @@ ACRAS/
 
 ## 📚 Documentation Index
 
-The complete architectural, product, and governance documentation set is organized into the **Six Pillars of Groundedness** under `reports/docs/`:
+The complete architectural, product, and governance documentation set is organized into the **Six Pillars of Grounding** under `reports/docs/`:
 
 | Document | Purpose & Description |
 | :--- | :--- |
-| **[Machine Learning Canvas](reports/docs/groundedness/canvas.md)** | Strategic one-page overview of business value, ML objectives, simulation tiers, and evaluation metrics. |
-| **[Project Charter](reports/docs/groundedness/project_charter.md)** | Project scope, target personas, ROI appraisal, Definition of Done, and cost models. |
-| **[User Stories & Problem Framing](reports/docs/groundedness/user_story.md)** | Stakeholder personas, 5 Whys root cause analysis, Jobs-to-be-Done, and user journeys. |
-| **[Product Requirements Document (PRD)](reports/docs/groundedness/prd.md)** | Functional requirements (FR1–FR13), non-functional requirements, release gates, and governance rules. |
+| **[Machine Learning Canvas](reports/docs/grounding/canvas.md)** | Strategic one-page overview of business value, ML objectives, simulation tiers, and evaluation metrics. |
+| **[Project Charter](reports/docs/grounding/project_charter.md)** | Project scope, target personas, ROI appraisal, Definition of Done, and cost models. |
+| **[User Stories & Problem Framing](reports/docs/grounding/user_story.md)** | Stakeholder personas, 5 Whys root cause analysis, Jobs-to-be-Done, and user journeys. |
+| **[Product Requirements Document (PRD)](reports/docs/grounding/prd.md)** | Functional requirements (FR1–FR13), non-functional requirements, release gates, and governance rules. |
 | **[Implementation Roadmap](reports/docs/implementation_roadmap.md)** | Non-authoritative phase sequencing (Phase 0 through Phase 7): capabilities, dependency order, and evidence-based exit criteria. |
 | **[System Design & ADRs](reports/docs/architecture/system_design.md)** | Living system architecture specification and formal decision ledger (**ADR-001 through ADR-033**). |
 | **[Model Evaluation Leaderboard](reports/docs/evaluations/model_leaderboard.md)** | Auditable benchmark report of all 12 trained/calibrated model configurations with sample density caveats. |

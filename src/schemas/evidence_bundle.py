@@ -1,4 +1,4 @@
-"""Evidence Bundle Schema Module — Version 1 (`v1`).
+"""Evidence Bundle Schema Module — Version 1 (`v1`) and Version 2 (`v2`).
 
 Governed by:
     INV-2 (ADR-002): All inter-tier and inter-agent data exchange MUST flow through
@@ -11,12 +11,16 @@ Governed by:
         optional (`None`) to preserve tier boundary independence until Phase 4.
     PRD FR5: Persona-level interpretation depends on stable financial ratios derived
         from verified raw features.
+    Wave B (A-01/A-05): EvidenceBundle v2 adds `accounting_profile` as the required
+        source for `financial_ratios`, provenance tracking for synthetic fields, and
+        a computed `p90_pd` bound to `pd_band.p90`.
 
 Architectural Milestone Note (D-0.6 / ADR-014, advanced by D-2.4 / ADR-032):
     Authored in Phase 0 as the PRE-V0 DRAFT SKELETON, advanced in Phase 2 Stage 5
     to schema `v1` (Tier 2 Monte Carlo complete). The `pre-v0-draft` and `v0` tags
     are retained in the `schema_version` literal for backward compatibility with
-    earlier artifacts; all new Tier 2 outputs default to `"v1"`.
+    earlier-phase artifacts; all new Tier 2 outputs default to `"v1"`.
+    Wave B introduces `v2` with explicit accounting input and provenance contracts.
 """
 
 from __future__ import annotations
@@ -24,12 +28,30 @@ from __future__ import annotations
 import math
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator, computed_field
 
 #: Canonical discrete credit-rating categories (ADR-021 / params.yaml
 #: `rating_thresholds`). Single source for v1 `credit_rating` membership checks.
 VALID_CREDIT_RATINGS: frozenset[str] = frozenset(
     {"AAA", "AA", "A", "BBB", "BB", "B", "CCC/C"}
+)
+
+#: The 11 accounting-profile keys required for v2 (A-01 / A-05).
+#: Order matches `src/tier2_simulation/ratios.py` alias lookup.
+ACCOUNTING_PROFILE_KEYS: frozenset[str] = frozenset(
+    {
+        "current_assets",
+        "current_liabilities",
+        "quick_assets",
+        "total_debt",
+        "total_equity",
+        "net_income",
+        "total_revenue",
+        "operating_profit",
+        "ebit",
+        "interest_expense",
+        "total_assets",
+    }
 )
 
 
@@ -88,7 +110,7 @@ class EvidenceBundle(BaseModel):
         dict[str, float | int],
         Field(description="Verified raw financial ratios from data contract validation"),
     ]
-    schema_version: Literal["pre-v0-draft", "v0", "v1"] = "v1"
+    schema_version: Literal["pre-v0-draft", "v0", "v1", "v2"] = "v1"
 
     # Tier 1 ML outputs (populated in Phase 1)
     pd: (
@@ -105,6 +127,24 @@ class EvidenceBundle(BaseModel):
         dict[str, float],
         Field(description="Derived from the validated accounting_profile; never from raw_features"),
     ] | None = None
+
+    # Tier 2 v2 input (Wave B / A-01 + A-05)
+    accounting_profile: Annotated[
+        dict[str, float],
+        Field(description="The 11 required accounting amounts (validated input or synthetic) for v2; never derived."),
+    ] | None = None
+
+    # Provenance meta fields (required for v2)
+    provenance: dict[str, Literal["observed", "derived", "synthetic"]] | None = None
+    synthetic_assumptions: dict[str, str] | None = None
+
+    # Computed v2 field bound to pd_band (not independently settable)
+    @computed_field
+    @property
+    def p90_pd(self) -> float | None:
+        if self.pd_band is not None:
+            return self.pd_band.p90
+        return None
 
     # Tier 3 Multi-Agent outputs (populated in Phase 4)
     persona_verdicts: Annotated[
@@ -141,4 +181,57 @@ class EvidenceBundle(BaseModel):
                 raise ValueError(
                     f"v1 `financial_ratios[{name!r}]` must be a finite float. Got {value!r}."
                 )
+        return self
+
+    @model_validator(mode="after")
+    def enforce_v2_contract(self) -> EvidenceBundle:
+        """Enforce the v2 contract and derivation equality.
+
+        For v2 bundles, require `accounting_profile` present; if `financial_ratios` is given,
+        ensure `financial_ratios == compute_financial_ratios(accounting_profile)`.
+        """
+        if self.schema_version != "v2":
+            return self
+        if self.accounting_profile is None:
+            raise ValueError("v2 bundle requires non-null `accounting_profile` (Tier 2 input guard).")
+        if set(self.accounting_profile.keys()) != ACCOUNTING_PROFILE_KEYS:
+            missing = ACCOUNTING_PROFILE_KEYS - set(self.accounting_profile.keys())
+            extra = set(self.accounting_profile.keys()) - ACCOUNTING_PROFILE_KEYS
+            detail = []
+            if missing:
+                detail.append(f"missing={sorted(missing)}")
+            if extra:
+                detail.append(f"extra={sorted(extra)}")
+            raise ValueError("v2 `accounting_profile` keys mismatch: " + "; ".join(detail))
+        for k, v in self.accounting_profile.items():
+            if not isinstance(v, (int, float)) or not math.isfinite(v):
+                raise ValueError(f"v2 `accounting_profile[{k!r}]` must be a finite number. Got {v!r}.")
+        # Provenance meta fields (required for v2) — §4-1 / §5.3-6
+        required_provenance_tags = {
+            "financial_ratios",
+            "p90_pd",
+            "covenant_flags",
+            "revenue_growth_rate",
+            "pipeline_value_estimate",
+            "concentration_flag",
+        }
+        if self.provenance is None:
+            raise ValueError("v2 bundle requires non-null `provenance`.")
+        if not isinstance(self.provenance, dict):
+            raise ValueError("v2 `provenance` must be a dict.")
+        missing_tags = required_provenance_tags - set(self.provenance.keys())
+        if missing_tags:
+            raise ValueError(f"v2 `provenance` missing tags: {sorted(missing_tags)}.")
+        for tag_key in ("covenant_flags", "pipeline_value_estimate", "revenue_growth_rate"):
+            if tag_key in self.provenance and self.provenance[tag_key] == "synthetic":
+                if self.synthetic_assumptions is None or tag_key not in self.synthetic_assumptions:
+                    raise ValueError(
+                        f"v2 provenance tags `{tag_key}` synthetic but no `synthetic_assumptions` entry."
+                    )
+        if self.financial_ratios is not None:
+            from src.tier2_simulation.ratios import compute_financial_ratios
+
+            expected = compute_financial_ratios(self.accounting_profile)
+            if self.financial_ratios != expected:
+                raise ValueError("v2 `financial_ratios` mismatch with `accounting_profile`.")
         return self

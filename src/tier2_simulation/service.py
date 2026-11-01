@@ -27,6 +27,7 @@ __all__ = [
     "InvalidTier1InputError",
     "Tier2SimulationService",
     "run_simulation_pipeline",
+    "compute_financial_ratios",
 ]
 
 
@@ -91,7 +92,10 @@ def run_simulation_pipeline(
     pd_value, credit_rating = _validate_tier1_inputs(bundle)
 
     pd_band = run_monte_carlo_simulation(pd_value, config)
-    financial_ratios = compute_financial_ratios(dict(bundle.raw_features))
+    if bundle.accounting_profile is not None:
+        financial_ratios = compute_financial_ratios(bundle.accounting_profile)
+    else:
+        financial_ratios = compute_financial_ratios(dict(bundle.raw_features))
 
     return EvidenceBundle(
         company_id=bundle.company_id,

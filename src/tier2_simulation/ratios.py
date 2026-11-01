@@ -10,7 +10,34 @@ from __future__ import annotations
 
 import math
 
-__all__ = ["compute_financial_ratios"]
+from src.schemas.evidence_bundle import ACCOUNTING_PROFILE_KEYS
+
+__all__ = ["compute_financial_ratios", "validate_accounting_profile"]
+
+
+def validate_accounting_profile(profile: dict[str, float]) -> None:
+    """Validate accounting input for v2 (A-01 / A-05 required-input guard).
+
+    Raises ValueError with exact missing-key names when the profile is
+    missing keys, has extra keys, or contains non-finite values.
+    """
+    if profile is None:
+        raise ValueError("v2 guard: `accounting_profile` must not be None.")
+    keys = set(profile.keys())
+    missing = ACCOUNTING_PROFILE_KEYS - keys
+    extra = keys - ACCOUNTING_PROFILE_KEYS
+    errors = []
+    if missing:
+        errors.append(f"missing keys: {sorted(missing)}")
+    if extra:
+        errors.append(f"extra keys: {sorted(extra)}")
+    if errors:
+        raise ValueError("v2 accounting_profile invalid: " + "; ".join(errors))
+    for k, v in profile.items():
+        if not isinstance(v, (int, float)) or not math.isfinite(float(v)):
+            raise ValueError(
+                f"v2 `accounting_profile[{k!r}]` must be a finite number (got {v!r})."
+            )
 
 
 def _normalize_key(value: str) -> str:
@@ -62,38 +89,40 @@ def _safe_ratio(
     return float(ratio)
 
 
-def compute_financial_ratios(raw_features: dict[str, float | int]) -> dict[str, float]:
-    """Compute deterministically stable credit-risk ratios from verified raw features.
+def compute_financial_ratios(accounting_profile: dict[str, float]) -> dict[str, float]:
+    """Compute deterministically stable credit-risk ratios from verified accounting inputs.
 
     The function accepts a broad set of common aliases for the same accounting inputs so it
     remains robust to upstream naming drift while returning only finite float values.
     """
+    validate_accounting_profile(accounting_profile)
+
     current_assets = _lookup(
-        raw_features,
+        accounting_profile,
         "current_assets",
         "current assets",
         "total current assets",
     )
     current_liabilities = _lookup(
-        raw_features,
+        accounting_profile,
         "current_liabilities",
         "current liabilities",
         "total current liabilities",
     )
-    quick_assets = _lookup(raw_features, "quick_assets", "quick assets", "quick assets total")
-    total_debt = _lookup(raw_features, "total_debt", "total debt", "debt")
-    total_equity = _lookup(raw_features, "total_equity", "total equity", "equity")
-    net_income = _lookup(raw_features, "net_income", "net income")
-    total_revenue = _lookup(raw_features, "total_revenue", "total revenue", "revenue")
+    quick_assets = _lookup(accounting_profile, "quick_assets", "quick assets", "quick assets total")
+    total_debt = _lookup(accounting_profile, "total_debt", "total debt", "debt")
+    total_equity = _lookup(accounting_profile, "total_equity", "total equity", "equity")
+    net_income = _lookup(accounting_profile, "net_income", "net income")
+    total_revenue = _lookup(accounting_profile, "total_revenue", "total revenue", "revenue")
     operating_profit = _lookup(
-        raw_features,
+        accounting_profile,
         "operating_profit",
         "operating profit",
         "ebitda",
     )
-    ebit = _lookup(raw_features, "ebit", "ebit")
-    interest_expense = _lookup(raw_features, "interest_expense", "interest expense")
-    total_assets = _lookup(raw_features, "total_assets", "total assets", "assets")
+    ebit = _lookup(accounting_profile, "ebit", "ebit")
+    interest_expense = _lookup(accounting_profile, "interest_expense", "interest expense")
+    total_assets = _lookup(accounting_profile, "total_assets", "total assets", "assets")
 
     ratios = {
         "current_ratio": _safe_ratio(current_assets, current_liabilities),

@@ -35,8 +35,11 @@ Legend — provenance: O=observed, D=derived, S=synthetic. Optional fields defau
 | Field | Tier / owner | Prov. | Source / formula | Units | Assumptions / label | Validation |
 | --- | --- | --- | --- | --- | --- | --- |
 | `company_id` | — | O | Verified entity identifier. | — | Unique per bundle. | Non-empty (`min_length=1`). |
-| `raw_features` | Tier 1 input | O | Validated benchmark features (94 canonical inputs after ADR-024). | mixed | Model features, **not** financial-statement line items or deal facts. | Non-empty mapping of finite `float|int`. |
-| `schema_version` | — | D | Version tag (`"v2"`). | — | — | Literal set; v2 enforces the v2 contract. |
+| `raw_features` | Tier 1 input | O | Validated benchmark features (94 canonical inputs after ADR-024). | mixed | Model features, **not** financial-statement line items; only consumed by Tier 1. | Non-empty mapping of finite `float|int`. |
+| `accounting_profile` | Tier 2 input | O / S | 11 required accounting amounts used by `compute_financial_ratios` (see §3.1). | currency / ratio inputs | Observed (verified statement) or synthetic (tagged). | **Required for v2**. Non-empty; all 11 keys finite; no silent zero substitution. |
+| `provenance` | — | D (meta) | Per-field provenance tag per taxonomy (§1). | — | `observed`, `derived`, `synthetic`. Must cover `financial_ratios`, `p90_pd`, `covenant_flags`, `revenue_growth_rate`, `pipeline_value_estimate`, `concentration_flag`. | Required for v2; no missing tags for synthetic-capable fields. |
+| `synthetic_assumptions` | — | D (meta) | Tagged assumptions for any synthetic value (`synthetic_assumptions` key matches field name). | — | Required whenever a value is tagged `synthetic`. | Non-empty for any `synthetic` entry. |
+| `schema_version` | — | D | Version tag (`"v2"`). | — | — | Literal set `{"pre-v0-draft", "v0", "v1", "v2"}`. v2 enforces the v2 contract. |
 | `pd` | Tier 1 | D | Calibrated ML probability of default. | [0,1] | Calibration per ADR-021. | Finite, in `[0.0, 1.0]`. |
 | `credit_rating` | Tier 1 | D | `pd` → rating bracket via `rating_thresholds`. | — | Deterministic mapping. | Member of `VALID_CREDIT_RATINGS`. |
 | `pd_band.p10/.p50/.p90` | Tier 2 | D | Vectorized Monte Carlo (FR3), $N\ge10^4$. | [0,1] | **Scenario-conditional PD percentiles under assumed parameters (R-09)** — never loss estimates or model-estimation confidence intervals. | Finite; monotone `p10 ≤ p50 ≤ p90`. |

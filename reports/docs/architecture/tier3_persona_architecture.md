@@ -53,11 +53,11 @@ Already established and unchanged by this document: Router (trivial pass-through
 
 Each persona is a bounded Worker: it produces a result and evidence: it does not validate its own output, and it does not see the other personas' output before emitting its own.
 
-| Persona     | Mandate                         | Primary weighted evidence                        | Can do                                     | Cannot do                                                        |
-| ----------- | ------------------------------- | ------------------------------------------------ | ------------------------------------------ | ---------------------------------------------------------------- |
-| **CRO**     | Tail-risk exposure              | P90 loss band, covenant/qualitative risk flags   | Read the evidence bundle, emit one verdict | Call any tool, see the other personas' output, modify the bundle |
-| **Growth**  | Commercial/relationship value   | Revenue growth rate, pipeline/relationship value | Same as above                              | Same as above                                                    |
-| **Capital** | Cost of capital / concentration | Capital-consumption estimate, concentration flag | Same as above                              | Same as above                                                    |
+| Persona     | Mandate                         | Primary weighted evidence                                                        | Can do                                     | Cannot do                                                        |
+| ----------- | ------------------------------- | -------------------------------------------------------------------------------- | ------------------------------------------ | ---------------------------------------------------------------- |
+| **CRO**     | Tail-risk exposure              | `p90_pd` (scenario-conditional PD), covenant/qualitative risk flags              | Read the evidence bundle, emit one verdict | Call any tool, see the other personas' output, modify the bundle |
+| **Growth**  | Commercial/relationship value   | Revenue growth rate, pipeline/relationship value                                 | Same as above                              | Same as above                                                    |
+| **Capital** | Cost of capital / concentration | concentration flag and `p90_pd`/rating evidence (PD-based cost-of-capital proxy) | Same as above                              | Same as above                                                    |
 
 This is the concrete mechanism behind ADR-005's "role-specific derived fields": each persona's prompt foregrounds a different pre-computed field from the _same_ evidence bundle. None of these derived fields are computed by the persona itself — they're deterministic outputs of the Financial/Domain Analyst Agent or Tier 2, consistent with INV-1.
 
@@ -68,15 +68,14 @@ This is the concrete mechanism behind ADR-005's "role-specific derived fields": 
 Stage 6 drafts the pre-v0 skeleton with `Optional[...]` placeholders for "everything later tiers add." This is the concrete field list Tier 3 needs, so Stage 6 doesn't have to guess:
 
 ```text
-tail_loss_estimate: Optional[float]           # derived from P90 band — CRO's primary field
+p90_pd: Optional[float]                       # reference to pd_band.p90 (scenario-conditional PD) — CRO's primary field
 covenant_flags: Optional[list[str]]           # qualitative risk flags — CRO
 revenue_growth_rate: Optional[float]          # Growth's primary field
 pipeline_value_estimate: Optional[float]      # Growth
-capital_consumption_estimate: Optional[float] # Capital's primary field
 concentration_flag: Optional[bool]            # Capital
 ```
 
-All six are `None` until Tier 2 / the Financial/Domain Analyst Agent populate them — no change to the pre-v0/v0 versioning resolution already decided (D-0.6). They're additions to the _field list_, not a change to _when_ the schema formally becomes "v0."
+All five are `None` until Tier 2 / the Financial/Domain Analyst Agent populate them — no change to the pre-v0/v0 versioning resolution already decided (D-0.6). They're additions to the _field list_, not a change to _when_ the schema formally becomes "v0."
 
 ---
 
@@ -87,7 +86,7 @@ One addition beyond what's in `system_design.md`'s ADR-004 sketch: a `limitation
 ```python
 class PersonaVerdict(BaseModel):
     persona: Literal["cro", "growth", "capital"]
-    recommendation: Literal["approve", "conditional", "decline"]
+    recommendation: Literal["approve", "conditional", "reject"]
     lean: float = Field(ge=-1.0, le=1.0)
     confidence: float = Field(ge=0.0, le=1.0)
     limitations: list[str] = Field(default_factory=list)

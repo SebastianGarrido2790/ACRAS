@@ -7,7 +7,7 @@
 
 Wave A (`W-A1`–`W-A8`) is complete. Four of the five approval conditions are fully met; condition 4 is partially met because Gemini lifecycle/deprecation remains unverified. No retrain, feature-handling change, gate change, provider swap, DVC pipeline install, or remote change was made.
 
-**A-01–A-07 were approved on 2026-10-23** (§1.1). Execution of the approved changes remains the next step.
+**A-01–A-07 were approved on 2026-10-23** (§1.1). A-06 was executed 2026-11-01 (§6.1); Wave B/C remain.
 
 This package:
 
@@ -27,7 +27,7 @@ This package:
 | **A-03** | Apply Gemini rates **$0.30/$2.50**, `output_billable = total − prompt`, and the `usage.details` passthrough. | Wave B config/code change + cost fixture. |
 | **A-04** | **Retain** the frozen Tier 1 model; **no retrain**. | Record the freeze decision; disclose CV Brier 0.022884 as the conservative estimate. |
 | **A-05** | Lock the v2 seed-case contract (§5), including `accounting_profile` and SC-01–SC-04. | Wave C fixtures + offline harness. |
-| **A-06** | Apply the FR3 / `p90_pd` change note (W-A2 §5 + §6 additions) via change-management. | Execute the edit pass; verify line numbers at application time. |
+| **A-06** | Apply the FR3 / `p90_pd` change note (W-A2 §5 + §6 additions) via change-management. | **Applied 2026-11-01** (see §6.1). |
 | **A-07** | Bounded follow-up: verify Gemini 2.5 Flash lifecycle from a primary source. | Verification task; a near-term date triggers the ADR-034 decision. |
 
 **Effect.** Fixes each recommended option. Rejected alternatives and trade-off text remain unchanged for traceability. This approval records the decisions; it does not itself apply the A-06 edits or implement Wave B/C. A-07 remains a follow-up evidence task.
@@ -59,7 +59,7 @@ This package:
 
 ### Gate R-A — hard prerequisites before Phase 4 Tier 3 planning
 
-- [ ] **FR3 / loss-field / `p90_pd` reconciliation.** Contract + change note delivered (W-A2); application **approved** (A-06, 2026-10-23) but **not yet executed**.
+- [x] **FR3 / loss-field / `p90_pd` reconciliation.** Contract + change note delivered (W-A2) and **applied 2026-11-01** (A-06) across the PRD, Tier 3 architecture, ADR-026, `system_design.md` §7, README, and the schema docstring.
 - [ ] **Tier 3 contracts resolved or explicitly deferred.** Input (W-A2) and verdict (W-A4) resolved; divergence formula/threshold, escalation truth table, qualitative grounding, and fallback-near-threshold policy remain evidence-gated (D-03/D-06). D-02 doc/graph reflection not yet applied.
 - [ ] **Seed-set scope + metrics approved; offline harness can exercise recorded verdicts.** Seed contract locked in §5 (A-05); fixtures + harness are Wave C.
 - [ ] **Required decisions recorded; owner approves Phase 4 planning.** Recorded in §1.1 and §7 (approved 2026-10-23).
@@ -115,7 +115,7 @@ The offline harness (Wave C) replays **recorded** persona verdicts against the d
 
 ## 6. FR3 / `p90_pd` change note
 
-The approved direction (§9.2) is already expressed as exact edits in [`evidence_bundle_v2_contract.md`](evidence_bundle_v2_contract.md) §5. Application is **approved (A-06, 2026-10-23) but not yet executed**. Three additions are required by Wave A evidence:
+The approved direction (§9.2) is expressed as exact edits in [`evidence_bundle_v2_contract.md`](evidence_bundle_v2_contract.md) §5. **Applied 2026-11-01 (A-06)**; see §6.1 for the execution record. Three additions were required by Wave A evidence:
 
 | Target | Current | Proposed |
 | --- | --- | --- |
@@ -123,7 +123,18 @@ The approved direction (§9.2) is already expressed as exact edits in [`evidence
 | `src/schemas/evidence_bundle.py` field docstring | `"Derived domain financial ratios computed from raw features"` | `"Derived from the validated accounting_profile; never from raw_features"` |
 | W-A2 §3 `financial_ratios` row | `compute_financial_ratios(raw_features)` | `compute_financial_ratios(accounting_profile)` (see §5.1) |
 
-The remaining rows (PRD FR3/rubric, tier3 §3–§4, ADR-026 body, README lines 37/67/96) are unchanged from W-A2 §5. Verify line numbers at application time; W-A2's citations predate the W-A3–W-A8 doc commits.
+The remaining rows (PRD FR3/rubric, tier3 §3–§4, ADR-026 body, README lines 37/67/96) follow W-A2 §5; line numbers were re-verified at application time (docs refactor `cb979d4` moved `groundedness/` → `grounding/`).
+
+### 6.1 Execution record (2026-11-01)
+
+Applied files: `reports/docs/grounding/prd.md` (FR3, FR5, rubric), `reports/docs/architecture/tier3_persona_architecture.md` (§3 table, §4 field list, §5 schema), `reports/docs/architecture/system_design.md` (ADR-026 body, §7 deferred-field list), `README.md` (lines 37/67/96), `src/schemas/evidence_bundle.py` (`financial_ratios` docstring), and `evidence_bundle_v2_contract.md` §3.
+
+Two consistency fixes were approved with the execution (owner, 2026-11-01) because the change note alone left the PRD contradicting A-01/A-05:
+
+1. **PRD FR5** — ratios derive from the validated `accounting_profile`, never from `raw_features`.
+2. **PRD rubric (Capital)** — `concentration_flag` + `p90_pd`/rating evidence, replacing "capital consumption" (FR3 amendment 1).
+
+Mechanical consequences: `system_design.md` §7 no longer lists the two excluded loss-denominated fields, and `tier3_persona_architecture.md` §4 counts five fields, not six. No behavior or code logic changed; the only code edit is a Pydantic field docstring.
 
 ## 7. Decision register
 
@@ -138,13 +149,13 @@ Only the decisions Wave A evidence actually requires are listed. Everything else
 | **A-03** | Apply the Gemini pricing/cost correction: rates $0.30/$2.50, `output_billable = total − prompt`, `usage.details` passthrough? | **Approve as a Wave B change.** Current formula undercounts Gemini by ~4× input / ~8.3× output plus reasoning tokens. | W-A1 §4–§5 | Owner decision (formula/config) | **APPROVED 2026-10-23 (Wave B)** |
 | **A-04** | Retain the frozen Tier 1 model or retrain on an independent final test? | **Retain.** CV Brier 0.022884 remains below 0.030; selection optimism 0.002118 is quantified; no retrain indicated. Disclose the CV Brier as the conservative estimate. | W-A5 §6; D-07 | Owner record (freeze/retrain branch) | **APPROVED 2026-10-23 (retain)** |
 | **A-05** | Lock the v2 seed-case contract (§5) including the `accounting_profile` correction and SC-01–SC-04? | **Approve.** It decouples Tier 3 from upstream retraining/raw-row mapping and gives the Wave C harness a fixed target. | §5; W-A2; W-A7 | Owner approval (contract lock) | **APPROVED 2026-10-23 (locked)** |
-| **A-06** | Apply the FR3 / `p90_pd` change note (W-A2 §5 + this package §6 additions) via change-management? | **Approve application.** Direction already approved 2026-10-20; this is the edit pass, not a new decision. | W-A2 §5; this package §6 | Change-management approval | **APPROVED 2026-10-23 (not yet applied)** |
+| **A-06** | Apply the FR3 / `p90_pd` change note (W-A2 §5 + this package §6 additions) via change-management? | **Approve application.** Direction already approved 2026-10-20; this is the edit pass, not a new decision. | W-A2 §5; this package §6 | Change-management approval | **APPLIED 2026-11-01** |
 | **A-07** | Gemini 2.5 Flash lifecycle/deprecation is unverified. | **Bounded follow-up:** verify from a primary source before Phase 4 live reliance. A near-term date triggers the ADR-034 stop rule; no silent model swap. | W-A1 §6 | Follow-up evidence | **APPROVED 2026-10-23 as bounded follow-up (open)** |
 
 ## 8. Recommended next steps
 
 1. **A-01–A-07 are approved (2026-10-23).** Execute the approved changes in the order below; A-07 remains a bounded verification task.
-2. **Apply A-06** (FR3/`p90_pd` change note) through change-management; verify the edited docs against §6.
+2. **A-06 applied 2026-11-01** (FR3/`p90_pd` change note; see §6.1). No further action.
 3. **Wave B (only approved changes):** Gemini rates + cost formula + `details` passthrough (A-03); v2 schema with `accounting_profile` + required-input guard (A-01/A-05); install the DVC graph + commit `dvc.lock` (A-02).
 4. **Wave C:** author the four seed fixtures + offline harness; then Phase 4 scope/spec and implementation-plan approval.
 5. **Follow-up:** Gemini lifecycle verification (A-07); README `dvc pull` + PowerShell quickstart (A-02 companion).
@@ -162,4 +173,5 @@ Only the decisions Wave A evidence actually requires are listed. Everything else
 
 - **W-A5 terminology:** the 3.47% figure is the **mean predicted PD**, not the observed base rate. The test set has 1,364 rows / 44 defaults → observed base rate **3.2258%**. The δ\* shift and Brier/AUC results are unaffected; the post-shift mean PD is 3.47% + 4.10% = 7.57%.
 - **W-A2 source line:** `financial_ratios` is corrected to `accounting_profile` (§5.1); the v2 contract table should be read with this correction.
-- **Tier 3 doc drift:** `decline` → `reject` (D-03), added to the change note (§6).
+- **Tier 3 doc drift:** `decline` → `reject` (D-03), added to the change note (§6) and applied 2026-11-01.
+- **A-06 execution:** PRD FR5 and the Capital rubric clause were corrected alongside the change note (owner-approved 2026-11-01); `system_design.md` §7 field list updated to match the exclusion set (§6.1).

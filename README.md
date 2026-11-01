@@ -34,7 +34,7 @@ Traditional SME credit underwriting suffers from a structural tradeoff between s
 
 **ACRAS solves this by:**
 1. **Accelerating Underwriting:** Compresses standard evaluation turnaround from 5–10 days to **under 15 minutes**.
-2. **Expanding to Risk Distributions:** Replaces point-estimate PDs with vectorized **Monte Carlo simulations (P10/P50/P90 loss and default bands)**.
+2. **Expanding to Risk Distributions:** Replaces point-estimate PDs with vectorized **Monte Carlo simulations (P10/P50/P90 default-probability bands)**; loss bands are deferred until LGD/EAD are in scope.
 3. **Simulating a Committee with Genuine Disagreement:** Parallel persona agents (CRO, Growth Director, Capital Allocation Director) evaluate the same typed evidence bundle independently and compute a deterministic **Divergence Score**.
 4. **Enforcing Strict Governance & HITL:** Automatically routes high-divergence or low-confidence files to **Human-in-the-Loop (HITL)** review. No loan is ever auto-approved.
 
@@ -64,7 +64,7 @@ ACRAS follows the **Deterministic Core / Probabilistic Shell** architectural axi
      ┌────────────────────────────────────────────────────────────────────────┐
       │ TIER 2: MONTE CARLO ENGINE (Deterministic) ✅ Complete                  │
       │ - Vectorized Simulation (NumPy, N ≥ 10,000 iterations, P95 ≈ 1.2ms)    │
-      │ - Computes Loss & Default Distributions (P10 / P50 / P90 Bands)        │
+      │ - Computes Default-Probability Distributions (P10 / P50 / P90 Bands)   │
       │ - Vasicek Benchmark Gate + Cholesky Shocks + Schema v1 (ADR-028–033)   │
      └────────────────────────────────────┬───────────────────────────────────┘
                                           │
@@ -93,7 +93,7 @@ ACRAS follows the **Deterministic Core / Probabilistic Shell** architectural axi
      ┌────────────────────────┐ ┌───────────────────┐ ┌───────────────────────┐
      │ CRO PERSONA NODE       │ │ GROWTH DIRECTOR   │ │ CFO / CAPITAL DIR.    │
      │ Focus: Downside risk,  │ │ Focus: Revenue,   │ │ Focus: Capital cost,  │
-     │ tail loss, covenants   │ │ client lifetime   │ │ hurdle rates, ROE     │
+     │ P90 PD, covenants      │ │ client lifetime   │ │ hurdle rates, ROE     │
      └─────────────┬──────────┘ └─────────┬─────────┘ └──────────┬────────────┘
                    │                      │                      │
                    └──────────────────────┼──────────────────────┘

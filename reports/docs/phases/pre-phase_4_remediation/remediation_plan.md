@@ -283,7 +283,7 @@ Execution workflow moved to [`execution_plan.md`](execution_plan.md) (Wave A–C
 **Status 2026-10-23:** Wave A returned ([`wave_a_return.md`](wave_a_return.md)); A-01–A-07 approved (§9.3). Gate items stay unchecked because approval is not execution: A-06 edits, the A-01/A-05 schema + guard, the A-02 DVC install/remote, the Wave C fixtures/harness, and A-07 lifecycle verification are outstanding.
 
 ### Gate R-A · Hard prerequisites before Phase 4 Tier 3 planning
-- [ ] PRD FR3's loss-band wording is reconciled with the implemented PD-percentile output; **all loss-denominated fields (`tail_loss_estimate`, `capital_consumption_estimate`) are excluded or explicitly tagged `synthetic` with assumptions**, and CRO's quantitative field is `p90_pd` **bound to `pd_band.p90`** and labeled scenario-conditional PD under assumed parameters (R-09).
+- [x] PRD FR3's loss-band wording is reconciled with the implemented PD-percentile output; **all loss-denominated fields (`tail_loss_estimate`, `capital_consumption_estimate`) are excluded or explicitly tagged `synthetic` with assumptions**, and CRO's quantitative field is `p90_pd` **bound to `pd_band.p90`** and labeled scenario-conditional PD under assumed parameters (R-09). Applied 2026-11-01 via A-06.
 - [ ] The Tier 3 input (`EvidenceBundle` v2 with provenance markers), verdict, divergence, escalation, grounding, and failure contracts are resolved or explicitly deferred with bounded implications, and D-02's removal of duplicate analyst nodes is reflected in the architecture docs.
 - [ ] Seed-set scope (3–5 `EvidenceBundle` cases) and metrics are approved; offline regression harness can exercise recorded verdicts.
 - [ ] Required decisions are recorded; the owner separately approves whether Phase 4 planning may begin.
@@ -372,7 +372,7 @@ Remaining inputs are the evidence-first returns under §4, the W-A2 contract tab
 | A-03 | Gemini rates **$0.30/$2.50**, `output_billable = total − prompt`, `usage.details` passthrough (Wave B). |
 | A-04 | **Retain** the frozen Tier 1 model; no retrain; disclose CV Brier 0.022884. |
 | A-05 | Lock the `EvidenceBundle` v2 seed-case contract, including `accounting_profile` and SC-01–SC-04. |
-| A-06 | Apply the FR3 / `p90_pd` change note through change-management (not yet executed). |
+| A-06 | Apply the FR3 / `p90_pd` change note through change-management (applied 2026-11-01). |
 | A-07 | Bounded follow-up: verify Gemini 2.5 Flash lifecycle from a primary source; a near-term date triggers the ADR-034 decision. |
 
 **Effect.** Fixes each recommended option. Records the decisions only: it does not itself execute A-06 or implement Wave B/C, and Phase 4 planning still requires separate approval. Alternatives, rejected options, and trade-off text remain unedited for traceability.

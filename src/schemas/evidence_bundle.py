@@ -103,7 +103,7 @@ class EvidenceBundle(BaseModel):
     pd_band: PDBand | None = None
     financial_ratios: Annotated[
         dict[str, float],
-        Field(description="Derived domain financial ratios computed from raw features"),
+        Field(description="Derived from the validated accounting_profile; never from raw_features"),
     ] | None = None
 
     # Tier 3 Multi-Agent outputs (populated in Phase 4)

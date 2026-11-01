@@ -40,7 +40,7 @@ Legend — provenance: O=observed, D=derived, S=synthetic. Optional fields defau
 | `pd` | Tier 1 | D | Calibrated ML probability of default. | [0,1] | Calibration per ADR-021. | Finite, in `[0.0, 1.0]`. |
 | `credit_rating` | Tier 1 | D | `pd` → rating bracket via `rating_thresholds`. | — | Deterministic mapping. | Member of `VALID_CREDIT_RATINGS`. |
 | `pd_band.p10/.p50/.p90` | Tier 2 | D | Vectorized Monte Carlo (FR3), $N\ge10^4$. | [0,1] | **Scenario-conditional PD percentiles under assumed parameters (R-09)** — never loss estimates or model-estimation confidence intervals. | Finite; monotone `p10 ≤ p50 ≤ p90`. |
-| `financial_ratios` | Tier 2 | D | `compute_financial_ratios(raw_features)` (FR5). | ratio | Deterministic ratio computation; aliases must map to present keys. | Non-empty; every value a finite float; **no silent zero for missing keys** (R-01). |
+| `financial_ratios` | Tier 2 | D | `compute_financial_ratios(accounting_profile)` (FR5). | ratio | Deterministic ratio computation; aliases must map to present keys. | Non-empty; every value a finite float; **no silent zero for missing keys** (R-01). |
 | `p90_pd` | Tier 3 (CRO) | D | **By reference**: `p90_pd := pd_band.p90`. | [0,1] | Scenario-conditional PD under assumed parameters (R-09). | Enforced equal to `pd_band.p90`; **not an independent writable value** (no duplicate). |
 | `pd_tail_spread` | — | — | `p90_pd − pd_band.p50`. | [0,1] | **Not added**: no rubric consumes it. | Deferred candidate (add only if a rubric consumes it). |
 | `covenant_flags` | Tier 3 (CRO) | S | Qualitative risk flags from the structured company profile. | — | Synthetic; tagged "profile-supplied, not observed". | `list[str]` or `None`; never computed. |
@@ -63,7 +63,7 @@ A `v2` fixture is rejected when any of the following hold:
 6. **Loss/uncertainty language** — `pd_band` or `p90_pd` is labelled as a loss estimate or model-estimation confidence interval (must be "scenario-conditional PD under assumed parameters (R-09)").
 7. **Silent zero** — a required source field is missing and silently treated as `0.0` instead of failing.
 
-## 5. Change-note — exact edits for owner sign-off (change-management, not applied here)
+## 5. Change-note — applied 2026-11-01 via A-06 (change-management record)
 
 | Target | Current | Proposed |
 | --- | --- | --- |
@@ -75,6 +75,11 @@ A `v2` fixture is rejected when any of the following hold:
 | `reports/docs/architecture/system_design.md` §6 ADR-026 body | "P90 loss distribution / tail-loss interpretation" | Restate as PD-percentile interpretation with the R-07 "no removal without provenance" rationale. |
 | `README.md` lines 37/67 | "P10/P50/P90 loss and default bands" / "Loss & Default Distributions" | "P10/P50/P90 default-probability bands" (loss deferred). |
 | `README.md` line 96 (persona rubric) | "tail loss, covenants" | "`p90_pd` (scenario-conditional PD), covenants". |
+| `reports/docs/grounding/prd.md` line 58 (FR5) — added at execution | "from verified raw features (ADR-033)" | "from the validated `accounting_profile` (ADR-033), never from `raw_features`" (A-01/A-05). |
+| `reports/docs/grounding/prd.md` line 125 (Capital rubric) — added at execution | "Capital weighted toward capital consumption and concentration" | "Capital weighted toward `concentration_flag` and `p90_pd`/rating evidence (PD-based cost-of-capital proxy)" (FR3 amendment 1). |
+| `reports/docs/architecture/system_design.md` §7 deferred-field list — added at execution | lists `tail_loss_estimate` and `capital_consumption_estimate` | `p90_pd` by reference to `pd_band.p90`; the two loss-denominated fields noted as excluded. |
+
+Line numbers were verified at application time after the `cb979d4` docs refactor (`groundedness/` → `grounding/`).
 
 ## 6. Versioning and ADR gate
 

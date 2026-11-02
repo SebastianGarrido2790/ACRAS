@@ -1,6 +1,6 @@
 # Phase 4 — Tier 3 Multi-Agent Persona Layer · Implementation Plan & Decisions
 
-*Status: **DRAFT — awaiting owner approval**. Decisions below are Proposed, not approved. No implementation is authorized by this document.*
+*Status: **DRAFT — Batch 1 approved (D4-01, D4-04, D4-07 per owner request, 2026-11-02); Batch 2 (D4-02, D4-03, D4-05) and Batch 3 (D4-06, D4-08, D4-09) remain Proposed. Rejected alternatives and trade-off text preserved unedited for traceability. No implementation authorized until Batch 2/3 approved or explicitly waived.*
 
 *Baseline verified 2026-11-01: `233 passed, 5 skipped` (`uv run pytest -q`). Evidence base: `remediation_plan.md` §6/§9, `wave_a_return.md`, `evidence_bundle_v2_contract.md`, `tier3_contracts.md`, `tier3_persona_architecture.md`, `system_design.md` §6, `src/schemas/{evidence_bundle,persona_verdict}.py`, `src/gateway/*`, `tests/fixtures/sc_01..04`, `tests/unit/test_offline_harness.py`.*
 
@@ -97,17 +97,17 @@ One integrated Phase 4 SDD spec is the recommended minimum (remediation plan §5
 
 ## 5. Decision Log Summary
 
-| ID | Title | Scope / impact | Approval required | Status |
-| --- | --- | --- | --- | --- |
-| D4-01 | Tier 3 evidence fields + `PersonaVerdict.limitations` | Canonical bundle/verdict contract; ADR-016 | **Yes** | Proposed |
-| D4-02 | Divergence function structure + provisional constants | FR7, INV-4; Phase 5 calibrates numbers | **Yes** | Proposed |
-| D4-03 | Tier 1 confidence proxy + escalation truth table | FR8, INV-9 | **Yes** (proxy decided by bounded test) | Proposed |
-| D4-04 | Orchestration framework and dependency surface | D-05 instantiation; `pyproject.toml` | **Yes** | Proposed |
-| D4-05 | Report assembly: deterministic template vs LLM narrative | FR9, D-06 | **Yes** | Proposed |
-| D4-06 | Trace artifact scope in Phase 4 | FR9 vs Phase 6 boundary | No — one viable option | Proposed |
-| D4-07 | Per-report call/token/time/cost bounds | INV-6, bounded execution | **Yes** (cost ceiling) | Proposed |
-| D4-08 | Prompt packaging + context isolation | INV-5/8, architecture §7 | No — one viable option | Proposed |
-| D4-09 | Offline verification strategy | D-04, D-06 | No — one viable option | Proposed |
+| ID | Title | Scope / impact | Approval required | Status | Remarks |
+| --- | --- | --- | --- | --- | --- |
+| D4-01 | Tier 3 evidence fields + `PersonaVerdict.limitations` | Canonical bundle/verdict contract; ADR-016 | **Yes** | ✅ **Approved** | Batch 1, per owner request 2026-11-02. Rejected alternatives preserved. |
+| D4-02 | Divergence function structure + provisional constants | FR7, INV-4; Phase 5 calibrates numbers | **Yes** | Proposed | Batch 2 pending. Rejected alternatives preserved. |
+| D4-03 | Tier 1 confidence proxy + escalation truth table | FR8, INV-9 | **Yes** (proxy decided by bounded test) | Proposed | Batch 2 pending. Rejected alternatives preserved. |
+| D4-04 | Orchestration framework and dependency surface | D-05 instantiation; `pyproject.toml` | **Yes** | ✅ **Approved** | Batch 1, per owner request 2026-11-02. Rejected alternatives preserved. |
+| D4-05 | Report assembly: deterministic template vs LLM narrative | FR9, D-06 | **Yes** | Proposed | Batch 2 pending. Rejected alternatives preserved. |
+| D4-06 | Trace artifact scope in Phase 4 | FR9 vs Phase 6 boundary | No — one viable option | Proposed | Record-only; one viable option exists. |
+| D4-07 | Per-report call/token/time/cost bounds | INV-6, bounded execution | **Yes** (cost ceiling) | ✅ **Approved** | Batch 1, per owner request 2026-11-02. Rejected alternatives preserved. |
+| D4-08 | Prompt packaging + context isolation | INV-5/8, architecture §7 | No — one viable option | Proposed | Record-only; one viable option exists. |
+| D4-09 | Offline verification strategy | D-04, D-06 | No — one viable option | Proposed | Record-only; one viable option exists. |
 
 **Recommended approval batches:** Batch 1 — D4-01, D4-04, D4-07 (unblock contract + runtime). Batch 2 — D4-02, D4-03, D4-05 (semantics). Batch 3 — acknowledge D4-06, D4-08, D4-09.
 
@@ -115,7 +115,7 @@ One integrated Phase 4 SDD spec is the recommended minimum (remediation plan §5
 
 ## 6. Decisions
 
-### D4-01 — Complete the Tier 3 evidence contract
+### D4-01 — Complete the Tier 3 evidence contract ✅ **APPROVED (Batch 1, 2026-11-02)**
 
 **Question.** How do personas receive the four rubric fields the locked v2 contract already names, and where does `limitations` live?
 
@@ -132,7 +132,7 @@ One integrated Phase 4 SDD spec is the recommended minimum (remediation plan §5
 
 **Recommendation.** **A.** Implementation must preserve `None` (never default to `0.0`/`False`), keep `p90_pd` computed, and validate `limitations` as strings.
 
-**Approval.** Owner: yes (canonical contract change). **Status.** Proposed.
+**Approval.** Owner: yes (canonical contract change). **Status.** ✅ **Approved 2026-11-02** (Batch 1).
 
 **Consequences.** ADR-016 filed at approval; `system_design.md` §7 deferred-field note closed; P4-02 may consume `bundle.<field>` directly. Any future field addition still follows ADR-014.
 
@@ -205,7 +205,9 @@ One integrated Phase 4 SDD spec is the recommended minimum (remediation plan §5
 
 **Recommendation.** **A** — implement the minimal graph (fan-out → join → divergence → report); do not add Pydantic AI. If dependency cost is unacceptable, B is viable only with an explicit D-05 supersession.
 
-**Approval.** Owner: yes (new dependency). **Status.** Proposed.
+**Approval.** Owner: yes (new dependency). **Status.** ✅ **Approved** (Batch 1, 2026-11-02).
+
+**Consequences.** `pyproject.toml` gains `tier3`; serving image unchanged; graph nodes are thin wrappers over `GatewayService.complete`.
 
 **Consequences.** `pyproject.toml` gains `tier3`; serving image unchanged; graph nodes are thin wrappers over `GatewayService.complete`.
 
@@ -251,7 +253,7 @@ One integrated Phase 4 SDD spec is the recommended minimum (remediation plan §5
 
 ---
 
-### D4-07 — Per-report call, token, time, and cost bounds
+### D4-07 — Per-report call, token, time, and cost bounds ✅ **APPROVED (Batch 1, 2026-11-02)**
 
 **Question.** What bounds enforce INV-6 and bounded execution for one Tier 3 report?
 
@@ -263,7 +265,7 @@ One integrated Phase 4 SDD spec is the recommended minimum (remediation plan §5
 
 **Recommendation.** **A**, marked provisional; Phase 5 tunes. Exceeding a cap yields `incomplete`/stop, never a partial silent report.
 
-**Approval.** Owner: yes (cost ceiling). **Status.** Proposed.
+**Approval.** Owner: yes (cost ceiling). **Status.** ✅ **Approved** (Batch 1, 2026-11-02).
 
 **Consequences.** Worst case ≈12 provider attempts/report (6 calls × 2 legs) but repair-triggered attempts are expected to be rare and are logged as a signal.
 

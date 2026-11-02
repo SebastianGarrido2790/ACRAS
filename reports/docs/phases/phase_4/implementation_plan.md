@@ -1,6 +1,6 @@
 # Phase 4 — Tier 3 Multi-Agent Persona Layer · Implementation Plan & Decisions
 
-*Status: **DRAFT — Batch 1 approved (D4-01, D4-04, D4-07 per owner request, 2026-11-02); Batch 2 (D4-02, D4-03, D4-05) and Batch 3 (D4-06, D4-08, D4-09) remain Proposed. Rejected alternatives and trade-off text preserved unedited for traceability. No implementation authorized until Batch 2/3 approved or explicitly waived.*
+*Status: **DRAFT — Batch 1 (D4-01, D4-04, D4-07) and Batch 2 (D4-02, D4-03, D4-05) approved (2026-11-02); Batch 3 (D4-06, D4-08, D4-09) remain Proposed. Rejected alternatives and trade-off text preserved unedited for traceability. No implementation authorized until Batch 3 approved or explicitly waived.*
 
 *Baseline verified 2026-11-01: `233 passed, 5 skipped` (`uv run pytest -q`). Evidence base: `remediation_plan.md` §6/§9, `wave_a_return.md`, `evidence_bundle_v2_contract.md`, `tier3_contracts.md`, `tier3_persona_architecture.md`, `system_design.md` §6, `src/schemas/{evidence_bundle,persona_verdict}.py`, `src/gateway/*`, `tests/fixtures/sc_01..04`, `tests/unit/test_offline_harness.py`.*
 
@@ -100,16 +100,16 @@ One integrated Phase 4 SDD spec is the recommended minimum (remediation plan §5
 | ID | Title | Scope / impact | Approval required | Status | Remarks |
 | --- | --- | --- | --- | --- | --- |
 | D4-01 | Tier 3 evidence fields + `PersonaVerdict.limitations` | Canonical bundle/verdict contract; ADR-016 | **Yes** | ✅ **Approved** | Batch 1, per owner request 2026-11-02. Rejected alternatives preserved. |
-| D4-02 | Divergence function structure + provisional constants | FR7, INV-4; Phase 5 calibrates numbers | **Yes** | Proposed | Batch 2 pending. Rejected alternatives preserved. |
-| D4-03 | Tier 1 confidence proxy + escalation truth table | FR8, INV-9 | **Yes** (proxy decided by bounded test) | Proposed | Batch 2 pending. Rejected alternatives preserved. |
+| D4-02 | Divergence function structure + provisional constants | FR7, INV-4; Phase 5 calibrates numbers | **Yes** | ✅ **Approved** | Batch 2, per owner request 2026-11-02. Rejected alternatives preserved. |
+| D4-03 | Tier 1 confidence proxy + escalation truth table | FR8, INV-9 | **Yes** (proxy decided by bounded test) | ✅ **Approved** | Batch 2, per owner request 2026-11-02. Rejected alternatives preserved. |
 | D4-04 | Orchestration framework and dependency surface | D-05 instantiation; `pyproject.toml` | **Yes** | ✅ **Approved** | Batch 1, per owner request 2026-11-02. Rejected alternatives preserved. |
-| D4-05 | Report assembly: deterministic template vs LLM narrative | FR9, D-06 | **Yes** | Proposed | Batch 2 pending. Rejected alternatives preserved. |
+| D4-05 | Report assembly: deterministic template vs LLM narrative | FR9, D-06 | **Yes** | ✅ **Approved** | Batch 2, per owner request 2026-11-02. Rejected alternatives preserved. |
 | D4-06 | Trace artifact scope in Phase 4 | FR9 vs Phase 6 boundary | No — one viable option | Proposed | Record-only; one viable option exists. |
 | D4-07 | Per-report call/token/time/cost bounds | INV-6, bounded execution | **Yes** (cost ceiling) | ✅ **Approved** | Batch 1, per owner request 2026-11-02. Rejected alternatives preserved. |
 | D4-08 | Prompt packaging + context isolation | INV-5/8, architecture §7 | No — one viable option | Proposed | Record-only; one viable option exists. |
 | D4-09 | Offline verification strategy | D-04, D-06 | No — one viable option | Proposed | Record-only; one viable option exists. |
 
-**Recommended approval batches:** Batch 1 — D4-01, D4-04, D4-07 (unblock contract + runtime). Batch 2 — D4-02, D4-03, D4-05 (semantics). Batch 3 — acknowledge D4-06, D4-08, D4-09.
+**Recommended approval batches:** Batch 1 (D4-01, D4-04, D4-07) ✅ approved; Batch 2 (D4-02, D4-03, D4-05) ✅ approved; Batch 3 (D4-06, D4-08, D4-09) — acknowledge.
 
 ---
 
@@ -138,7 +138,7 @@ One integrated Phase 4 SDD spec is the recommended minimum (remediation plan §5
 
 ---
 
-### D4-02 — Divergence function structure
+### D4-02 — Divergence function structure ✅ **APPROVED (Batch 2, 2026-11-02)**
 
 **Question.** Which deterministic function over `recommendation`, `lean`, and `confidence` computes divergence, given INV-4 and deferred calibration?
 
@@ -155,13 +155,13 @@ One integrated Phase 4 SDD spec is the recommended minimum (remediation plan §5
 
 **Recommendation.** **B**, with `divergence_threshold: 0.50` as an explicit **provisional** constant in `params.yaml` marked `calibration: provisional-phase5`. Phase 5 owns calibration; no accuracy claim in Phase 4.
 
-**Approval.** Owner: yes (formula + provisional constant). **Status.** Proposed.
+**Approval.** Owner: yes (formula + provisional constant). **Status.** ✅ **Approved (Batch 2, 2026-11-02)**.
 
 **Consequences.** Pure function, no I/O, unit/property tests (permutation invariance, bounds, monotonicity, zero-weight fail-safe = 1.0). Threshold changes are a Phase 5 calibration act, not a code refactor.
 
 ---
 
-### D4-03 — Tier 1 confidence proxy and escalation truth table
+### D4-03 — Tier 1 confidence proxy and escalation truth table ✅ **APPROVED (Batch 2, 2026-11-02)**
 
 **Question.** What deterministic Tier 1 confidence measure feeds FR8/INV-9, and how does escalation combine it with divergence?
 
@@ -183,7 +183,7 @@ One integrated Phase 4 SDD spec is the recommended minimum (remediation plan §5
 - `escalate` — divergence ≥ threshold **or** Tier 1 confidence < threshold; a fallback-served verdict is tagged with its provider and **provisionally escalated** (fail-safe default; D-06 leaves the exact fallback policy to evidence). Report carries the HITL flag.
 - `success` — all three valid, divergence below threshold, confidence above threshold.
 
-**Approval.** Owner: yes (proxy selection after test; thresholds provisional). **Status.** Proposed.
+**Approval.** Owner: yes (proxy selection after test; thresholds provisional). **Status.** ✅ **Approved (Batch 2, 2026-11-02)**.
 
 **Consequences.** Truth table is exhaustively tested; `escalate` never means auto-approve; `incomplete` never produces a report.
 
@@ -213,7 +213,7 @@ One integrated Phase 4 SDD spec is the recommended minimum (remediation plan §5
 
 ---
 
-### D4-05 — Report assembly: deterministic template vs LLM narrative
+### D4-05 — Report assembly: deterministic template vs LLM narrative ✅ **APPROVED (Batch 2, 2026-11-02)**
 
 **Question.** How is the executive report assembled while satisfying D-06 numeric grounding?
 
@@ -229,7 +229,7 @@ One integrated Phase 4 SDD spec is the recommended minimum (remediation plan §5
 
 **Recommendation.** **A.** Numeric grounding is structural, not a post-hoc check. Persona prose stays attributed and unedited.
 
-**Approval.** Owner: yes (report artifact). **Status.** Proposed.
+**Approval.** Owner: yes (report artifact). **Status.** ✅ **Approved (Batch 2, 2026-11-02)**.
 
 **Consequences.** No LLM call in report assembly; template changes are presentation-only; B remains a Phase 5+ option if executive prose is required.
 

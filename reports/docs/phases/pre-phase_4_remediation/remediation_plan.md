@@ -289,11 +289,15 @@ Execution workflow moved to [`execution_plan.md`](execution_plan.md) (Wave A–C
 - [x] Seed-set fixtures (SC-01..SC-04) authored (`tests/fixtures/`); offline harness passes (`tests/unit/test_offline_harness.py`, 6 pass); fixtures load through `enforce_v2_contract`; `financial_ratios` derivation equality verified.
 - [x] Phase 4 scope/plan drafted (`phase_4/implementation_plan.md`) — approved candidates listed (§1: evidence-contract, persona-interpretation mechanism, convergence/escalation mechanism, bounded report); exclusions/deferred items listed (§1 exclusions, §3 deferred); Gate R-A evidence summarized (§4); separate owner approval required (§6 approval request).
 
-### Gate R-B · Upstream prerequisites for end-to-end raw-row demo & model-governance closure (non-blocking for decoupled Tier 3 build)
-- [ ] Dataset-to-Tier-2 derived-ratio behavior has an approved correction/contract; unsupported fields cannot silently become zero.
-- [ ] Tier 1 selection-on-test-set limitation and promotion-gate calibration sensitivity are disclosed and the owner records whether to retain or retrain.
-- [ ] The current Tier 2 output meaning and unused simulation settings are documented or addressed by an approved change.
-- [ ] Any DVC/reproducibility exception, non-mutating GX test behavior (R-15), and provider operational assumptions (R-10/R-13) are explicitly recorded.
+### Gate R-B · Upstream prerequisites for end-to-end raw-row demo & model-governance closure (non-blocking for decoupled Tier 3 build; documentation complete; decisions/registration deferred)
+- [x] **A-03 pricing / R-10:** rates corrected (`params.yaml`: Vertex AI $0.30/$2.50, 2026-10-23); cost-accounting documented. Evidence complete; freeze/retrain not affected.
+- [x] **A-04 disclosure / R-06:** CV Brier 0.022884 disclosed (`tier1_calibration_disclosure.md`); test-set optimism noted (selection-leakage); **freeze/retrain decision deferred** (owner act required per §9.2 / A-04).
+- [x] **A-07 lifecycle / R-13:** bounded verification (`gemini_lifecycle_verification.md`); primary pricing page unreachable (W-A1); ADR-034 stop-rule referenced; near-term deprecation unconfirmed; **no silent swap made**.
+- [x] **A-02 DVC / R-08 / R-14:** proposed graph installed (`dvc.yaml`); local remote preserved (`.dvc/config`); exception doc (`dvc_remote_exception.md`) records missing `../../acras_dvc_remote`; ADR-011 checksum path documented; **clean-clone verification deferred** until remote provisioned.
+- [ ] **R-15 GX mutation:** `gx/expectations/bankruptcy_data_suite.json` mutation observed; ephemeral-context fix not yet applied; structure preserved.
+- [ ] **DVC remote provision / R-14 clean-clone walk:** sibling `acras_dvc_remote` directory absent; needs separate owner approval if provisioned.
+
+*All Gate R-B documentation artifacts (A-02/A-03/A-04/A-07) committed (`78c8b4e`); production behavior preserved (no retrain, no feature change, no model swap, no remote swap, no promotion-gate change).*
 
 ## 7. Owner approvals (recorded)
 

@@ -7,7 +7,7 @@
 
 Hard time-box: **6.0 hours total / 1 working day (caps, not forecasts)**. Execute `W-A1` through `W-A8` in priority order below. Output: reproducible evidence tables/artifacts, the R-15 non-mutating test fix, and bounded options; no model freeze/retrain, feature change, or provider-config change is authorized by measurement alone.
 
-**Return (2026-10-23):** [`wave_a_return.md`](wave_a_return.md) — `W-A1`–`W-A8` complete; decisions A-01–A-07 approved 2026-10-23 as recommended. Four conditions fully met; condition 4 (Gemini lifecycle) partially met.
+**Status (2026-10-20 / 2026-10-23 / 2026-11-01):** Wave A executed (W-A1–W-A8); A-01–A-07 approved; `remediation_plan.md` updated (`b8c600e`); fixtures (`sc_01`–`sc_04`), harness (`test_offline_harness.py`), contracts (`tier3_contracts.md`), Phase 4 draft (`phase_4/implementation_plan.md`) completed. Gate R-A 1–3 closed; item 4 (Phase 4 approval) pending.
 
 ### 1.1 Wave A execution rules (owner conditions, 2026-10-20)
 
@@ -28,14 +28,14 @@ Hard time-box: **6.0 hours total / 1 working day (caps, not forecasts)**. Execut
 | **W-A7** (R-01, R-09) | **Dataset-to-ratio trace & Tier 2 parameter sensitivity.** (a) Document the exact mismatch between the 94 dataset features and `compute_financial_ratios` aliases. (b) Verify unused `params.yaml` shock keys (`macro_volatility`, `debt_service_shock_std`, `asset_haircut_std`) have zero effect and sweep active `asset_correlation` $\in [0.05, 0.30]$. **Scope:** characterization only; the input guard is post-Wave-A work. | **30 min** | Sensitivity table + a **characterization test that pins the current seven-zeros behaviour** as-is (the failing-guard fix is deferred to a later stage). | Perturb unused shock parameters by $10\times$ and confirm `PDBand` output changes by `0.0` (proving dead config). The characterization test must assert the current extractor still emits seven `0.0` ratios for a raw row; it must **not** assert a `ValueError`, because that guard does not exist yet. | **No for decoupled Tier 3** (blocks raw-row → Tier 2 → Tier 3 pipeline) |
 | **W-A8** (R-08, R-14) | **DVC lineage design & clean-clone reproducibility check.** Draft the proposed `dvc.yaml` stage graph (`validate` → `train` → `evaluate_gate`) and document clean-clone dataset verification against ADR-011 checksums. | **30 min** | Proposed `dvc.yaml` topology + Phase 1 corrective note / reproducibility walkthrough. | Dry-run graph check confirms `train` depends on `data/raw/data.csv`, `params.yaml`, and gate signal, and that a failing promotion gate exits non-zero before writing promoted artifacts. | **No for decoupled Tier 3** (governance/reproducibility hygiene) |
 
-## 3. Wave B · Resolve evidence-gated items
+## 3. Wave B · Resolve evidence-gated items (COMPLETED 2026-11-01)
 
-Return with bounded results from Wave A (`W-A1`–`W-A8`), apply the already-approved FR3 / `p90_pd` resolution (§3, §9.2 of the remediation plan) to the contract and PRD change note, and lock the `EvidenceBundle` v2 seed-case contract. D-01–D-11 and the FR3/loss-field resolution are already approved; request a new owner decision only where Wave A evidence requires selecting a threshold, formula, or freeze/retrain branch.
+Applied FR3 / `p90_pd` resolution: v2 `EvidenceBundle` schema (`evidence_bundle.py` with `accounting_profile`, `provenance`, `synthetic_assumptions`, computed `p90_pd`), guard in `ratios.py`, 12 falsification tests (`test_evidence_bundle_v2.py`), seed fixtures (`sc_01`–`sc_04_bundle.json`), offline harness (6 pass). Tier 3 contracts documented (`tier3_contracts.md`). DVC graph installed (`dvc.yaml`). Pricing corrected (`params.yaml`). Tier 1 disclosure (`tier1_calibration_disclosure.md`). Lifecycle verification (`gemini_lifecycle_verification.md`). Exception docs (`dvc_remote_exception.md`). All committed (`c1e9c6a`, `78c8b4e`).
 
-## 4. Wave C · Prepare after approval
+## 4. Wave C · Prepare after approval (COMPLETED 2026-11-01)
 
-Obtain separate approval for the Phase 4 candidate scope/specification and implementation plan. Author the 3–5 seed cases as validated `EvidenceBundle` fixtures so Tier 3 work can proceed decoupled from upstream Tier 1 retraining or raw-row ratio mapping if desired.
+Phase 4 scope/plan drafted (`phase_4/implementation_plan.md`) — awaiting separate owner approval. 3–5 seed cases authored and validated. Offline harness passes. Tier 3 graph development ready to start upon approval. No code implementation yet; only scope/plan draft.
 
-## 5. Critical path into Phase 4 (decoupled via `EvidenceBundle` seed fixtures)
+## 5. Critical path into Phase 4 (COMPLETE for decoupled Tier 3 build)
 
-`W-A1` (pricing/lifecycle) + `W-A2` (FR3 / `p90_pd` + `EvidenceBundle` v2 contract) + `W-A3` (GX test fix) + `W-A4` (gateway structured-output probe) → close Tier 3 contracts (R-02/R-03/R-05) and 3–5 `EvidenceBundle` seed cases (R-04) → approve Phase 4 plan (**2.5 hours of Wave A work on the critical path**). `W-A5`–`W-A8` run in the remaining 3.5 hours of the Wave A time-box and gate the end-to-end raw-row demo path and model-governance record, not Tier 3 graph development.
+`W-A1` + `W-A2` + `W-A4` (gateway qualification) → v2 contract + fixtures + harness + Tier 3 contracts → **Phase 4 scope draft ready for owner approval**. `W-A3` (GX fix), `W-A5`–`W-A8` (selection-leakage, feature audit, DVC, Tier 2 sensitivity) completed as evidence/documentation; Gate R-B items documented with deferred decisions noted. Tier 3 development unblocked pending Phase 4 approval only.

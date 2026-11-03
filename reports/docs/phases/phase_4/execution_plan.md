@@ -17,8 +17,6 @@ Each stage has a hard gate. **No work in the next stage begins until the current
 
 **Authority split.** This plan controls phase-level sequence and gates. `001_tier3_persona_layer/` controls feature contracts, design, and tasks. Neither silently replaces the other.
 
-**Git governance.** `.agents/workflows/git_ops.md` applies: the agent may inspect history and diffs, but MUST NOT commit, amend, or push without explicit, operation-scoped authorization. Stage 0 records the starting commit; every stage reports its diff and waits for approval before the next task batch.
-
 ---
 
 ## 2. Execution preconditions
@@ -269,11 +267,10 @@ The SDD follows `specification → human approval → plan → tasks → impleme
 3. **Stop-the-line.** On any unexpected failure, regression, or schema mismatch, stop, preserve evidence, diagnose the root cause, fix, verify, and only then resume. Never push past a broken test, and never weaken a test to obtain green.
 4. **Change protocol.** If implementation reveals a decision that differs from the approved plan: halt the stage; record original decision, new evidence, proposed change, downstream impact, recommendation; update `implementation_plan.md`; obtain operator approval; update the SDD; resume only after the decision is locked. This applies to Q-1's resolution, the LangGraph concurrency mechanism, and any threshold or fixture change.
 5. **Task-batch control.** Work only from approved `tasks.md` items. Stop after each task or approved batch, present the diff and evidence, and obtain the required approval before continuing.
-6. **Git governance.** `.agents/workflows/git_ops.md`: no commit, amend, or push without explicit authorization scoped to that operation; verify branch, status, staged diff, validation, and the absence of secrets before any authorized commit; disclose known validation failures.
-7. **Secret hygiene.** No credentials in source, `params.yaml`, fixtures, prompts, logs, chat, or generated artifacts. Live runs use out-of-band environment variables.
-8. **Live-provider boundary.** Routine CI makes no provider call. The live smoke is opt-in, credential-safe, and never a gate.
-9. **Scope walls.** Do not change Tier 1/Tier 2 behavior, `EvidenceBundle` v1, gateway behavior, provider/model pins, promotion gates, or add calibration claims. Do not add a dependency beyond the approved `tier3` group.
-10. **Cost and time bounds.** The D4-07 caps are enforced, not advisory. Exceeding a bound yields `incomplete`.
+6. **Secret hygiene.** No credentials in source, `params.yaml`, fixtures, prompts, logs, chat, or generated artifacts. Live runs use out-of-band environment variables.
+7. **Live-provider boundary.** Routine CI makes no provider call. The live smoke is opt-in, credential-safe, and never a gate.
+8. **Scope walls.** Do not change Tier 1/Tier 2 behavior, `EvidenceBundle` v1, gateway behavior, provider/model pins, promotion gates, or add calibration claims. Do not add a dependency beyond the approved `tier3` group.
+9. **Cost and time bounds.** The D4-07 caps are enforced, not advisory. Exceeding a bound yields `incomplete`.
 
 ---
 

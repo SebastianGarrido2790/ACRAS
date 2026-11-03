@@ -30,7 +30,37 @@ All must hold before Stage 0 starts:
 - [x] Implementation authorization granted for **Stage 0 only** (2026-11-03). Stages 1+ require separate authorization.
 - [x] Gate R-A items 1–4 evidenced; Gate R-B items remain open and are recorded as **non-blocking** for the decoupled Tier 3 build.
 - [x] Phase 3 closure evidence verified: gateway, breakers, events, and cost/usage semantics are in place; Phase 3 is not reopened.
-**Stage 0 record** -> stage_0_record.md (2026-11-03 evidence preserved; no production behavior changed).
+
+---
+
+## 3. Implementation Stages
+
+### Stage 0 — Pre-Implementation Verification & Dependency Check ✅ **PASSED**
+
+**Goal.** Establish the actual repository state, confirm every approval and open question, and prove the plan is executable before any production code changes.
+
+**Actions**
+
+1. Record branch, `HEAD`, working-tree status, and any local-only commits (the Batch 3 acknowledgment `1c5480e` was intentionally not pushed). No Git writes.
+2. Re-run `uv run pytest -q`, `uv run ruff check .`, and `uv run pyright`; record exact counts, skips, duration, and exit codes rather than copying the 2026-11-01 baseline.
+3. Immediately re-check `git status --porcelain`. Any tracked-file mutation caused by the suite (notably `gx/expectations/bankruptcy_data_suite.json`) fails the stage — that is an R-15 regression.
+4. Verify the plan's state claims against the repository, not against the document: the four fields and `limitations` are absent; `params.yaml` has no `tier3` block; `src/agents/{prompts,orchestration}` are docstring-only; the offline harness has 6 passing tests; fixtures validate as v2. Any mismatch is a blocker to reconcile, never something to "fix" silently.
+5. Verify ADR-016 is still reserved with no body, `system_design.md` §3 still lists the duplicate Data Scientist / Financial Analyst rows, and the Phase 4 status row reads "Not started". Record exact line references for the later corrections.
+6. Verify approvals and the clarification gate: plan batches, SDD package, this execution plan, explicit implementation authorization, and the owner's **Q-1** choice (plus Q-2/Q-3/Q-4). An unresolved Q-1 blocks Stages 1–2.
+7. Dependency check: resolve a candidate `langgraph` pin with a dry-run (no install, no lockfile write), confirm Python 3.12 compatibility, confirm it belongs in `[dependency-groups] tier3` **and** `[tool.uv] default-groups` (so CI installs it) while `uv sync --no-default-groups` in the Dockerfile keeps it out of serving. Confirm `pydantic-ai` stays absent.
+8. Concurrency spike: with a throwaway, uncommitted script, measure whether the pinned LangGraph version executes the three fan-out branches concurrently or serially under sync `invoke`. Record measured wall time with sleep stubs. If serial, record that `ainvoke` + `asyncio.to_thread` is required; do not modify Phase 3 gateway code.
+9. Verify provider and cost preconditions: both models remain pinned (no swap), `params.yaml` rates match the A-03 record, the live smoke test remains environment-gated, and no credentials exist in tracked files.
+10. Verify Gate R-B status and record that the end-to-end raw-row demo, Tier 1 freeze/retrain decision, dataset-to-ratio mapping, Tier 2 semantics, and DVC remote provisioning are **not** Phase 4 exit criteria. They block the raw-row demo and Phase 5 promotion, not this build.
+11. Pre-register the Q-1 arithmetic (`spec.md` §7 table) and the owner's chosen selection criterion as stage evidence, so Stage 2 cannot retro-fit a criterion to its result.
+12. Produce the baseline record. No production functionality is implemented in this stage.
+
+**Inputs / dependencies.** Approved package; Phase 1–3 evidence; fixtures and harness; `params.yaml`; `pyproject.toml`; Dockerfile; CI workflow.
+
+**ADR Implements.** None new. This stage verifies applicability of already accepted decisions.
+
+**Falsification.** No artificial fault. Reconcile three concrete claims (fields absent; harness 6 pass; no `tier3` config) against the repository and prove or disprove each. A claim that cannot be reproduced fails the gate.
+
+**Stage 0 evidence** -> [stage evidence](stages_evidence.md#stage-0--pre-implementation-verification--dependency-check) (2026-11-03 evidence preserved; no production behavior changed).
 
 **Gate 0 — Baseline accepted.** Starting commit, exact test/static-check results, and a clean post-suite status are recorded; approvals and the Q-1 disposition are recorded; the dependency pin and branch-concurrency mechanism are documented; no production behavior has changed.
 

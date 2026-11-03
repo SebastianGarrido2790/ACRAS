@@ -1,7 +1,7 @@
 # ACRAS Phase 4 — Staged Execution Plan
 
 **Phase:** 4 — Tier 3 Multi-Agent Persona Layer
-**Status:** 🟡 **DRAFT — awaiting owner approval.** No stage is authorized to start.
+**Status:** ✅ **APPROVED — 2026-11-02** (execution package approved; Q-1 clarification gate blocking; implementation authorization separate). No stage is authorized to start.
 **Planning baseline:** Phase 3 closed 2026-10-19; pre-Phase-4 remediation Gate R-A items 1–4 closed; Phase 4 decisions D4-01…D4-09 approved/acknowledged 2026-11-02; baseline suite `233 passed, 5 skipped` (2026-11-01).
 **Feature SDD:** `001_tier3_persona_layer/{spec,plan,tasks}.md` — one integrated SDD for P4-01…P4-04 (implementation plan §4).
 

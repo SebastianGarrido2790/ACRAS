@@ -1,6 +1,6 @@
 # Tasks — 001 Tier 3 Persona Layer
 
-**Status:** 🟡 **DRAFT — awaiting package approval.** No task is executable until the owner approves `spec.md`, `plan.md`, this task list, and `../execution_plan.md`, and explicitly authorizes implementation.
+**Status:** ✅ **APPROVED — 2026-11-02** (execution package approved; Q-1 clarification gate blocking; implementation authorization separate). No task is executable until the owner explicitly authorizes implementation.
 
 Execution order and per-stage hard gates are controlled by `../execution_plan.md`. A task may span a stage boundary only where the execution plan says so; no task starts before its stage's predecessor gate passes.
 

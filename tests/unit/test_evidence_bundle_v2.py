@@ -40,13 +40,15 @@ def _base_kwargs() -> dict:
             "financial_ratios": "derived",
             "p90_pd": "derived",
             "covenant_flags": "synthetic",
-            "revenue_growth_rate": "derived",
+            "revenue_growth_rate": "synthetic",
             "pipeline_value_estimate": "synthetic",
-            "concentration_flag": "derived",
+            "concentration_flag": "synthetic",
         },
         "synthetic_assumptions": {
             "covenant_flags": "supplied profile flags; not observed",
+            "revenue_growth_rate": "assumed from profile; not observed",
             "pipeline_value_estimate": "deal-level synthetic",
+            "concentration_flag": "assumed from profile; not observed",
         },
     }
 
@@ -172,8 +174,8 @@ def test_f11_synthetic_tagged() -> None:
 def test_f11b_synthetic_assumptions_present() -> None:
     """§5.3-5: Synthetic fields must have tagged assumptions."""
     kwargs = _base_kwargs()
-    # If provenance tags a field synthetic but no assumption, contract says invalid.
-    # Our schema doesn't enforce this at Pydantic level; we rely on manual test.
+    # An explicit `synthetic` tag must always carry a matching assumption entry;
+    # the v2 validator rejects the bundle otherwise (ADR-016 / T3-FR-02).
     kwargs["provenance"]["pipeline_value_estimate"] = "synthetic"
     kwargs["synthetic_assumptions"]["pipeline_value_estimate"] = "deal-level synthetic"
     bundle = EvidenceBundle(**kwargs)  # type: ignore[arg-type]

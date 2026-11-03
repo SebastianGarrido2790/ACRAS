@@ -1,5 +1,5 @@
 {
-  "_fixture": "SC-04: incomplete / low confidence (one persona missing, synthetic fields None, HITL)",
+  "_fixture": "SC-04: persona-level incomplete evidence (typed fields None, conditional verdicts, HITL)",
   "_version": "v2",
   "company_id": "SC-04-INCOMPLETE",
   "raw_features": {
@@ -23,13 +23,20 @@
     "financial_ratios": "derived",
     "p90_pd": "derived",
     "covenant_flags": "synthetic",
-    "revenue_growth_rate": "derived",
-    "pipeline_value_estimate": "derived",
-    "concentration_flag": "derived"
+    "revenue_growth_rate": "synthetic",
+    "pipeline_value_estimate": "synthetic",
+    "concentration_flag": "synthetic"
   },
   "synthetic_assumptions": {
-    "covenant_flags": "profile-supplied; incomplete information \u00e2\u20ac\u201d missing covenant history"
+    "covenant_flags": "profile-supplied; incomplete information - missing covenant history",
+    "revenue_growth_rate": "no source supplied; value stays None; persona records limitation",
+    "pipeline_value_estimate": "no source supplied; value stays None; persona records limitation",
+    "concentration_flag": "no source supplied; value stays None; persona records limitation"
   },
+  "covenant_flags": null,
+  "revenue_growth_rate": null,
+  "pipeline_value_estimate": null,
+  "concentration_flag": null,
   "pd": 0.065,
   "credit_rating": "B",
   "pd_band": {

@@ -1,0 +1,79 @@
+{
+  "_fixture": "SC-05: low Tier 1 confidence (near-boundary PD, wide band, personas converge)",
+  "_version": "v2",
+  "company_id": "SC-05-LOW-CONFIDENCE",
+  "raw_features": {
+    "leverage": 0.42
+  },
+  "schema_version": "v2",
+  "accounting_profile": {
+    "current_assets": 400000.0,
+    "current_liabilities": 220000.0,
+    "quick_assets": 260000.0,
+    "total_debt": 380000.0,
+    "total_equity": 550000.0,
+    "net_income": 60000.0,
+    "total_revenue": 900000.0,
+    "operating_profit": 110000.0,
+    "ebit": 110000.0,
+    "interest_expense": 28000.0,
+    "total_assets": 1000000.0
+  },
+  "provenance": {
+    "financial_ratios": "derived",
+    "p90_pd": "derived",
+    "covenant_flags": "synthetic",
+    "revenue_growth_rate": "synthetic",
+    "pipeline_value_estimate": "synthetic",
+    "concentration_flag": "synthetic"
+  },
+  "synthetic_assumptions": {
+    "covenant_flags": "profile-supplied; no covenant breach",
+    "revenue_growth_rate": "assumed +8% YoY from profile; not observed",
+    "pipeline_value_estimate": "deal-level synthetic; moderate pipeline",
+    "concentration_flag": "profile-supplied; no customer concentration"
+  },
+  "covenant_flags": [],
+  "revenue_growth_rate": 0.08,
+  "pipeline_value_estimate": 200000.0,
+  "concentration_flag": false,
+  "pd": 0.0145,
+  "credit_rating": "BBB",
+  "pd_band": {
+    "p10": 0.005,
+    "p50": 0.0145,
+    "p90": 0.05
+  },
+  "financial_ratios": {
+    "current_ratio": 1.8181818181818181,
+    "quick_ratio": 1.1818181818181819,
+    "debt_to_equity": 0.6909090909090909,
+    "net_profit_margin": 0.06666666666666667,
+    "ebitda_margin": 0.12222222222222222,
+    "interest_coverage": 3.9285714285714284,
+    "asset_turnover": 0.9
+  },
+  "persona_verdicts": {
+    "cro": {
+      "persona": "cro",
+      "recommendation": "approve",
+      "lean": 0.35,
+      "confidence": 0.62,
+      "rationale": "PD sits near the BBB/BB boundary with a wide P90 band; covenant flags clean, so approval is qualified by tail risk."
+    },
+    "growth": {
+      "persona": "growth",
+      "recommendation": "approve",
+      "lean": 0.4,
+      "confidence": 0.58,
+      "rationale": "Moderate revenue growth and pipeline support approval; band width limits conviction."
+    },
+    "capital": {
+      "persona": "capital",
+      "recommendation": "approve",
+      "lean": 0.3,
+      "confidence": 0.6,
+      "rationale": "No concentration flag and acceptable cost-of-capital proxy; near-boundary PD warrants monitoring, not rejection."
+    }
+  }
+}

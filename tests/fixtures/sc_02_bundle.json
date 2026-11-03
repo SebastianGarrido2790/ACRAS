@@ -23,14 +23,20 @@
     "financial_ratios": "derived",
     "p90_pd": "derived",
     "covenant_flags": "synthetic",
-    "revenue_growth_rate": "derived",
+    "revenue_growth_rate": "synthetic",
     "pipeline_value_estimate": "synthetic",
-    "concentration_flag": "derived"
+    "concentration_flag": "synthetic"
   },
   "synthetic_assumptions": {
     "covenant_flags": "profile-supplied; covenant breach indicator present",
-    "pipeline_value_estimate": "high deal pipeline (growth driver)"
+    "revenue_growth_rate": "assumed +35% YoY from profile; not observed",
+    "pipeline_value_estimate": "high deal pipeline (growth driver)",
+    "concentration_flag": "profile-supplied; no customer concentration"
   },
+  "covenant_flags": ["covenant_breach_indicator"],
+  "revenue_growth_rate": 0.35,
+  "pipeline_value_estimate": 750000.0,
+  "concentration_flag": false,
   "pd": 0.045,
   "credit_rating": "BB",
   "pd_band": {

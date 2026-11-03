@@ -14,6 +14,12 @@ Governed by:
     Wave B (A-01/A-05): EvidenceBundle v2 adds `accounting_profile` as the required
         source for `financial_ratios`, provenance tracking for synthetic fields, and
         a computed `p90_pd` bound to `pd_band.p90`.
+    ADR-016 (P4-01): v2 additively gains the Tier 3 interpretation fields
+        (`covenant_flags`, `revenue_growth_rate`, `pipeline_value_estimate`,
+        `concentration_flag`) and `PersonaVerdict.limitations`. No version bump:
+        every addition is optional, `None` stays `None`, and no existing field
+        changes meaning. `synthetic` requires a tagged assumption; `derived` is
+        limited to `financial_ratios` and `p90_pd`.
 
 Architectural Milestone Note (D-0.6 / ADR-014, advanced by D-2.4 / ADR-032):
     Authored in Phase 0 as the PRE-V0 DRAFT SKELETON, advanced in Phase 2 Stage 5
@@ -55,6 +61,12 @@ ACCOUNTING_PROFILE_KEYS: frozenset[str] = frozenset(
 )
 
 
+#: Fields the v2 contract permits tagging `derived` (ADR-016 / T3-FR-02).
+#: `financial_ratios` derives from `accounting_profile`; `p90_pd` derives from
+#: `pd_band.p90`. Any other `derived` tag is a contract violation.
+DEFINED_DERIVATIONS: frozenset[str] = frozenset({"financial_ratios", "p90_pd"})
+
+
 class PDBand(BaseModel):
     """Monte Carlo probability of default distribution percentiles (Tier 2)."""
 
@@ -93,6 +105,10 @@ class PersonaVerdict(BaseModel):
         float, Field(ge=0.0, le=1.0, description="Subjective confidence in verdict")
     ]
     rationale: Annotated[str, Field(min_length=10, description="Auditable reasoning narrative")]
+    limitations: Annotated[
+        list[str],
+        Field(description="Evidence the persona could not verify; empty when none (ADR-016)."),
+    ] = Field(default_factory=list)
 
 
 class EvidenceBundle(BaseModel):
@@ -138,6 +154,31 @@ class EvidenceBundle(BaseModel):
             )
         ),
     ] | None = None
+
+    # Tier 3 interpretation inputs (Phase 4 / P4-01 / ADR-016). Optional by design:
+    # `None` means "not available" and is never coerced to 0.0, [], or False.
+    covenant_flags: Annotated[
+        list[str] | None,
+        Field(description="Covenant breach/observation flags; None when unavailable."),
+    ] = None
+    revenue_growth_rate: (
+        Annotated[
+            float,
+            Field(description="Revenue growth rate as a fraction; None when unavailable."),
+        ]
+        | None
+    ) = None
+    pipeline_value_estimate: (
+        Annotated[float, Field(description="Deal pipeline value estimate; None when unavailable.")]
+        | None
+    ) = None
+    concentration_flag: (
+        Annotated[
+            bool,
+            Field(description="Customer/revenue concentration flag; None when unavailable."),
+        ]
+        | None
+    ) = None
 
     # Provenance meta fields (required for v2)
     provenance: dict[str, Literal["observed", "derived", "synthetic"]] | None = None
@@ -194,6 +235,10 @@ class EvidenceBundle(BaseModel):
 
         For v2 bundles, require `accounting_profile` present; if `financial_ratios` is given,
         ensure `financial_ratios == compute_financial_ratios(accounting_profile)`.
+
+        Provenance (ADR-016 / T3-FR-02):
+        - every field tagged `synthetic` needs a matching `synthetic_assumptions` entry;
+        - `derived` is restricted to the contract's defined derivations.
         """
         if self.schema_version != "v2":
             return self
@@ -231,8 +276,13 @@ class EvidenceBundle(BaseModel):
         missing_tags = required_provenance_tags - set(self.provenance.keys())
         if missing_tags:
             raise ValueError(f"v2 `provenance` missing tags: {sorted(missing_tags)}.")
-        for tag_key in ("covenant_flags", "pipeline_value_estimate", "revenue_growth_rate"):
-            if tag_key in self.provenance and self.provenance[tag_key] == "synthetic":
+        for tag_key, tag_value in self.provenance.items():
+            if tag_value == "derived" and tag_key not in DEFINED_DERIVATIONS:
+                raise ValueError(
+                    f"v2 provenance tags `{tag_key}` derived, but the contract defines "
+                    f"only {sorted(DEFINED_DERIVATIONS)} as derivations."
+                )
+            if tag_value == "synthetic":
                 if self.synthetic_assumptions is None or tag_key not in self.synthetic_assumptions:
                     raise ValueError(
                         f"v2 provenance tags `{tag_key}` synthetic but no "

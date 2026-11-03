@@ -1,7 +1,7 @@
 # ACRAS Phase 4 — Staged Execution Plan
 
 **Phase:** 4 — Tier 3 Multi-Agent Persona Layer
-**Status:** ✅ **Stage 0 complete 2026-11-03** — Gate 0 passed (baseline green after owner-approved hygiene fix); Stages 1–6 not started.
+**Status:** ✅ **Stage 1 complete 2026-11-03** — Gate 0 passed; Gate 1 passed after ADR-016 acceptance. Stages 2–6 not started.
 **Planning baseline:** Phase 3 closed 2026-10-19; pre-Phase-4 remediation Gate R-A items 1–4 closed; Phase 4 decisions D4-01…D4-09 approved/acknowledged 2026-11-02; baseline suite `233 passed, 5 skipped` (2026-11-01).
 **Feature SDD:** `001_tier3_persona_layer/{spec,plan,tasks}.md` — one integrated SDD for P4-01…P4-04 (implementation plan §4).
 
@@ -27,7 +27,7 @@ All must hold before Stage 0 starts:
 - [x] Integrated SDD package (`spec.md`, `plan.md`, `tasks.md`) explicitly approved by the owner.
 - [x] This execution plan explicitly approved.
 - [x] **Clarification gate closed**: Q-1 resolved `b` (fixture repair + SC-05; `a` retained as fallback), Q-2/Q-3/Q-4 resolved — `001_tier3_persona_layer/spec.md` §7.
-- [x] Implementation authorization granted for **Stage 0 only** (2026-11-03). Stages 1+ require separate authorization.
+- [x] Implementation authorization granted for **Stage 0** and **Stage 1** (2026-11-03). Stages 2+ require separate authorization.
 - [x] Gate R-A items 1–4 evidenced; Gate R-B items remain open and are recorded as **non-blocking** for the decoupled Tier 3 build.
 - [x] Phase 3 closure evidence verified: gateway, breakers, events, and cost/usage semantics are in place; Phase 3 is not reopened.
 
@@ -87,6 +87,8 @@ All must hold before Stage 0 starts:
 **Falsification.** Temporarily set a new field's default to `0.0` (the exact failure D-01 forbids) and confirm the null-preservation test fails; restore and re-run green.
 
 **Gate 1 — Contract complete and seed cases coherent.** All contract tests pass; `None` is preserved; seed cases validate and are internally consistent; ADR-016 is accepted; v1 and Tier 1/Tier 2 behavior are unchanged.
+
+**Stage 1 record** → `stage_1_record.md` (contract, mapping table, repairs, falsification, verification). **Gate 1 status:** ✅ passed 2026-11-03 — 252 passed / 5 skipped, ruff and pyright clean, 19 new checks, falsification demonstrated, ADR-016 accepted.
 
 ---
 
@@ -250,7 +252,7 @@ All must hold before Stage 0 starts:
 | Stage | Name | Primary deliverable | ADRs | Gate | Status |
 | --- | --- | --- | --- | --- | --- |
 | 0 | Pre-Implementation Verification & Dependency Check | Baseline, dependency pin, concurrency mechanism, Q-1 disposition | None new | Baseline accepted | ✅ Passed 2026-11-03 |
-| 1 | Evidence Contract & Seed-Case Integrity | Typed fields + `limitations`, coherent seed cases | **ADR-016** | Contract complete | ⬜ Not started |
+| 1 | Evidence Contract & Seed-Case Integrity | Typed fields + `limitations`, coherent seed cases | **ADR-016** | Contract complete | ✅ Passed 2026-11-03 |
 | 2 | Deterministic Convergence Core | Divergence, both proxies, escalation | None new | Convergence provable | ⬜ Not started |
 | 3 | Persona Workers & Context Isolation | Three isolated workers + prompts | None new | Isolation proven | ⬜ Not started |
 | 4 | Orchestration, Report & Trace | Graph, report template, in-memory trace | None new | Orchestration auditable | ⬜ Not started |
@@ -263,9 +265,9 @@ All must hold before Stage 0 starts:
 | Integrated SDD (`001_tier3_persona_layer`) | ✅ Approved 2026-11-02 |
 | This Execution Plan | ✅ Approved 2026-11-02 |
 | Clarification gate (Q-1) | ✅ Closed 2026-11-03 — Q-1(`b`), Q-2, Q-3, Q-4 resolved |
-| Implementation authorization | 🟡 Stage 0 granted 2026-11-03; Stages 1–6 not granted |
-| Stages 0–6 | 🟡 Stage 0 passed; 1–6 not started |
+| Implementation authorization | 🟡 Stage 0 and Stage 1 granted 2026-11-03; Stages 2–6 not granted |
+| Stages 0–6 | 🟡 Stages 0–1 passed; 2–6 not started |
 
-**Next gate.** Stage 1 requires explicit implementation authorization after the Stage 0 commit is pushed. Stage 2 selection is bound to the frozen Q-1 criterion in `spec.md` §7.
+**Next gate.** Stage 2 requires explicit implementation authorization. Stage 2 selection is bound to the frozen Q-1 criterion in `spec.md` §7.
 
-**Approval status.** Package approved 2026-11-02; clarification gate closed and Stage 0 passed 2026-11-03. Approval of this plan does not authorize Stage 1 or later; each stage's work requires explicit, operation-scoped authorization, and Git writes remain separately authorized.
+**Approval status.** Package approved 2026-11-02; clarification gate closed 2026-11-03; Stages 0 and 1 authorized and implemented. Approval of this plan does not authorize Stage 2 or later; each stage's work requires explicit, operation-scoped authorization, and Git writes remain separately authorized.

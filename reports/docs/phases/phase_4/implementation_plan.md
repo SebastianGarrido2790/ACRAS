@@ -327,7 +327,7 @@ Filled after implementation; the plan stays open until reviewed against approved
 
 | Item | Expectation | Actual | Finding | Severity | Remediation | Status |
 | --- | --- | --- | --- | --- | --- | --- |
-| P4-01 contract | Four typed fields + `limitations`; `None` preserved | — | — | — | — | Pending |
+| P4-01 contract | Four typed fields + `limitations`; `None` preserved | Four fields + `limitations` added on v2; provenance narrowed (`derived` = `financial_ratios`/`p90_pd`; every `synthetic` tag needs an assumption); 19 contract/integrity checks green; falsification with default `0.0` failed the null-preservation test, then passed after restore | Seed set had a second latent incoherence (SC-03 `credit_rating` BBB vs deterministic BB) and SC-04's label conflated persona-level gaps with low Tier 1 confidence | Low | SC-01/SC-03 ratings corrected, SC-04 relabelled, SC-05 added; no verdict or financial-ratio rewrite | ✅ Complete 2026-11-03 |
 | P4-02 personas | 3 isolated parallel calls; uniform temp; one repair max | — | — | — | — | Pending |
 | P4-03 divergence | Deterministic, permutation-invariant, bounded; truth table covered | — | — | — | — | Pending |
 | P4-04 report/trace | Numbers trace to bundle; incomplete → no report; trace complete | — | — | — | — | Pending |

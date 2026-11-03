@@ -3,7 +3,7 @@
 Replays recorded `EvidenceBundle` fixtures and verifies:
   1. Each fixture validates against the v2 schema contract.
   2. Persona verdicts match the recorded pattern
-     (SC-01 converge, SC-02/03 diverge, SC-04 incomplete).
+     (SC-01/SC-05 converge, SC-02/03 diverge, SC-04 incomplete).
   3. Divergence computation is deterministic over verdict fields.
   4. No LLM is invoked (offline replay only).
 
@@ -25,6 +25,7 @@ SC_MAP = {
     "sc_02_bundle.json": ("sc_02_bundle.json", "diverge"),
     "sc_03_bundle.json": ("sc_03_bundle.json", "diverge"),
     "sc_04_bundle.json": ("sc_04_bundle.json", "incomplete"),
+    "sc_05_bundle.json": ("sc_05_bundle.json", "low_confidence"),
 }
 
 

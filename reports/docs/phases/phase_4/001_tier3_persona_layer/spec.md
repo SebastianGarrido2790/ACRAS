@@ -132,15 +132,17 @@ Arithmetic over the recorded fixtures (`params.yaml` rating thresholds; proxy A 
 
 **Fallback (a):** no fixture edits; select proxy B on construct validity (it measures decision stability, which is what FR8 means by Tier 1 confidence), verify both directions on constructed test inputs rather than fixtures, and record that the seed set cannot evidence Tier 1 separation.
 
-Either option keeps thresholds `provisional-phase5` and makes no accuracy claim. **Owner decision required.**
+**Selected (recommended b):** fixture repair + SC-05, proxy B selected, thresholds provisional. **Rejected option preserved (a):** construct-validity selection, no fixture edits, seed inconclusive — available if owner declines edits. **Owner confirmation required before Stage 2 starts; authorization separate.**
 
-**Q-2 — cost unknown vs the cost cap (needs owner confirmation).** The gateway reports `cost_usd` only when usage and rates are known. D4-07 defines behavior when a cap is *exceeded*, not when cost is *unknowable*. Recommended fail-safe: mark `cost_unknown` in the trace and provisionally escalate to HITL rather than treat unknown as `$0`.
+**Q-1 — RESOLVED (recommended b; a retained as fallback).** Repair seed set within 3–5 budget: SC-01 coherent (rating/PD/band consistent), SC-04 label corrected, add SC-05 as genuine low-confidence case near boundary; select proxy against SC-05 (proxy B construct-valid; proxy A structurally inverted for any `ref`). Rejected option (a) preserved: construct-validity selection with constructed inputs, no fixture edits, seed set inconclusive.
 
-**Q-3 — seed-case integrity edits (needs owner confirmation).** Completing P4-01 requires populating the four typed fields in SC-01…SC-04. Values are either already evidenced or added as explicit `synthetic` values with `synthetic_assumptions`; no field may be tagged `derived` without a defined derivation (`revenue_growth_rate`, `concentration_flag` are currently tagged `derived` with no derivation available). Verdicts are not modified. Q-1 may add SC-05.
+**Q-2 — RESOLVED (recommended fail-safe).** `cost_unknown` in trace → escalate to HITL; never $0. Keeps D4-07 cap meaningful. Rejected option preserved: assume unknown = $0.
 
-**Q-4 — lean anchor table (needs owner approval).** The anchor table in `plan.md` §3.5 becomes part of the persona prompts and therefore part of verdict semantics. It is proposed, not assumed.
+**Q-3 — RESOLVED (recommended).** Populate fields from evidence/synthetic with `synthetic_assumptions`; fix `derived` tags (`revenue_growth_rate`, `concentration_flag`) to defined derivations; no verdict/ratio rewrite; SC-05 added if Q-1(b). Fallback preserved: partial population, document gaps.
 
-**Record-only (no owner input needed):** `incomplete` returns an outcome object with `report=None` (INV-9 forbids a partial report); ADR-016 records the v2 additive change and supersedes the `system_design.md` §7 note that expected a version bump.
+**Q-4 — APPROVED (recommended).** Lean anchor table (`±1.0/±0.5/0.0`) approved from `plan.md` §3.5; part of prompt semantics. Alternative (no anchor, free-floating `lean`) rejected.
+
+**Record-only (no owner input needed):** `incomplete` → `report=None` (INV-9); ADR-016 (v2 additive, supersedes `system_design.md` §7 version-bump note).
 
 ## 8. Definition of done
 

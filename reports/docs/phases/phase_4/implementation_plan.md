@@ -1,6 +1,6 @@
 # Phase 4 — Tier 3 Multi-Agent Persona Layer · Implementation Plan & Decisions
 
-*Status: **DRAFT — Batch 1 (D4-01, D4-04, D4-07), Batch 2 (D4-02, D4-03, D4-05), Batch 3 (D4-06, D4-08, D4-09) acknowledged (2026-11-02); Batch 3 items are record-only (one viable option each). Rejected alternatives and trade-off text preserved unedited for traceability. No implementation authorized by this document.*
+*Status: **ALL DECISIONS APPROVED — Batch 1 (D4-01, D4-04, D4-07) ✅, Batch 2 (D4-02, D4-03, D4-05) ✅, Batch 3 (D4-06, D4-08, D4-09) ✅ (2026-11-02); Batch 3 items were record-only (one viable option each). Rejected alternatives and trade-off text preserved unedited for traceability. No implementation authorized by this document.*
 
 *Baseline verified 2026-11-01: `233 passed, 5 skipped` (`uv run pytest -q`). Evidence base: `remediation_plan.md` §6/§9, `wave_a_return.md`, `evidence_bundle_v2_contract.md`, `tier3_contracts.md`, `tier3_persona_architecture.md`, `system_design.md` §6, `src/schemas/{evidence_bundle,persona_verdict}.py`, `src/gateway/*`, `tests/fixtures/sc_01..04`, `tests/unit/test_offline_harness.py`.*
 
@@ -104,12 +104,12 @@ One integrated Phase 4 SDD spec is the recommended minimum (remediation plan §5
 | D4-03 | Tier 1 confidence proxy + escalation truth table | FR8, INV-9 | **Yes** (proxy decided by bounded test) | ✅ **Approved** | Batch 2, per owner request 2026-11-02. Rejected alternatives preserved. |
 | D4-04 | Orchestration framework and dependency surface | D-05 instantiation; `pyproject.toml` | **Yes** | ✅ **Approved** | Batch 1, per owner request 2026-11-02. Rejected alternatives preserved. |
 | D4-05 | Report assembly: deterministic template vs LLM narrative | FR9, D-06 | **Yes** | ✅ **Approved** | Batch 2, per owner request 2026-11-02. Rejected alternatives preserved. |
-| D4-06 | Trace artifact scope in Phase 4 | FR9 vs Phase 6 boundary | No — one viable option | ✅ **Acknowledged (Batch 3)** | Record-only; one viable option exists. |
+| D4-06 | Trace artifact scope in Phase 4 | FR9 vs Phase 6 boundary | No — one viable option | ✅ **Approved** | Batch 3 (record-only; one viable option). Rejected alternatives preserved. |
 | D4-07 | Per-report call/token/time/cost bounds | INV-6, bounded execution | **Yes** (cost ceiling) | ✅ **Approved** | Batch 1, per owner request 2026-11-02. Rejected alternatives preserved. |
-| D4-08 | Prompt packaging + context isolation | INV-5/8, architecture §7 | No — one viable option | ✅ **Acknowledged (Batch 3)** | Record-only; one viable option exists. |
-| D4-09 | Offline verification strategy | D-04, D-06 | No — one viable option | ✅ **Acknowledged (Batch 3)** | Record-only; one viable option exists. |
+| D4-08 | Prompt packaging + context isolation | INV-5/8, architecture §7 | No — one viable option | ✅ **Approved** | Batch 3 (record-only; one viable option). Rejected alternatives preserved. |
+| D4-09 | Offline verification strategy | D-04, D-06 | No — one viable option | ✅ **Approved** | Batch 3 (record-only; one viable option). Rejected alternatives preserved. |
 
-**Acknowledged batches:** Batch 1 (D4-01, D4-04, D4-07) ✅ approved; Batch 2 (D4-02, D4-03, D4-05) ✅ approved; Batch 3 (D4-06, D4-08, D4-09) ✅ acknowledged.
+**Acknowledged batches:** Batch 1 (D4-01, D4-04, D4-07) ✅ approved; Batch 2 (D4-02, D4-03, D4-05) ✅ approved; Batch 3 (D4-06, D4-08, D4-09) ✅ approved.
 
 ---
 
@@ -235,7 +235,7 @@ One integrated Phase 4 SDD spec is the recommended minimum (remediation plan §5
 
 ---
 
-### D4-06 — Trace artifact scope in Phase 4 ✅ **ACKNOWLEDGED (Batch 3, 2026-11-02)**
+### D4-06 — Trace artifact scope in Phase 4 ✅ **APPROVED (Batch 3)**
 
 **Question.** FR9 requires a full machine-readable trace; the Roadmap assigns persistence to Phase 6. What does Phase 4 produce?
 
@@ -247,7 +247,7 @@ One integrated Phase 4 SDD spec is the recommended minimum (remediation plan §5
 
 **Recommendation.** **A** — one viable option under the roadmap boundary. Persistence schema is Phase 6.
 
-**Approval.** No approval required — only one viable option exists under the applicable constraints. **Status.** ✅ **Acknowledged (Batch 3, 2026-11-02)**.
+**Approval.** No approval required — only one viable option exists under the applicable constraints. **Status.** ✅ **Approved (Batch 3, 2026-11-02)** — record-only; rejected alternatives preserved.
 
 **Consequences.** Phase 6 consumes `Tier3Trace` without re-running the pipeline; no storage dependency added.
 
@@ -271,7 +271,7 @@ One integrated Phase 4 SDD spec is the recommended minimum (remediation plan §5
 
 ---
 
-### D4-08 — Prompt packaging and context isolation ✅ **ACKNOWLEDGED (Batch 3, 2026-11-02)**
+### D4-08 — Prompt packaging and context isolation ✅ **APPROVED (Batch 3)**
 
 **Question.** Where do persona prompts live, and how is "the three personas never see each other" enforced?
 
@@ -283,13 +283,13 @@ One integrated Phase 4 SDD spec is the recommended minimum (remediation plan §5
 
 **Recommendation.** **A** — one viable option; B allows cross-persona context bleed and weakens INV-5/ADR-005.
 
-**Approval.** No approval required — only one viable option exists under the applicable constraints. **Status.** ✅ **Acknowledged (Batch 3, 2026-11-02)**.
+**Approval.** No approval required — only one viable option exists under the applicable constraints. **Status.** ✅ **Approved (Batch 3, 2026-11-02)** — record-only; rejected alternatives preserved.
 
 **Consequences.** Prompts are versioned and testable; no persona sees another's prompt, output, or raw trace; all calls use `temperature=0.0`.
 
 ---
 
-### D4-09 — Offline verification strategy ✅ **ACKNOWLEDGED (Batch 3, 2026-11-02)**
+### D4-09 — Offline verification strategy ✅ **APPROVED (Batch 3)**
 
 **Question.** How is divergence/convergence verified without live provider calls on every run?
 
@@ -301,7 +301,7 @@ One integrated Phase 4 SDD spec is the recommended minimum (remediation plan §5
 
 **Recommendation.** **A** — one viable option under D-04; B makes CI cost/nondeterminism unacceptable.
 
-**Approval.** No approval required — only one viable option exists under the applicable constraints. **Status.** ✅ **Acknowledged (Batch 3, 2026-11-02)**.
+**Approval.** No approval required — only one viable option exists under the applicable constraints. **Status.** ✅ **Approved (Batch 3, 2026-11-02)** — record-only; rejected alternatives preserved.
 
 **Consequences.** CI is deterministic; live smoke is opt-in and never a gate.
 
@@ -309,7 +309,7 @@ One integrated Phase 4 SDD spec is the recommended minimum (remediation plan §5
 
 ## 7. What Happens After Approval
 
-1. **Record approvals** in §6 (`Approved <date>`) and file **ADR-016** (D4-01) if it passes the ADR threshold.
+1. **Record approvals** in §6 (`Approved <date>`) and file **ADR-016** (D4-01) if it passes the ADR threshold. All nine decisions are approved (Batch 1 ✅, Batch 2 ✅, Batch 3 ✅); no pending approvals remain.
 2. **Doc correction (D-02):** remove the duplicate Data Scientist / Financial Analyst rows from `system_design.md` §3; update the Phase 4 status row.
 3. **Config:** add `params.yaml` `tier3:` block (D4-02/D4-03/D4-07) marked provisional; add the `tier3` dependency group (D4-04).
 4. **SDD:** open one integrated `spec.md` → `plan.md` → `tasks.md` under `reports/docs/phases/phase_4/`; tasks grouped P4-01..P4-04.
@@ -338,10 +338,14 @@ Filled after implementation; the plan stays open until reviewed against approved
 
 ---
 
-## 9. Approval Request
+## 9. Approval Request — **CLOSED 2026-11-02**
 
-**Batch 1 (unblock):** D4-01 (contract), D4-04 (LangGraph + dependency), D4-07 (bounds).
-**Batch 2 (semantics):** D4-02 (divergence formula + provisional constant), D4-03 (confidence proxy via bounded test + thresholds), D4-05 (deterministic report).
-**Batch 3 (acknowledge):** D4-06, D4-08, D4-09 (no-approval-required records).
+All nine decisions were approved as recommended, in three batches:
+
+- **Batch 1 (unblock) — D4-01** (contract), **D4-04** (LangGraph + dependency), **D4-07** (bounds).
+- **Batch 2 (semantics) — D4-02** (divergence formula + provisional constant), **D4-03** (confidence proxy via bounded test + thresholds), **D4-05** (deterministic report).
+- **Batch 3 (record-only) — D4-06**, **D4-08**, **D4-09** (one viable option each).
+
+Rejected alternatives and their trade-off text were preserved unedited for traceability; approved decisions are highlighted throughout §5 and §6.
 
 *Not authorized by this document: any code implementation, dependency installation, threshold adoption as final, data/training change, provider/model swap, promotion-gate change, or durable trace storage.*

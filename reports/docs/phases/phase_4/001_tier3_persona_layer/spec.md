@@ -1,6 +1,6 @@
 # Feature Specification — 001 Tier 3 Persona Layer
 
-**Status:** ✅ **APPROVED — 2026-11-02** (execution package approved; Q-1 clarification gate blocking; implementation authorization separate). No implementation is authorized by this document.
+**Status:** ✅ **APPROVED — 2026-11-02**; clarification gate closed 2026-11-03 (Q-1 `b`, Q-2/Q-3/Q-4 resolved, §7); Stage 0 complete. Implementation authorization separate.
 
 **Authority:** `../implementation_plan.md` (D4-01…D4-09 approved/acknowledged 2026-11-02), PRD FR6–FR9, `invariants.md` (INV-1/2/4/5/6/8/9/10), ADR-002/004/005/006/009/014/033/034, `../../pre-phase_4_remediation/tier3_contracts.md`, `../../pre-phase_4_remediation/evidence_bundle_v2_contract.md`, `../../architecture/tier3_persona_architecture.md`.
 

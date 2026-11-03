@@ -23,16 +23,16 @@ RAW_DATA = Path("data/raw/data.csv")
 
 def test_raw_dataset_row_yields_seven_zero_ratios() -> None:
     """Characterization (R-01): a raw benchmark row yields seven 0.0 ratios.
-    
+
     No `ValueError` is raised because the required-input guard does not exist
     yet; this test pins the observed current behavior, not a desired future one.
     """
     if not RAW_DATA.exists():
         pytest.skip("Raw dataset not present.")
-    
+
     df = pd.read_csv(RAW_DATA)
     row = df[list(CANONICAL_FEATURES)].iloc[0].to_dict()
-    
+
     with pytest.raises(ValueError, match="accounting_profile.*missing"):
         compute_financial_ratios(row)
 

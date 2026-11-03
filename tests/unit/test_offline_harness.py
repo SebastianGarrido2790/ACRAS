@@ -2,7 +2,8 @@
 
 Replays recorded `EvidenceBundle` fixtures and verifies:
   1. Each fixture validates against the v2 schema contract.
-  2. Persona verdicts match the recorded pattern (SC-01 converge, SC-02/03 diverge, SC-04 incomplete).
+  2. Persona verdicts match the recorded pattern
+     (SC-01 converge, SC-02/03 diverge, SC-04 incomplete).
   3. Divergence computation is deterministic over verdict fields.
   4. No LLM is invoked (offline replay only).
 
@@ -14,8 +15,6 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-
-import pytest
 
 from src.schemas.evidence_bundle import EvidenceBundle
 
@@ -32,8 +31,8 @@ SC_MAP = {
 def _load_fixture(filename: str) -> EvidenceBundle:
     data = json.loads((FIXTURE_DIR / filename).read_text(encoding="utf-8"))
     # Remove meta keys before Pydantic load
-    meta = data.pop("_fixture", None)
-    meta_v = data.pop("_version", None)
+    data.pop("_fixture", None)
+    data.pop("_version", None)
     return EvidenceBundle(**data)  # type: ignore[arg-type]
 
 
@@ -47,7 +46,8 @@ def test_all_fixtures_load_and_validate() -> None:
         assert bundle.p90_pd == bundle.pd_band.p90
         assert bundle.provenance is not None
         assert bundle.financial_ratios is not None
-        assert bundle.financial_ratios and not all(v == 0.0 for v in bundle.financial_ratios.values())
+        assert bundle.financial_ratios, "fixture must carry financial ratios"
+        assert not all(v == 0.0 for v in bundle.financial_ratios.values())
 
 
 def test_sc01_converge_no_escalation() -> None:

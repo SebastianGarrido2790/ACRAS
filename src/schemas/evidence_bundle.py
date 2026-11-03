@@ -28,7 +28,7 @@ from __future__ import annotations
 import math
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator, computed_field
+from pydantic import BaseModel, ConfigDict, Field, computed_field, model_validator
 
 #: Canonical discrete credit-rating categories (ADR-021 / params.yaml
 #: `rating_thresholds`). Single source for v1 `credit_rating` membership checks.
@@ -131,7 +131,12 @@ class EvidenceBundle(BaseModel):
     # Tier 2 v2 input (Wave B / A-01 + A-05)
     accounting_profile: Annotated[
         dict[str, float],
-        Field(description="The 11 required accounting amounts (validated input or synthetic) for v2; never derived."),
+        Field(
+            description=(
+                "The 11 required accounting amounts (validated input or synthetic) "
+                "for v2; never derived."
+            )
+        ),
     ] | None = None
 
     # Provenance meta fields (required for v2)
@@ -193,7 +198,9 @@ class EvidenceBundle(BaseModel):
         if self.schema_version != "v2":
             return self
         if self.accounting_profile is None:
-            raise ValueError("v2 bundle requires non-null `accounting_profile` (Tier 2 input guard).")
+            raise ValueError(
+                "v2 bundle requires non-null `accounting_profile` (Tier 2 input guard)."
+            )
         if set(self.accounting_profile.keys()) != ACCOUNTING_PROFILE_KEYS:
             missing = ACCOUNTING_PROFILE_KEYS - set(self.accounting_profile.keys())
             extra = set(self.accounting_profile.keys()) - ACCOUNTING_PROFILE_KEYS
@@ -205,7 +212,9 @@ class EvidenceBundle(BaseModel):
             raise ValueError("v2 `accounting_profile` keys mismatch: " + "; ".join(detail))
         for k, v in self.accounting_profile.items():
             if not isinstance(v, (int, float)) or not math.isfinite(v):
-                raise ValueError(f"v2 `accounting_profile[{k!r}]` must be a finite number. Got {v!r}.")
+                raise ValueError(
+                    f"v2 `accounting_profile[{k!r}]` must be a finite number. Got {v!r}."
+                )
         # Provenance meta fields (required for v2) — §4-1 / §5.3-6
         required_provenance_tags = {
             "financial_ratios",
@@ -226,7 +235,8 @@ class EvidenceBundle(BaseModel):
             if tag_key in self.provenance and self.provenance[tag_key] == "synthetic":
                 if self.synthetic_assumptions is None or tag_key not in self.synthetic_assumptions:
                     raise ValueError(
-                        f"v2 provenance tags `{tag_key}` synthetic but no `synthetic_assumptions` entry."
+                        f"v2 provenance tags `{tag_key}` synthetic but no "
+                        "`synthetic_assumptions` entry."
                     )
         if self.financial_ratios is not None:
             from src.tier2_simulation.ratios import compute_financial_ratios

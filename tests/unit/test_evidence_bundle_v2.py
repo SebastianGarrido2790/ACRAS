@@ -80,7 +80,10 @@ def test_f03_all_zero_ratios() -> None:
 
 
 def test_f04_loss_field_present() -> None:
-    """§4-4: `tail_loss_estimate` or `capital_consumption_estimate` must be rejected (excluded set)."""
+    """§4-4: `tail_loss_estimate` or `capital_consumption_estimate` must be rejected.
+
+    Both belong to the excluded loss-denominated set.
+    """
     kwargs = _base_kwargs()
     # Since `extra="forbid"`, passing `tail_loss_estimate` as a field raises.
     with pytest.raises(ValidationError):
@@ -104,6 +107,7 @@ def test_f05b_p90_pd_equals_pd_band_p90() -> None:
     """§4-5 (positive): `p90_pd` must equal `pd_band.p90`."""
     kwargs = _base_kwargs()
     bundle = EvidenceBundle(**kwargs)  # type: ignore[arg-type]
+    assert bundle.pd_band is not None
     assert bundle.p90_pd == bundle.pd_band.p90
 
 
@@ -141,6 +145,7 @@ def test_f09_p90_pd_reference_only() -> None:
     kwargs = _base_kwargs()
     bundle = EvidenceBundle(**kwargs)  # type: ignore[arg-type]
     # Direct mutation of pd_band should propagate to p90_pd (computed property)
+    assert bundle.pd_band is not None
     assert bundle.p90_pd == bundle.pd_band.p90
 
 

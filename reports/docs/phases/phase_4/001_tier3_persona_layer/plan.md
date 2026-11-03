@@ -1,6 +1,6 @@
 # Technical Plan — 001 Tier 3 Persona Layer
 
-**Status:** ✅ **APPROVED — 2026-11-02** (execution package approved; Q-1 clarification gate blocking; implementation authorization separate). No implementation is authorized.
+**Status:** ✅ **APPROVED — 2026-11-02**; clarification gate closed 2026-11-03; Stage 0 complete. Stages 1+ not authorized.
 **Inputs:** `spec.md` (requirements T3-FR-01…18), `../implementation_plan.md` §6 (D4-01…D4-09), `../../pre-phase_4_remediation/tier3_contracts.md`, `../../architecture/tier3_persona_architecture.md`.
 **Constraint:** this plan adds no architectural decision beyond those approved. Where a required detail was left open by an approved decision it is completed here and flagged (§7).
 

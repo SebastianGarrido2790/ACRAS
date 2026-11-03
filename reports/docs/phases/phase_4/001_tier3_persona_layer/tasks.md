@@ -1,10 +1,10 @@
 # Tasks — 001 Tier 3 Persona Layer
 
-**Status:** ✅ **APPROVED — 2026-11-02** (execution package approved; Q-1 clarification gate blocking; implementation authorization separate). No task is executable until the owner explicitly authorizes implementation.
+**Status:** ✅ **APPROVED — 2026-11-02**; Stage 0 complete 2026-11-03 (T3-T01). Stages 1+ not authorized. Q-1 clarification gate closed; implementation authorization separate.
 
 Execution order and per-stage hard gates are controlled by `../execution_plan.md`. A task may span a stage boundary only where the execution plan says so; no task starts before its stage's predecessor gate passes.
 
-- [ ] **T3-T01 — Baseline and dependency verification.** Re-run the suite and static checks; record the starting commit; confirm the `tier3` group resolves and stays out of the serving image; verify LangGraph branch-concurrency semantics and the gateway's synchronous call path; confirm the Q-1 disposition. *Stage 0. Satisfies: precondition set (no FR).*
+- [x] **T3-T01 — Baseline and dependency verification.** Re-run the suite and static checks; record the starting commit; confirm the `tier3` group resolves and stays out of the serving image; verify LangGraph branch-concurrency semantics and the gateway's synchronous call path; confirm the Q-1 disposition. *Stage 0. Satisfies: precondition set (no FR).* ✅ Done 2026-11-03 — baseline `a8cbe6c`; 233 passed/5 skipped; ruff+pyright green after owner-approved hygiene fix; `langgraph==1.2.19` dry-run; sync `invoke` fan-out measured concurrent (0.407 s vs 3×0.4 s); Q-1(`b`) frozen. Evidence: `../execution_plan.md` Stage 0 record.
 - [ ] **T3-T02 — Complete the evidence contract.** Add the four optional `EvidenceBundle` fields and `PersonaVerdict.limitations`; keep `v2`. *Stage 1. T3-FR-01/03/04.*
 - [ ] **T3-T03 — Enforce provenance/derivation consistency.** Reject `derived` tags without a defined derivation; require `synthetic_assumptions` for synthetic values; add contract tests. *Stage 1. T3-FR-02.*
 - [ ] **T3-T04 — Repair and populate seed cases.** Resolve SC-01 incoherence and SC-04 role labelling (per approved Q-1/Q-3); populate the four fields with evidenced or tagged-synthetic values; record the mapping table. *Stage 1. T3-FR-01/02.*

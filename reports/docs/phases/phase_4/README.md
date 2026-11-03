@@ -1,6 +1,6 @@
 # ACRAS Phase 4 — Tier 3 Multi-Agent Persona Layer
 
-**Status:** ✅ **APPROVED — 2026-11-02** (execution package approved; Q-1 clarification gate blocking; implementation authorization separate). No implementation authorized.
+**Status:** ✅ **APPROVED — 2026-11-02**; Stage 0 complete 2026-11-03 (baseline verified green, dependency pin and concurrency mechanism recorded). Stages 1–6 not authorized.
 
 Contents:
 

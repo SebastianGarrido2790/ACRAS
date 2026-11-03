@@ -1,7 +1,7 @@
 # ACRAS Phase 4 — Staged Execution Plan
 
 **Phase:** 4 — Tier 3 Multi-Agent Persona Layer
-**Status:** ✅ **APPROVED — 2026-11-02** (execution package approved; Q-1 clarification gate blocking; implementation authorization separate). No stage is authorized to start.
+**Status:** ✅ **Stage 0 complete 2026-11-03** — Gate 0 passed (baseline green after owner-approved hygiene fix); Stages 1–6 not started.
 **Planning baseline:** Phase 3 closed 2026-10-19; pre-Phase-4 remediation Gate R-A items 1–4 closed; Phase 4 decisions D4-01…D4-09 approved/acknowledged 2026-11-02; baseline suite `233 passed, 5 skipped` (2026-11-01).
 **Feature SDD:** `001_tier3_persona_layer/{spec,plan,tasks}.md` — one integrated SDD for P4-01…P4-04 (implementation plan §4).
 
@@ -23,14 +23,14 @@ Each stage has a hard gate. **No work in the next stage begins until the current
 
 All must hold before Stage 0 starts:
 
-- [ ] Phase 4 Implementation Plan approved: Batch 1 (D4-01/D4-04/D4-07) and Batch 2 (D4-02/D4-03/D4-05) approved; Batch 3 (D4-06/D4-08/D4-09) acknowledged 2026-11-02.
-- [ ] Integrated SDD package (`spec.md`, `plan.md`, `tasks.md`) explicitly approved by the owner.
-- [ ] This execution plan explicitly approved.
-- [ ] **Clarification gate closed**, including the **blocking Q-1** (Tier 1 confidence proxy selection criterion — `001_tier3_persona_layer/spec.md` §7) and Q-2/Q-3/Q-4.
-- [ ] Implementation authorization explicitly granted after approval. Plan approval alone does not authorize code.
-- [ ] Gate R-A items 1–4 evidenced; Gate R-B items remain open and are recorded as **non-blocking** for the decoupled Tier 3 build.
-- [ ] Phase 3 closure evidence verified: gateway, breakers, events, and cost/usage semantics are in place; Phase 3 is not reopened.
-- [ ] Workspace operational: Python 3.12, `uv`, Ruff, Pyright, and the current test suite run clean at the recorded baseline.
+- [x] Phase 4 Implementation Plan approved: Batch 1 (D4-01/D4-04/D4-07) and Batch 2 (D4-02/D4-03/D4-05) approved; Batch 3 (D4-06/D4-08/D4-09) approved 2026-11-02.
+- [x] Integrated SDD package (`spec.md`, `plan.md`, `tasks.md`) explicitly approved by the owner.
+- [x] This execution plan explicitly approved.
+- [x] **Clarification gate closed**: Q-1 resolved `b` (fixture repair + SC-05; `a` retained as fallback), Q-2/Q-3/Q-4 resolved — `001_tier3_persona_layer/spec.md` §7.
+- [x] Implementation authorization granted for **Stage 0 only** (2026-11-03). Stages 1+ require separate authorization.
+- [x] Gate R-A items 1–4 evidenced; Gate R-B items remain open and are recorded as **non-blocking** for the decoupled Tier 3 build.
+- [x] Phase 3 closure evidence verified: gateway, breakers, events, and cost/usage semantics are in place; Phase 3 is not reopened.
+- [x] Workspace operational: Python 3.12.10, `uv` 0.8.11; baseline green after the Stage 0 hygiene fix (see Stage 0 record).
 
 If any precondition is unmet, execution does not begin.
 
@@ -111,7 +111,30 @@ The SDD follows `specification → human approval → plan → tasks → impleme
 
 **Falsification.** No artificial fault. Reconcile three concrete claims (fields absent; harness 6 pass; no `tier3` config) against the repository and prove or disprove each. A claim that cannot be reproduced fails the gate.
 
-**Gate 0 — Baseline accepted.** Starting commit, exact test/static-check results, and a clean post-suite status are recorded; approvals and the Q-1 disposition are recorded; the dependency pin and branch-concurrency mechanism are documented; no production code has changed.
+**Stage 0 record — 2026-11-03 (Gate 0 passed).**
+
+| Item | Evidence |
+| --- | --- |
+| Starting commit | `a8cbe6c` on `main`; `origin/main` identical; clean tree; no local-only commits |
+| Suite (pre-fix) | `uv run pytest -q`: 233 passed, 5 skipped, 71 warnings, 125.21 s, exit 0; post-run `git status --porcelain` clean (no R-15 mutation) |
+| Static (pre-fix) | `uv run ruff check .`: 14 errors, exit 1; `uv run pyright`: 2 errors, exit 1 — pre-existing since `c1e9c6a` / `d8be010`, not caused by Phase 4 docs |
+| Hygiene fix | Owner-approved, behavior-neutral: import order, unused import/vars, 8×`E501` wraps, 3×`W293`, 2 Optional guards. Files: `src/schemas/evidence_bundle.py`, `tests/unit/test_evidence_bundle_v2.py`, `tests/unit/test_offline_harness.py`, `tests/unit/test_tier2_sensitivity.py`; diff `+30/−15` (commit pending authorization) |
+| Suite (post-fix) | 233 passed, 5 skipped, 90.97 s, exit 0 |
+| Static (post-fix) | ruff: 0; pyright: 0 errors, 0 warnings |
+| Claim 1 (fields absent) | TRUE — the four names exist only as provenance tag keys (`src/schemas/evidence_bundle.py:210-217`, `:225`); no typed fields, no `limitations` |
+| Claim 2 (harness 6 tests) | TRUE — `pytest --collect-only` returns exactly 6 |
+| Claim 3 (no `tier3` config) | TRUE — no `tier3:` in `params.yaml`; `langgraph` and `pydantic-ai` not installed |
+| Docs state | ADR-016 reserved with no body (`system_design.md:171`, `:254`); duplicate `Data Scientist Agent` / `Financial/Domain Analyst Agent` rows at `:100-101`; Phase 4 row `:31` reads "Not started" |
+| Approvals | D4-01…D4-09 approved; SDD and execution plan approved; Q-1(`b`), Q-2, Q-3, Q-4 resolved (`spec.md` §7); implementation authorization: Stage 0 only (2026-11-03) |
+| Gates | R-A closed; R-B open (R-15 GX mutation, DVC remote provisioning) — non-blocking for the decoupled Tier 3 build |
+| Providers | `gemini-2.5-flash` / `openai/gpt-oss-20b` pinned; cost rates present (A-03, rate dates 2026-10-23 / 2026-10-12); live smoke opt-in (`tests/integration/test_gateway_resilience.py:799`); no credential patterns in tracked files |
+| Dependency | `langgraph==1.2.19` resolves on Python 3.12.10 (dry-run; no lockfile write). It pulls `langgraph-sdk` and `langsmith` (network-capable, inert unless configured; excluded from serving by `uv sync --no-default-groups`). `pydantic-ai` absent |
+| Concurrency | 3 sibling nodes × 0.4 s in a throwaway venv outside the repo: sync `invoke` 0.407 s, async `ainvoke` 0.404 s → concurrent. `ainvoke` + `asyncio.to_thread` **not required**; gateway unchanged |
+| Q-1 pre-registration | Arithmetic table and owner-selected criterion frozen from `spec.md` §7; Stage 2 may not retro-fit a criterion |
+
+**Baseline defect note.** Static checks were red at the starting commit (Wave B/C hygiene debt). The fix is recorded as a Stage 0 item; no behavior, schema, or dependency changed.
+
+**Gate 0 — Baseline accepted.** Starting commit, exact test/static-check results, and a clean post-suite status are recorded; approvals and the Q-1 disposition are recorded; the dependency pin and branch-concurrency mechanism are documented; no production behavior has changed.
 
 ---
 
@@ -298,7 +321,7 @@ The SDD follows `specification → human approval → plan → tasks → impleme
 
 | Stage | Name | Primary deliverable | ADRs | Gate | Status |
 | --- | --- | --- | --- | --- | --- |
-| 0 | Pre-Implementation Verification & Dependency Check | Baseline, dependency pin, concurrency mechanism, Q-1 disposition | None new | Baseline accepted | ⬜ Not started |
+| 0 | Pre-Implementation Verification & Dependency Check | Baseline, dependency pin, concurrency mechanism, Q-1 disposition | None new | Baseline accepted | ✅ Passed 2026-11-03 |
 | 1 | Evidence Contract & Seed-Case Integrity | Typed fields + `limitations`, coherent seed cases | **ADR-016** | Contract complete | ⬜ Not started |
 | 2 | Deterministic Convergence Core | Divergence, both proxies, escalation | None new | Convergence provable | ⬜ Not started |
 | 3 | Persona Workers & Context Isolation | Three isolated workers + prompts | None new | Isolation proven | ⬜ Not started |
@@ -308,11 +331,13 @@ The SDD follows `specification → human approval → plan → tasks → impleme
 
 | Artifact / control | Status |
 | --- | --- |
-| Phase 4 Implementation Plan | 🟡 Batches 1–2 approved; Batch 3 acknowledged 2026-11-02 |
-| Integrated SDD (`001_tier3_persona_layer`) | 🟡 Draft — awaiting approval |
-| This Execution Plan | 🟡 Draft — awaiting approval |
-| Clarification gate (Q-1 blocking) | ⬜ Open |
-| Implementation authorization | ⬜ Not granted |
-| Stages 0–6 | ⬜ Not started |
+| Phase 4 Implementation Plan | ✅ All decisions approved (Batch 1/2/3), 2026-11-02 |
+| Integrated SDD (`001_tier3_persona_layer`) | ✅ Approved 2026-11-02 |
+| This Execution Plan | ✅ Approved 2026-11-02 |
+| Clarification gate (Q-1) | ✅ Closed 2026-11-03 — Q-1(`b`), Q-2, Q-3, Q-4 resolved |
+| Implementation authorization | 🟡 Stage 0 granted 2026-11-03; Stages 1–6 not granted |
+| Stages 0–6 | 🟡 Stage 0 passed; 1–6 not started |
 
-**Approval request.** Approve the SDD package and this execution plan, resolve the clarification gate (Q-1 is blocking), and grant implementation authorization separately. Approval of this plan is not authorization to code, install dependencies, commit, or push.
+**Next gate.** Stage 1 requires explicit implementation authorization after the Stage 0 commit is pushed. Stage 2 selection is bound to the frozen Q-1 criterion in `spec.md` §7.
+
+**Approval status.** Package approved 2026-11-02; clarification gate closed and Stage 0 passed 2026-11-03. Approval of this plan does not authorize Stage 1 or later; each stage's work requires explicit, operation-scoped authorization, and Git writes remain separately authorized.

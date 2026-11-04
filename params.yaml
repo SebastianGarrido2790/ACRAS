@@ -100,6 +100,20 @@ rating_thresholds:
   - rating: "CCC/C"
     max_pd: 1.000     # PD >= 15.0%
 
+# Tier 3 convergence and persona execution bounds (P4-03 / ADR-004 / D4-02/D4-03)
+# PROVISIONAL: Phase 5 calibrates these values. The `calibration` marker keeps
+# that status explicit so no consumer treats them as validated thresholds.
+tier3:
+  divergence_threshold: 0.50
+  tier1_confidence_threshold: 0.30
+  tier1_confidence_proxy: "rating_boundary_margin"
+  band_dispersion_ref: 2.0          # normalizer for proxy A (Q-1)
+  max_tokens_per_persona: 1024
+  max_gateway_calls_per_report: 6   # 3 personas + at most 1 repair each
+  report_timeout_s: 60.0
+  cost_cap_usd_per_report: 0.05
+  calibration: "provisional-phase5"
+
 # LLM Gateway Configuration (ADR-006 / ADR-009 / ADR-034 / D3-01 to D3-04)
 gateway:
   primary:

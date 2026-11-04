@@ -253,7 +253,7 @@ All must hold before Stage 0 starts:
 | --- | --- | --- | --- | --- | --- |
 | 0 | Pre-Implementation Verification & Dependency Check | Baseline, dependency pin, concurrency mechanism, Q-1 disposition | None new | Baseline accepted | ✅ Passed 2026-11-03 |
 | 1 | Evidence Contract & Seed-Case Integrity | Typed fields + `limitations`, coherent seed cases | **ADR-016** | Contract complete | ✅ Passed 2026-11-03 |
-| 2 | Deterministic Convergence Core | Divergence, both proxies, escalation | None new | Convergence provable | ⬜ Not started |
+| 2 | Deterministic Convergence Core | Divergence, both proxies, escalation | None new | Convergence provable | ✅ Complete 2026-11-03 (Stage 2) |
 | 3 | Persona Workers & Context Isolation | Three isolated workers + prompts | None new | Isolation proven | ⬜ Not started |
 | 4 | Orchestration, Report & Trace | Graph, report template, in-memory trace | None new | Orchestration auditable | ⬜ Not started |
 | 5 | Offline Acceptance & Exit-Criteria Verification | Exit-criteria evidence + independent falsification | None new | Exit criteria evidenced | ⬜ Not started |

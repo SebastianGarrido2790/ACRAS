@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from src.config.loader import ProjectParams, SimulationConfig, load_params
+from src.config.loader import ProjectParams, SimulationConfig, Tier3Config, load_params
 
 
 def test_load_params_success() -> None:
@@ -55,6 +55,63 @@ def test_load_params_includes_simulation_config() -> None:
     assert params.simulation.macro_volatility == 0.20
     assert params.simulation.debt_service_shock_std == 0.15
     assert params.simulation.asset_haircut_std == 0.10
+
+
+def test_load_params_includes_tier3_config() -> None:
+    """Verify the Tier 3 convergence block is populated and provisional."""
+    params = load_params("params.yaml")
+
+    assert isinstance(params.tier3, Tier3Config)
+    assert params.tier3.divergence_threshold == 0.50
+    assert params.tier3.tier1_confidence_threshold == 0.30
+    assert params.tier3.tier1_confidence_proxy == "rating_boundary_margin"
+    assert params.tier3.band_dispersion_ref == 2.0
+    assert params.tier3.max_tokens_per_persona == 1024
+    assert params.tier3.max_gateway_calls_per_report == 6
+    assert params.tier3.report_timeout_s == 60.0
+    assert params.tier3.cost_cap_usd_per_report == 0.05
+    assert params.tier3.calibration == "provisional-phase5"
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("divergence_threshold", 1.5),
+        ("divergence_threshold", -0.1),
+        ("tier1_confidence_threshold", 1.5),
+        ("band_dispersion_ref", 0.0),
+        ("max_tokens_per_persona", 0),
+        ("max_gateway_calls_per_report", 0),
+        ("report_timeout_s", 0.0),
+        ("cost_cap_usd_per_report", 0.0),
+        ("tier1_confidence_proxy", "llm_judge"),
+        ("calibration", ""),
+    ],
+)
+def test_tier3_config_rejects_invalid_values(field: str, value: object) -> None:
+    """Verify explicit Tier 3 bounds fail at load time, not at report time."""
+    valid: dict[str, object] = {
+        "divergence_threshold": 0.50,
+        "tier1_confidence_threshold": 0.30,
+        "tier1_confidence_proxy": "rating_boundary_margin",
+        "band_dispersion_ref": 2.0,
+        "max_tokens_per_persona": 1024,
+        "max_gateway_calls_per_report": 6,
+        "report_timeout_s": 60.0,
+        "cost_cap_usd_per_report": 0.05,
+        "calibration": "provisional-phase5",
+    }
+    valid[field] = value
+    with pytest.raises(ValidationError):
+        Tier3Config(**valid)  # type: ignore[arg-type]
+
+
+def test_missing_tier3_block_is_rejected() -> None:
+    """A params file without `tier3` must not silently lose the convergence config."""
+    data = load_params("params.yaml").model_dump()
+    data.pop("tier3")
+    with pytest.raises(ValidationError):
+        ProjectParams.model_validate(data)
 
 
 def test_load_params_invalid_simulation_value(tmp_path: Path) -> None:
@@ -121,6 +178,17 @@ rating_thresholds:
     max_pd: 0.150
   - rating: "CCC/C"
     max_pd: 1.000
+
+tier3:
+  divergence_threshold: 0.50
+  tier1_confidence_threshold: 0.30
+  tier1_confidence_proxy: "rating_boundary_margin"
+  band_dispersion_ref: 2.0
+  max_tokens_per_persona: 1024
+  max_gateway_calls_per_report: 6
+  report_timeout_s: 60.0
+  cost_cap_usd_per_report: 0.05
+  calibration: "provisional-phase5"
 """.strip(),
         encoding="utf-8",
     )

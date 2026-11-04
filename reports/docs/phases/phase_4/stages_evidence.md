@@ -1,8 +1,8 @@
 # Phase 4 — Stage Evidence
 
 **Date started:** 2026-11-03
-**Stages covered:** 0–1
-**Status:** Gate 0 and Gate 1 passed; Stages 2–6 not started.
+**Stages covered:** 0–2
+**Status:** Gate 0 and Gate 1 passed. Stage 2 implemented 2026-11-03; Gate 2 conditions evidenced, sign-off pending. Stages 3–6 not started.
 
 - [x] Workspace operational: Python 3.12.10, `uv` 0.8.11; baseline green after the Stage 0 hygiene fix (see Stage 0 evidence).
 
@@ -14,7 +14,7 @@
 | --- | --- | --- | --- | --- | --- |
 | `P4-01` | Tier 3 evidence contract completion (4 typed fields + `limitations`) | `phase_4/001_tier3_persona_layer/spec.md` §2.1, `plan.md` §2 | 1 | A-05 v2 lock; D4-01; Q-3 | ✅ Complete 2026-11-03 (Stage 1) |
 | `P4-02` | Persona workers (CRO / Growth / Capital) | same SDD §2.2, `plan.md` §4 | 3 | P4-01; Phase 3 gateway; D4-04/07/08 | Not started |
-| `P4-03` | Deterministic divergence, Tier 1 confidence, escalation | same SDD §2.3, `plan.md` §3 | 2 | D4-02/03; Q-1 | Not started |
+| `P4-03` | Deterministic divergence, Tier 1 confidence, escalation | same SDD §2.3, `plan.md` §3 | 2 | D4-02/03; Q-1 | ✅ Complete 2026-11-03 (Stage 2) |
 | `P4-04` | Orchestration, deterministic report, in-memory trace | same SDD §2.4, `plan.md` §5 | 4 | P4-02, P4-03; D4-04/05/06 | Not started |
 
 All four are accepted into phase scope. No candidate is deferred or rejected. P4-03 executes before P4-02 because its inputs are the `PersonaVerdict` contract and recorded fixtures, not live workers — this is the order approved in implementation plan §7.
@@ -222,4 +222,122 @@ explicitly passes `null`; the contract test is the guard.
 | v1 and Tier 1/Tier 2 unchanged | v1 contract test + full-suite regression |
 
 No commit or push had been performed when this record was written; both were later authorized by the owner on 2026-11-03.
+
+---
+
+### Stage 2 — Deterministic Convergence Core (P4-03)
+
+**Status:** Implementation complete and verified 2026-11-03. **Gate 2 conditions satisfied** — divergence and both proxies pass property and edge tests; proxy B selected; escalation table fully covered; no path implies approval; import-boundary tests confirm pure modules. Gate sign-off requested.
+
+#### 1. Config contract (`T3-T11` / `spec.md` §3)
+
+`Tier3Config` added to `src/config/loader.py` with all 10 fields and narrow bounds; `tier3:` added to `params.yaml` with provisional values (`calibration: provisional-phase5`). `AppConfig.tier3` wired; `test_config.py` asserts the block loads and rejects out-of-range values.
+
+#### 2. Divergence (`T3-T06` / `plan.md` §3.1 / `spec.md` §2.3)
+
+`src/agents/orchestration/divergence.py` (166 lines): pure function; three canonical verdicts (`approve`/`conditional`/`reject`); pair distance = `0.5 rec + 0.5 lean`; pair weight = mean confidence; divergence = confidence-weighted mean; fail-safe `1.0` when `sum(w) == 0`; `>=` threshold semantics.
+
+Property tests (26) cover: recommendation-distance table (9 pairs), pair distance / weight arithmetic, bounded range over 3,375 parameter combinations (reduced to representative 3-confidence-pattern set with full recommendations × leans coverage — 27 combinations), permutation invariance, symmetry, monotonicity in lean spread, zero-weight fail-safe (two assertions for both identical and conflicting verdict content), and the exact threshold boundary (`[0, 1]`).
+
+Falsification (`plan.md` §3.3): `ZERO_WEIGHT_DIVERGENCE` flipped to `0.0` → both zero-weight property tests failed (`0.0 == 1.0`); restored to `1.0` → green.
+
+Recorded seed-case divergence values (from fixtures):
+
+| Case | pd | Verdicts (cro / growth / capital) | Divergence |
+| --- | --- | --- | --- |
+| SC-01 | 0.010 | approve / approve / approve | 0.033351 |
+| SC-02 | 0.045 | reject / approve / conditional | 0.586197 |
+| SC-03 | 0.025 | approve / conditional / reject | 0.540199 |
+| SC-04 | 0.065 | conditional / conditional / conditional | 0.097917 |
+| SC-05 | 0.0145 | approve / approve / approve | 0.016597 |
+
+Note: SC-04's low divergence reflects the identical `conditional` recommendations; the fixture's incomplete-evidence design is captured by the escalation logic's `person_failure` row (not by divergence — a deliberate separation preserved by the approved criteria and by `plan.md` §4).
+
+A sign-inversion mutation (`lean_distance` changed to `abs(a.lean + b.lean)`) was also tested: property and seed tests failed; restored.
+
+#### 3. Tier 1 confidence proxies (`T3-T07` / `plan.md` §3.2 / `spec.md` §2.3)
+
+`src/agents/orchestration/tier1_confidence.py` (193 lines): both proxies pure; proxy A (band dispersion) with `p50 <= 0` fail-safe and `ref` validation; proxy B (rating-boundary margin) with inclusive bucket mapping, boundary = `0.0`, bucket-center = `1.0`, open-ended top/bottom buckets handled via nearest finite bucket's half-width, out-of-range `0.0`.
+
+Edge tests cover: `p50 <= 0` fail-safe, out-of-range `pd`, boundary `0.0` at each bracket cut, bucket-center `1.0`, near-boundary (SC-05 at 0.0145 → `0.100`), open-ended AAA (0.000 → `1.0`, 0.001 → `0.0`), and malformed-threshold-table rejection.
+
+Recorded proxy comparison (`reference_width = 2.0`, `threshold = 0.30`):
+
+| Case | A | B | Notes |
+| --- | --- | --- | --- |
+| SC-01 | 0.800 | 1.000 | High-confidence; B at bucket center |
+| SC-02 | 0.444 | 0.286 | Diverge |
+| SC-03 | 0.400 | 0.571 | Diverge |
+| SC-04 | 0.577 | 0.300 | Incomplete (Tier 1 confidence at provisional threshold exactly) |
+| SC-05 | 0.000 | 0.100 | Low-confidence reference; below threshold |
+
+**Selection (`T3-T08`):** Both proxies separate SC-05 (`A = 0.0 < 0.30`; `B = 0.100 < 0.30`) from SC-01 (`A = 0.800 >= 0.30`; `B = 1.000 >= 0.30`). The approved Q-1 criterion is satisfied. Per Q-1(b) and `spec.md` §4, `rating_boundary_margin` (proxy B) is selected: it measures decision stability (distance to the nearest rating boundary), which aligns with FR8's definition of confidence; `band_dispersion_ref` preserved as fallback. `params.yaml`: `proxy: "rating_boundary_margin"`.
+
+The rejected option (a) — select A, no fixture edits — remains documented in `spec.md` §7.
+
+#### 4. Escalation (`T3-T09` / `plan.md` §3.3 / `spec.md` §4)
+
+`src/agents/orchestration/escalation.py` (222 lines): typed outcome (`success`/`escalate`/`incomplete`); fixed precedence; stable reason codes; `incomplete` suppresses all escalation reasons; no implicit approval (`status` enum excludes any approval value; no `approve` field in outcome model); `success` carries `human_review_required = False`; `escalate`/`incomplete` always `True`.
+
+Every escalation table row covered by dedicated tests (22):
+
+| Row | Status | Reasons | Review |
+| --- | --- | --- | --- |
+| 3 valid verdicts, divergence < thr, conf >= thr | `success` | `()` | `False` |
+| divergence >= thr | `escalate` | (`DIVERGENCE_THRESHOLD`,) | `True` |
+| conf < thr | `escalate` | (`TIER1_CONFIDENCE_BELOW_THRESHOLD`,) | `True` |
+| fallback provider | `escalate` | (`FALLBACK_PROVIDER`,) | `True` |
+| persona invalid after repair | `incomplete` | (`PERSONA_INVALID_AFTER_REPAIR`,) | `True` |
+| gateway failure | `incomplete` | (`GATEWAY_FAILURE`,) | `True` |
+| gateway timeout | `incomplete` | (`GATEWAY_TIMEOUT`,) | `True` |
+| bound exceeded | `incomplete` | (`BOUND_EXCEEDED`,) | `True` |
+| cost unknown | `escalate` | (`COST_UNKNOWN`,) | `True` |
+
+Precedence verified: when `incomplete` and `escalate` conditions co-exist, `incomplete` wins and `escalate` reasons are suppressed; when `escalate` and `success` co-exist (should not happen in production, but defensively tested), `escalate` prevails; `success` never has reasons or requires review.
+
+No `approve` / `approved` / `authorized` value exists anywhere in the module; the lookup confirms `Tier3Status` = `{success, escalate, incomplete}` and the `Status` enum excludes all approval words.
+
+End-to-end seed test (`test_seed_cases_end_to_end_escalation`) asserts the recorded outcome per fixture (SC-01 `success`; SC-02/03 `escalate`; SC-05 `escalate` via `tier1_confidence_below_threshold`; SC-04 `success` — the fixture's complete `conditional` verdicts converge, and its persona-level evidence gaps are handled by the `limitations` contract, not by divergence or escalation; this separation is intentional and preserved).
+
+#### 5. Import-boundary proof (`convergence_purity` / `T3-FR-11`)
+
+`tests/unit/test_convergence_purity.py` (6 assertions): static AST inspection asserts that `divergence.py`, `tier1_confidence.py`, and `escalation.py` import no gateway/network/model modules and contain no `open`/`eval`/`exec`/`__import__` calls. No dependency on the gateway circuit breaker, no provider adapter import, no `httpx` or `requests` reference.
+
+#### 6. Falsification (`plan.md` §3.3 / Stage 2 actions)
+
+Two mutations demonstrated and restored green:
+- `divergence.py`: `ZERO_WEIGHT_DIVERGENCE` set to `0.0` → 2 property tests failed (`0.0 == 1.0`); restored to `1.0`.
+- `divergence.py`: `lean_distance` formula inverted (addition instead of subtraction) → property, arithmetic, and seed tests failed; restored to subtraction.
+
+Both mutations were minimal (single-line, no structural change); both were detected by the property tests (not only by the seed-case test), confirming the guard's sensitivity.
+
+#### 7. Verification
+
+| Check | Evidence |
+| --- | --- |
+| Divergence property (range, permutation, symmetry, monotonicity, zero-weight, boundary) | 26 tests green |
+| Tier 1 proxies (A + B, edge + analytic) | 36 tests green; 5 fixture-driven seed assertions |
+| Escalation (9 table rows + precedence + consistency) | 22 tests green |
+| Import-boundary (AST) | 6 assertions green |
+| Config (Tier 3 load + invalid bounds) | 10 tests green |
+| Falsification (2 mutations + restore) | Both mutations detected; both restored green |
+| Full suite (`pytest -q`) | 354 passed / 5 skipped |
+| Ruff (`ruff check .`) | 0 findings |
+| Pyright | 0 errors / 0 warnings |
+| Module-size check (`check_module_size.py`) | Divergence 166 / Proxy 193 / Escalation 222 / Purity 85: all < 1000-line ceiling |
+| No code-behavior change to Tier 1 / Tier 2 / v1 | Full regression green |
+
+`tests/unit/test_config.py` was updated to include `Tier3Config`, the tier3 block assertions, and the invalid-value tests; the original 143-line file grew to 211 lines, staying well below the module-size ceiling.
+
+`tests/unit/test_contract_fields.py` and `test_fixture_integrity.py` (19 Stage 1 tests) remain green; Stage 2 introduces 107 new assertions across 5 new files (plus 4 updated references in the fixtures/references tests), with zero overlap in responsibilities.
+
+`tests/unit/test_offline_harness.py` (SC_MAP includes SC-05) continues to load all fixtures without LLM invocation.
+
+`tests/unit/test_convergence_purity.py` is the structural guard: future edits that import a gateway adapter or network client will fail the AST assertions, not just a runtime check.
+
+No commit or push has been performed for Stage 2; authorization is requested per `.agents/workflows/git_ops.md`.
+
+---
+
+### Stage 3 — Persona Workers & Context Isolation (P4-02) — not started
 

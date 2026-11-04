@@ -7,7 +7,7 @@ without inline magic numbers.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import yaml
 from pydantic import BaseModel, ConfigDict, Field
@@ -85,6 +85,34 @@ class RatingThreshold(BaseModel):
     max_pd: float = Field(ge=0.0, le=1.0)
 
 
+class Tier3Config(BaseModel):
+    """Tier 3 convergence thresholds, persona bounds, and calibration status.
+
+    Governed by:
+        P4-03 / T3-FR-12/13/18 (`spec.md` §3): divergence, Tier 1 confidence,
+        escalation, and per-report execution bounds are configuration values,
+        not inline magic numbers.
+        D4-02/D4-03: the selected proxy and thresholds are provisional until
+        Phase 5 calibration; `calibration` records that status explicitly.
+
+    Bounds are intentionally narrow so a typo cannot silently disable a
+    fail-safe (for example, an out-of-range threshold or non-positive
+    normalizer is rejected at load time).
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    divergence_threshold: float = Field(ge=0.0, le=1.0)
+    tier1_confidence_threshold: float = Field(ge=0.0, le=1.0)
+    tier1_confidence_proxy: Literal["band_dispersion", "rating_boundary_margin"]
+    band_dispersion_ref: float = Field(gt=0.0, le=100.0)
+    max_tokens_per_persona: int = Field(ge=1, le=8192)
+    max_gateway_calls_per_report: int = Field(ge=1, le=10)
+    report_timeout_s: float = Field(gt=0.0, le=300.0)
+    cost_cap_usd_per_report: float = Field(gt=0.0, le=100.0)
+    calibration: str = Field(min_length=1)
+
+
 class AppConfig(BaseModel):
     """Root configuration object loaded from params.yaml."""
 
@@ -99,6 +127,7 @@ class AppConfig(BaseModel):
     promotion_gate: PromotionGateConfig
     simulation: SimulationConfig
     rating_thresholds: list[RatingThreshold]
+    tier3: Tier3Config
     gateway: GatewayConfig | None = None
 
 

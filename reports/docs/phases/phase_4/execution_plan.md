@@ -66,7 +66,7 @@ All must hold before Stage 0 starts:
 
 ---
 
-### Stage 1 — Evidence Contract & Seed-Case Integrity (P4-01)
+### Stage 1 — Evidence Contract & Seed-Case Integrity (P4-01) ✅ **PASSED**
 
 **Goal.** Make the evidence the personas are required to read actually present, typed, and internally consistent, without changing the schema version or any Tier 1/Tier 2 behavior.
 
@@ -86,9 +86,9 @@ All must hold before Stage 0 starts:
 
 **Falsification.** Temporarily set a new field's default to `0.0` (the exact failure D-01 forbids) and confirm the null-preservation test fails; restore and re-run green.
 
-**Gate 1 — Contract complete and seed cases coherent.** All contract tests pass; `None` is preserved; seed cases validate and are internally consistent; ADR-016 is accepted; v1 and Tier 1/Tier 2 behavior are unchanged.
+**Stage 1 evidence** → [stage evidence](stages_evidence.md#stage-1--evidence-contract--seed-case-integrity-p4-01) (contract, mapping table, repairs, falsification, verification). 
 
-**Stage 1 record** → `stage_1_record.md` (contract, mapping table, repairs, falsification, verification). **Gate 1 status:** ✅ passed 2026-11-03 — 252 passed / 5 skipped, ruff and pyright clean, 19 new checks, falsification demonstrated, ADR-016 accepted.
+**Gate 1 — Contract complete and seed cases coherent.** All contract tests pass; `None` is preserved; seed cases validate and are internally consistent; ADR-016 is accepted; v1 and Tier 1/Tier 2 behavior are unchanged.
 
 ---
 

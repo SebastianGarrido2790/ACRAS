@@ -35,7 +35,7 @@ All must hold before Stage 0 starts:
 
 ## 3. Implementation Stages
 
-### Stage 0 — Pre-Implementation Verification & Dependency Check ✅ **PASSED**
+### Stage 0 — Pre-Implementation Verification & Dependency Check ✅ **PASSED 2026-11-02**
 
 **Goal.** Establish the actual repository state, confirm every approval and open question, and prove the plan is executable before any production code changes.
 
@@ -66,7 +66,7 @@ All must hold before Stage 0 starts:
 
 ---
 
-### Stage 1 — Evidence Contract & Seed-Case Integrity (P4-01) ✅ **PASSED**
+### Stage 1 — Evidence Contract & Seed-Case Integrity (P4-01) ✅ **PASSED 2026-11-03**
 
 **Goal.** Make the evidence the personas are required to read actually present, typed, and internally consistent, without changing the schema version or any Tier 1/Tier 2 behavior.
 
@@ -92,7 +92,7 @@ All must hold before Stage 0 starts:
 
 ---
 
-### Stage 2 — Deterministic Convergence Core (P4-03) ✅ **Complete 2026-11-03**
+### Stage 2 — Deterministic Convergence Core (P4-03) ✅ **PASSED 2026-11-03**
 
 **Goal.** Establish divergence, Tier 1 confidence, and escalation as pure, exhaustively tested functions before any live persona call exists.
 
@@ -110,6 +110,8 @@ All must hold before Stage 0 starts:
 **ADR Implements.** None new. Implements ADR-004's mechanism under D4-02/D4-03.
 
 **Falsification.** Flip the zero-weight fail-safe to `0.0` and invert one `lean` sign in the formula; confirm the property tests fail; restore and re-run green.
+
+**Stage 2 evidence** → [stage evidence](stages_evidence.md#stage-2--deterministic-convergence-core-p4-03) (2026-11-03; proxy B selected under the approved Q-1 criterion; 354 passed / 5 skipped; Ruff and Pyright clean; both falsifications detected and restored; Gate 2 sign-off requested).
 
 **Gate 2 — Convergence is deterministic and provable.** Divergence and both proxies pass property and edge tests; the selected proxy and its evidence are recorded under the approved criterion; every escalation row is covered; no path implies approval; the pure modules have no I/O dependency.
 
